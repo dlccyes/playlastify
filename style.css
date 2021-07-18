@@ -1,0 +1,74 @@
+body {
+    font-family: Segoe Print;
+    background-image: linear-gradient(rgba(0, 0, 0, .06), rgba(0, 0, 0, .19)), url("https://i.imgur.com/hAcGmG3.jpg") !important;
+    background-size: 1970px 1080px;
+    background-position: 10% 20%;
+    color: #FFFFFFE6;
+    margin: 5%;
+}
+
+table {
+    text-align: center;   
+}
+
+button {
+    background-color: #1db954;
+    border-radius: 500px;
+    transition-duration: .3s;
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid transparent;
+    padding: 10px;
+}
+button:hover {
+    background-color: #42d275;
+}
+button:active {
+    opacity: 0.8;
+}
+
+input[type=text] {
+    border-radius: 20px;
+    padding: 10px;
+    font-family: segoe print;
+    font-size: 15px;
+}
+
+input[type=checkbox] {
+    scale: 1.5;
+    margin: 1%;
+}
+
+#currentPlaylistDiv {
+}
+
+#PlaylistMeta {
+    /*padding: 10px;*/
+    margin: 1%;
+}
+
+#ArtistDiv {
+
+}
+
+#ArtistGraph {
+    float: left;    
+    width: 672px;
+    padding: 19px;
+    border-radius: 20px;
+    background: #ffffff5c;
+    margin: 1%;
+}
+
+#ArtistListDiv {
+    /*margin-left: 80px;*/
+    /*width: 193px;*/
+    display: inline-block;
+    margin: 1%;
+    background: #ffffff5c;
+    border-radius: 20px;
+    padding: 0px 27px 30px;
+}
