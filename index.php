@@ -55,7 +55,12 @@ $(document).ready(function(){
     $('#current_playback').click(function(){
         play = spott_get('https://api.spotify.com/v1/me/player', token, function(xhr){
             console.log(xhr['item']['name'],'by',xhr['item']['artists'][0]['name']);
-            currentPlaybackhtml = xhr['item']['name']+' by '+xhr['item']['artists'][0]['name'];
+            temp = '';
+            for(var artist of xhr['item']['artists']){
+                temp += artist['name'] + ', ';
+            }
+            temp = temp.slice(0,-2);
+            currentPlaybackhtml = xhr['item']['name']+' - '+temp;
             $('#currentPlaybackDiv').html(currentPlaybackhtml);
       });
     });

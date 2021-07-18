@@ -185,7 +185,9 @@ function get_playlist_details(){
             current_playlist['tracks']['items'] = temp; //replace
             sortedArtistArr = ArtistDistribution(current_playlist['tracks']['items']);
             console.log(current_playlist['tracks']['items']);
-            sortedArtistArr.splice(0,0,['Artist','Number']);
+            sortedArtistArrwTitle = [['Artist','Number']].concat(sortedArtistArr);
+            // console.log(sortedArtistArrwTitle);
+            // sortedArtistArr.splice(0,0,['Artist','Number']);
             image_url = current_playlist['images'][0]['url'];
             playlistDivhtml = '<div id="PlaylistMeta">\
                                     <h1>'+playlist_name+'</h1>\
@@ -200,14 +202,24 @@ function get_playlist_details(){
                                         <h2>top 10 artists</h2>\
                                     </div>\
                                 </div>\
-                                <div id="DurationDiv" class="greycardDiv">\
+                                <div id="OldestDiv" class="greycardDiv">\
                                     <h2>top 10 oldest tracks</h2>\
-                                </div>';
+                                </div>\
+                                <div id="NewestDiv" class="greycardDiv">\
+                                    <h2>top 10 newest tracks</h2>\
+                                </div>\
+                                <div id="SearchDurationDiv" style="a">\
+                                    <input type="text" id="srch_dur_input"></input>\
+                                    <input type="checkbox" id="durExactMatch">exact match</input>\
+                                    <button id="srch_dur">search song</button>\
+                                    <div id="SearchDurationResult" class="greycardDiv" style="display:none;padding-top:20px;">\
+                                    </div>\
+                                </div>'
             $('#currentPlaylistDiv').html(playlistDivhtml);
 
             google.charts.load('current', {'packages':['corechart']});
             google.charts.setOnLoadCallback(function(){
-                var data = google.visualization.arrayToDataTable(sortedArtistArr);
+                var data = google.visualization.arrayToDataTable(sortedArtistArrwTitle);
                 var options = {
                   // title: 'Artist pie chart of '+playlist_name,
                     width: 800,
@@ -222,39 +234,58 @@ function get_playlist_details(){
                         }
                     },
                     // pieSliceBorderColor: 'transparent',
-                    sliceVisibilityThreshold: .0041,
+                    sliceVisibilityThreshold: .0041, //smaller than this → others
                 };
                 var chart = new google.visualization.PieChart(document.getElementById('ArtistPiechart'));
                 chart.draw(data, options);    
             });
 
             // $('#currentPlaylistDiv').append('<div id="ArtistListDiv"></div>');
-            ArtistListhtml = '<table style=""><th>'+sortedArtistArr[0][0]+'</th>\
-                                <th>'+sortedArtistArr[0][1]+'</th>';
-            for(var i=1; i<=10; i++){
-                if(!sortedArtistArr[i]){ //is less than 10 artists
-                    break;
-                }
-                ArtistListhtml += '<tr><td>'+sortedArtistArr[i][0]+'</td>\
-                                    <td>'+sortedArtistArr[i][1]+'</td></tr>'
-            }
-            ArtistListhtml += '</table>'
-            $('#ArtistListDiv').append(ArtistListhtml);
+            // ogsortedArtistArr = sortedArtistArr.slice(1);
+            // console.log(sortedArtistArr);
+            printable(sortedArtistArr, 10, 'ArtistListDiv', 'Artist', 'number of tracks');
+            // ArtistListhtml = '<table style=""><th>'+sortedArtistArr[0][0]+'</th>\
+            //                     <th>'+sortedArtistArr[0][1]+'</th>';
+            // for(var i=1; i<=10; i++){
+            //     if(!sortedArtistArr[i]){ //is less than 10 artists
+            //         break;
+            //     }
+            //     ArtistListhtml += '<tr><td>'+sortedArtistArr[i][0]+'</td>\
+            //                         <td>'+sortedArtistArr[i][1]+'</td></tr>'
+            // }
+            // ArtistListhtml += '</table>'
+            // $('#ArtistListDiv').append(ArtistListhtml);
 
             tracknameartistdateDict = TrackNameArtistDate(current_playlist['tracks']['items']);
             sortedtracknameartistdateArr = sortDict(tracknameartistdateDict);
-            // oldesthtml = '';
-            oldesthtml = '<table style=""><th>track</th>\
-                                <th>days since added</th>';
-            for(var i=0; i<10; i++){
-                if(!sortedtracknameartistdateArr[i]){ //is less than 10 artists
-                    break;
-                }
-                oldesthtml += '<tr><td>'+sortedtracknameartistdateArr[i][0]+'</td>\
-                                    <td>'+sortedtracknameartistdateArr[i][1]+'</td></tr>'
-            }
 
-            $('#DurationDiv').append(oldesthtml);
+            printable(sortedtracknameartistdateArr, 10, 'OldestDiv', 'track', 'days since added');
+
+            sortedtracknameartistdateArr_r = sortedtracknameartistdateArr;
+            sortedtracknameartistdateArr_r.reverse();
+
+            printable(sortedtracknameartistdateArr_r, 10, 'NewestDiv', 'track', 'days since added');
+
+            $('#srch_dur_input').keypress(function(e){
+                if(e.which == 13){
+                    searchSong(sortedtracknameartistdateArr);
+                }
+            });
+            $('#srch_dur').click(function(){
+                searchSong(sortedtracknameartistdateArr);
+            });
+            // oldesthtml = '';
+            // oldesthtml = '<table style=""><th>track</th>\
+            //                     <th>days since added</th>';
+            // for(var i=0; i<10; i++){
+            //     if(!sortedtracknameartistdateArr[i]){ //is less than 10 artists
+            //         break;
+            //     }
+            //     oldesthtml += '<tr><td>'+sortedtracknameartistdateArr[i][0]+'</td>\
+            //                         <td>'+sortedtracknameartistdateArr[i][1]+'</td></tr>'
+            // }
+
+            // $('#DurationDiv').append(oldesthtml);
             
             // console.log(sortedtracknameartistdate);
 
@@ -275,4 +306,41 @@ function DaystoToday(date){ //date in ISO format
     target = new Date(date);
     today = new Date();
     return Math.round((today-target)/86400000) //ms to day
+}
+
+function printable(array, num, targetDiv, title1, title2){ //array structure: [[a,b],[c,d],....]
+    temp = '<table style=""><th>'+title1+'</th>\
+            <th>'+title2+'</th>';
+    for(var i=0; i<num; i++){
+        if(!array[i]){ //is less than num artists
+            break;
+        }
+        temp += '<tr><td>'+array[i][0]+'</td>\
+                <td>'+array[i][1]+'</td></tr>'
+    }
+    // console.log(temp);
+
+    $('#'+targetDiv).append(temp);
+}
+
+function searchSong(sortedtracknameartistdateArr){
+    input = $('#srch_dur_input').val();
+    temp = '<table style=""><th>song</th>\
+                    <th>days since added</th>';
+    matches = 0;
+    for(var item of sortedtracknameartistdateArr){
+        if(item[0].toLowerCase().indexOf(input.toLowerCase()) != -1){
+            matches += 1;
+            temp += '<tr><td>'+item[0]+'</td>\
+                        <td>'+item[1]+'</td></tr>'
+            // console.log(item);
+            // break;
+        }
+    }
+    if(matches == 0){
+        // temp = 'no result';
+        alert('no result');
+    }else{
+        $('#SearchDurationResult').html(temp).show();
+    }
 }
