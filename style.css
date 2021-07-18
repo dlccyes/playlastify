@@ -63,7 +63,7 @@ input[type=checkbox] {
     margin: 1%;
 }
 
-.genericDiv {
+.greycardDiv {
     display: inline-block;
     margin: 1%;
     background: #ffffff5c;
@@ -77,9 +77,9 @@ input[type=checkbox] {
     background: #ffffff5c;
     border-radius: 20px;
     padding: 0px 27px 30px;
-}
+}*/
 
-#DurationDiv {
+/*#DurationDiv {
     display: inline-block;
     margin: 1%;
     background: #ffffff5c;

@@ -196,11 +196,11 @@ function get_playlist_details(){
                                         <h2 style="margin: 0;">Artists pie chart of '+playlist_name+'</h2>\
                                         <div id="ArtistPiechart" style="width: 900px; height: 500px; margin-top: -45px;""></div>\
                                     </div>\
-                                    <div id="ArtistListDiv class="genericDiv">\
+                                    <div id="ArtistListDiv" class="greycardDiv">\
                                         <h2>top 10 artists</h2>\
                                     </div>\
                                 </div>\
-                                <div id="DurationDiv" class="genericDiv">\
+                                <div id="DurationDiv" class="greycardDiv">\
                                     <h2>top 10 oldest tracks</h2>\
                                 </div>';
             $('#currentPlaylistDiv').html(playlistDivhtml);
