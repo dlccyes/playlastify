@@ -91,9 +91,24 @@ function get_all_playlists(){
             });
         }
     }else{
-        console.log('no token');
+        // console.log('no token');
+        alert('please login first');
     }
 
+}
+
+function TrackNameArtistDate(tracks){
+    var tracknameartistdate = {};
+    for(var item of tracks){
+        temp = item['track']['name']+' - ';
+        for(var artist of item['track']['artists']){
+            temp += artist['name'] + ', ';
+        }
+        temp = temp.slice(0,-2); //remove last ', '
+        tracknameartistdate[temp] = DaystoToday(item['added_at']);
+    }
+    console.log(tracknameartistdate);
+    return tracknameartistdate;
 }
 
 function ArtistDistribution(tracks){
@@ -101,7 +116,7 @@ function ArtistDistribution(tracks){
     for(var item of tracks){
         // console.log(item);
         for(var artist of item['track']['artists']){
-            if(!artists[artist['name']]){
+            if(!artists[artist['name']]){ //if artist isn't added before
                 artists[artist['name']] = 0;
             }
             artists[artist['name']] += 1;
@@ -169,6 +184,7 @@ function get_playlist_details(){
             }
             current_playlist['tracks']['items'] = temp; //replace
             sortedArtistArr = ArtistDistribution(current_playlist['tracks']['items']);
+            console.log(current_playlist['tracks']['items']);
             sortedArtistArr.splice(0,0,['Artist','Number']);
             image_url = current_playlist['images'][0]['url'];
             playlistDivhtml = '<div id="PlaylistMeta">\
@@ -180,9 +196,12 @@ function get_playlist_details(){
                                         <h2 style="margin: 0;">Artists pie chart of '+playlist_name+'</h2>\
                                         <div id="ArtistPiechart" style="width: 900px; height: 500px; margin-top: -45px;""></div>\
                                     </div>\
-                                    <div id="ArtistListDiv">\
+                                    <div id="ArtistListDiv class="genericDiv">\
                                         <h2>top 10 artists</h2>\
                                     </div>\
+                                </div>\
+                                <div id="DurationDiv" class="genericDiv">\
+                                    <h2>top 10 oldest tracks</h2>\
                                 </div>';
             $('#currentPlaylistDiv').html(playlistDivhtml);
 
@@ -222,6 +241,23 @@ function get_playlist_details(){
             ArtistListhtml += '</table>'
             $('#ArtistListDiv').append(ArtistListhtml);
 
+            tracknameartistdateDict = TrackNameArtistDate(current_playlist['tracks']['items']);
+            sortedtracknameartistdateArr = sortDict(tracknameartistdateDict);
+            // oldesthtml = '';
+            oldesthtml = '<table style=""><th>track</th>\
+                                <th>days since added</th>';
+            for(var i=0; i<10; i++){
+                if(!sortedtracknameartistdateArr[i]){ //is less than 10 artists
+                    break;
+                }
+                oldesthtml += '<tr><td>'+sortedtracknameartistdateArr[i][0]+'</td>\
+                                    <td>'+sortedtracknameartistdateArr[i][1]+'</td></tr>'
+            }
+
+            $('#DurationDiv').append(oldesthtml);
+            
+            // console.log(sortedtracknameartistdate);
+
         }else{
             alert('no result');
             console.log('failure');
@@ -230,6 +266,13 @@ function get_playlist_details(){
         // // `329i010xBb8kqife9WYVu7`
 
     }else{
-        console.log('no token');
+        alert('please login first');
+        // console.log('no token');
     }
+}
+
+function DaystoToday(date){ //date in ISO format
+    target = new Date(date);
+    today = new Date();
+    return Math.round((today-target)/86400000) //ms to day
 }

@@ -63,12 +63,26 @@ input[type=checkbox] {
     margin: 1%;
 }
 
-#ArtistListDiv {
-    /*margin-left: 80px;*/
-    /*width: 193px;*/
+.genericDiv {
     display: inline-block;
     margin: 1%;
     background: #ffffff5c;
     border-radius: 20px;
     padding: 0px 27px 30px;
 }
+
+/*#ArtistListDiv {
+    display: inline-block;
+    margin: 1%;
+    background: #ffffff5c;
+    border-radius: 20px;
+    padding: 0px 27px 30px;
+}
+
+#DurationDiv {
+    display: inline-block;
+    margin: 1%;
+    background: #ffffff5c;
+    border-radius: 20px;
+    padding: 0px 27px 30px;
+}*/
