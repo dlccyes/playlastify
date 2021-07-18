@@ -1,5 +1,5 @@
 # playlistifie
 
-simple webapp for some spotify playlist stats with Spotify WebAPI, hosted on Heroku  
+simple webapp for some Spotify playlist stats using Spotify WebAPI, hosted on Heroku
 
 https://playlistifie.herokuapp.com
