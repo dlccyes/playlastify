@@ -27,7 +27,8 @@
 
 
 <script>
-console.disableYellowBox = true;
+
+var token = null;
 
 var scopes = 'user-read-private user-read-email';
 
