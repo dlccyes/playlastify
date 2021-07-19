@@ -22,6 +22,7 @@ button {
     cursor: pointer;
     border: 1px solid transparent;
     padding: 10px;
+    margin: 1%;
 }
 button:hover {
     background-color: #42d275;
@@ -69,6 +70,7 @@ input[type=checkbox] {
     background: #ffffff5c;
     border-radius: 20px;
     padding: 0px 27px 30px;
+    margin-bottom: 4%;
 }
 
 /*#ArtistListDiv {

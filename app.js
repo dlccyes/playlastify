@@ -4,7 +4,7 @@ function login(){
     url += "&response_type=code";
     url += "&redirect_uri=" + encodeURI(redirect_uri);
     url += "&show_dialog=true";
-    url += "&scope=user-read-playback-state playlist-read-private"
+    url += "&scope="+scopes;
     location.href = url;
 }
 // })
@@ -72,29 +72,22 @@ function spott_get_sync(url, token, callback){ //sync version
 function get_all_playlists(){
     if(token){
         var continuue = true;
-        // if(playlists.length != 0){ //alreadt executed
-        //     continuue = false;
-        // }
-        var next_url = 'https://api.spotify.com/v1/me/playlists?limit=50';
-        while(continuue){
-            spott_get_sync(next_url, token, function(xhr){
-                // console.log(xhr['items']);
-                playlists = playlists.concat(xhr['items']);
-                // for(var i in xhr['items']){
-                //     playlists.push(xhr['items'][i]);
-                // }
-                if(xhr['next']){
-                    next_url = xhr['next'];
-                }else{
-                    continuue = false;
-                }
-            });
-        }
+
+        playlists = iterateAll('https://api.spotify.com/v1/me/playlists?limit=50');
+
     }else{
         // console.log('no token');
         alert('please login first');
     }
 
+}
+
+function get_all_liked_songs(){
+    if(token){
+        savedTracks = iterateAll('"https://api.spotify.com/v1/me/tracks?limit=50');
+    }else{
+        alert('please login first');
+    }
 }
 
 function TrackNameArtistDate(tracks){
@@ -138,61 +131,64 @@ function sortDict(ogDict) {
     return sortedArr;
 }
 
-function get_playlist_details(){
+function get_playlist_details(use_liked_song=false){
     if(token){
-        get_all_playlists();
-        name = $('#playlist_input').val();
-        var playlist_id = '';
-        var playlist_name = '';
-        if($("#playlistExactMatch").prop("checked")==true){ //need exact match
-            for(var i=0; i<playlists.length; i++) {
-                if(playlists[i]['name'] == name){ //ignore case and search
-                    playlist_id = playlists[i]['id'];
-                    playlist_name = playlists[i]['name'];
-                }
-            }        
+        if(use_liked_song){
+            var playlist_name = 'Liked Songs';
         }else{
-            for(var i=0; i<playlists.length; i++){ //no need exact match
-                if(playlists[i]['name'].toLowerCase().indexOf(name.toLowerCase()) != -1){ //ignore case and search
-                    playlist_id = playlists[i]['id'];
-                    playlist_name = playlists[i]['name'];
-                }
-            }
-        }
-        var current_playlist;
-        if(playlist_id != ''){
-            spott_get_sync('https://api.spotify.com/v1/playlists/'+playlist_id, token, function(xhr){
-                current_playlist = xhr;
-            });
-            var continuue = true
-            var next_url = 'https://api.spotify.com/v1/playlists/'+playlist_id+'/tracks?limit=100';
-            var temp = [];
-            i=0;
-            while(continuue){
-                spott_get_sync(next_url, token, function(xhr){
-                    temp = temp.concat(xhr['items']);
-                    if(xhr['next']){
-                        next_url = xhr['next'];
-                    }else{
-                        continuue = false;
+            get_all_playlists();
+            name = $('#playlist_input').val();
+            var playlist_id = '';
+            var playlist_name = '';
+            if($("#playlistExactMatch").prop("checked")==true){ //need exact match
+                for(var i=0; i<playlists.length; i++) {
+                    if(playlists[i]['name'] == name){ //ignore case and search
+                        playlist_id = playlists[i]['id'];
+                        playlist_name = playlists[i]['name'];
                     }
-                });
-                i++
-                if(i>=5){
-                    break;
+                }        
+            }else{
+                for(var i=0; i<playlists.length; i++){ //no need exact match
+                    if(playlists[i]['name'].toLowerCase().indexOf(name.toLowerCase()) != -1){ //ignore case and search
+                        playlist_id = playlists[i]['id'];
+                        playlist_name = playlists[i]['name'];
+                    }
                 }
             }
-            current_playlist['tracks']['items'] = temp; //replace
-            sortedArtistArr = ArtistDistribution(current_playlist['tracks']['items']);
-            console.log(current_playlist['tracks']['items']);
+            var current_playlist;
+        }
+        if(playlist_id != ''){
+            if(use_liked_song){
+                next_url = 'https://api.spotify.com/v1/me/tracks?limit=50';
+                // spott_get_sync(next_url, token, function(xhr){
+                //     console.log('saved',xhr);
+                //     // temp = temp.concat(xhr['items']);
+                //     // if(xhr['next']){
+                //     //     next_url = xhr['next'];
+                //     // }else{
+                //     //     continuue = false;
+                //     // }
+                // });
+                liked_songs = iterateAll('https://api.spotify.com/v1/me/tracks?limit=50');
+                all_tracks = liked_songs;
+                console.log('saved',liked_songs);
+            }else{
+                spott_get_sync('https://api.spotify.com/v1/playlists/'+playlist_id, token, function(xhr){
+                    current_playlist = xhr;
+                });
+
+                current_playlist['tracks']['items'] = iterateAll('https://api.spotify.com/v1/playlists/'+playlist_id+'/tracks?limit=100'); //replace
+                // console.log(current_playlist['tracks']['items']);
+                all_tracks = current_playlist['tracks']['items'];
+            }
+            sortedArtistArr = ArtistDistribution(all_tracks);
             sortedArtistArrwTitle = [['Artist','Number']].concat(sortedArtistArr);
             // console.log(sortedArtistArrwTitle);
             // sortedArtistArr.splice(0,0,['Artist','Number']);
-            image_url = current_playlist['images'][0]['url'];
             playlistDivhtml = '<div id="PlaylistMeta">\
                                     <h1>'+playlist_name+'</h1>\
-                                    <img src="'+image_url+'" width="200px" style="height: 350px;border-radius: 20px;width: auto;">\
                                 </div>\
+                                <div id="NumDiv" class="greycardDiv" style="padding: 10px 20px;">'+all_tracks.length+' songs</div>\
                                 <div id="ArtistDiv">\
                                     <div id="ArtistGraph" style="float: left;">\
                                         <h2 style="margin: 0;">Artists pie chart of '+playlist_name+'</h2>\
@@ -201,21 +197,25 @@ function get_playlist_details(){
                                     <div id="ArtistListDiv" class="greycardDiv">\
                                         <h2>top 10 artists</h2>\
                                     </div>\
-                                </div>\
+                                </div><br>\
                                 <div id="OldestDiv" class="greycardDiv">\
                                     <h2>top 10 oldest tracks</h2>\
                                 </div>\
                                 <div id="NewestDiv" class="greycardDiv">\
                                     <h2>top 10 newest tracks</h2>\
-                                </div>\
-                                <div id="SearchDurationDiv" style="a">\
+                                </div><br>\
+                                <div id="SearchDurationDiv" style="margin:1%;">\
                                     <input type="text" id="srch_dur_input"></input>\
-                                    <input type="checkbox" id="durExactMatch">exact match</input>\
-                                    <button id="srch_dur">search song</button>\
+                                    <input type="checkbox" id="WholeExactMatch">whole word and match case</input>\
+                                    <button id="srch_dur">search song</button><br>\
                                     <div id="SearchDurationResult" class="greycardDiv" style="display:none;padding-top:20px;">\
                                     </div>\
                                 </div>'
             $('#currentPlaylistDiv').html(playlistDivhtml);
+            if(!use_liked_song){ //add image
+                image_url = current_playlist['images'][0]['url'];
+                $('#PlaylistMeta').append('<img src="'+image_url+'" width="200px" style="height: 350px;border-radius: 20px;width: auto;">');
+            }
 
             google.charts.load('current', {'packages':['corechart']});
             google.charts.setOnLoadCallback(function(){
@@ -240,23 +240,11 @@ function get_playlist_details(){
                 chart.draw(data, options);    
             });
 
-            // $('#currentPlaylistDiv').append('<div id="ArtistListDiv"></div>');
-            // ogsortedArtistArr = sortedArtistArr.slice(1);
-            // console.log(sortedArtistArr);
-            printable(sortedArtistArr, 10, 'ArtistListDiv', 'Artist', 'number of tracks');
-            // ArtistListhtml = '<table style=""><th>'+sortedArtistArr[0][0]+'</th>\
-            //                     <th>'+sortedArtistArr[0][1]+'</th>';
-            // for(var i=1; i<=10; i++){
-            //     if(!sortedArtistArr[i]){ //is less than 10 artists
-            //         break;
-            //     }
-            //     ArtistListhtml += '<tr><td>'+sortedArtistArr[i][0]+'</td>\
-            //                         <td>'+sortedArtistArr[i][1]+'</td></tr>'
-            // }
-            // ArtistListhtml += '</table>'
-            // $('#ArtistListDiv').append(ArtistListhtml);
 
-            tracknameartistdateDict = TrackNameArtistDate(current_playlist['tracks']['items']);
+            printable(sortedArtistArr, 10, 'ArtistListDiv', 'Artist', 'number of tracks');
+
+
+            tracknameartistdateDict = TrackNameArtistDate(all_tracks);
             sortedtracknameartistdateArr = sortDict(tracknameartistdateDict);
 
             printable(sortedtracknameartistdateArr, 10, 'OldestDiv', 'track', 'days since added');
@@ -274,20 +262,6 @@ function get_playlist_details(){
             $('#srch_dur').click(function(){
                 searchSong(sortedtracknameartistdateArr);
             });
-            // oldesthtml = '';
-            // oldesthtml = '<table style=""><th>track</th>\
-            //                     <th>days since added</th>';
-            // for(var i=0; i<10; i++){
-            //     if(!sortedtracknameartistdateArr[i]){ //is less than 10 artists
-            //         break;
-            //     }
-            //     oldesthtml += '<tr><td>'+sortedtracknameartistdateArr[i][0]+'</td>\
-            //                         <td>'+sortedtracknameartistdateArr[i][1]+'</td></tr>'
-            // }
-
-            // $('#DurationDiv').append(oldesthtml);
-            
-            // console.log(sortedtracknameartistdate);
 
         }else{
             alert('no result');
@@ -311,6 +285,7 @@ function DaystoToday(date){ //date in ISO format
 function printable(array, num, targetDiv, title1, title2){ //array structure: [[a,b],[c,d],....]
     temp = '<table style=""><th>'+title1+'</th>\
             <th>'+title2+'</th>';
+
     for(var i=0; i<num; i++){
         if(!array[i]){ //is less than num artists
             break;
@@ -326,21 +301,51 @@ function printable(array, num, targetDiv, title1, title2){ //array structure: [[
 function searchSong(sortedtracknameartistdateArr){
     input = $('#srch_dur_input').val();
     temp = '<table style=""><th>song</th>\
-                    <th>days since added</th>';
+            <th>days since added</th>';
     matches = 0;
-    for(var item of sortedtracknameartistdateArr){
-        if(item[0].toLowerCase().indexOf(input.toLowerCase()) != -1){
-            matches += 1;
-            temp += '<tr><td>'+item[0]+'</td>\
-                        <td>'+item[1]+'</td></tr>'
-            // console.log(item);
-            // break;
+    const regex = new RegExp("\\b"+input+"\\b");
+    // console.log(regex.text());
+    if($('#WholeExactMatch').prop("checked")==true){
+        for(var item of sortedtracknameartistdateArr){
+            if(regex.test(item[0])){
+                matches += 1;
+                temp += '<tr><td>'+item[0]+'</td>\
+                            <td>'+item[1]+'</td></tr>';
+            }
+        }
+    }else{
+        for(var item of sortedtracknameartistdateArr){
+            if(item[0].toLowerCase().indexOf(input.toLowerCase()) != -1){
+                matches += 1;
+                temp += '<tr><td>'+item[0]+'</td>\
+                            <td>'+item[1]+'</td></tr>';
+                // console.log(item);
+                // break;
+            }
         }
     }
+
     if(matches == 0){
         // temp = 'no result';
         alert('no result');
     }else{
+        temp = '<span style="color:#ffd8d2;">'+matches+' resultes</span><br>'+temp;
         $('#SearchDurationResult').html(temp).show();
     }
+}
+
+function iterateAll(next_url){
+    var temp = []
+    var continuue = true;
+    while(continuue){
+        spott_get_sync(next_url, token, function(xhr){
+            temp = temp.concat(xhr['items']);
+            if(xhr['next']){
+                next_url = xhr['next'];
+            }else{
+                continuue = false;
+            }
+        });
+    }
+    return temp;
 }
