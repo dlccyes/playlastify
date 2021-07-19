@@ -32,7 +32,8 @@
 
 var token = null;
 
-var scopes = 'user-read-private user-read-email user-library-read user-read-currently-playing user-read-playback-state';
+var scopes = 'user-read-private user-read-email user-library-read user-read-currently-playing\
+                user-read-playback-state playlist-read-private';
 
 var url = String(window.location);
 if(url.search(/=/)!=-1){

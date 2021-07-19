@@ -55,6 +55,7 @@ function spott_get(url, token, callback, async=true){
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
+                alert('please login');
                 console.log('error ' + textStatus);
                 console.log(jqXHR);
             },
@@ -71,9 +72,9 @@ function spott_get_sync(url, token, callback){ //sync version
 
 function get_all_playlists(){
     if(token){
-        var continuue = true;
-
-        playlists = iterateAll('https://api.spotify.com/v1/me/playlists?limit=50');
+        // var continuue = true;
+        temp = iterateAll('https://api.spotify.com/v1/me/playlists?limit=50');
+        return temp;
 
     }else{
         // console.log('no token');
@@ -136,7 +137,7 @@ function get_playlist_details(use_liked_song=false){
         if(use_liked_song){
             var playlist_name = 'Liked Songs';
         }else{
-            get_all_playlists();
+            var playlists = get_all_playlists();
             name = $('#playlist_input').val();
             var playlist_id = '';
             var playlist_name = '';
@@ -329,7 +330,7 @@ function searchSong(sortedtracknameartistdateArr){
         // temp = 'no result';
         alert('no result');
     }else{
-        temp = '<span style="color:#ffd8d2;">'+matches+' resultes</span><br>'+temp;
+        temp = '<span style="color:#ffd8d2;">'+matches+' results</span><br>'+temp;
         $('#SearchDurationResult').html(temp).show();
     }
 }
