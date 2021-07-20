@@ -12,18 +12,38 @@
 <body>
 
 <button id='login' style='margin: 0%;'>login to spotify</button>
-<button id='current_playback'>show current playback</button>
+<br>
+<button id='current_playback' style='margin-left: 0%;'>show current playback</button>
+<br>
+<div id='currentPlaybackDiv' class="smol greycardDiv" style="display: none; margin-bottom: 3%;"></div>
+<br>
+<div>
+    <p class="nice-tag">OPTIONAL</p>
+    <p style="display: inline;">type your last.fm username to get play count data</p>
+    <br>
+    <div class="input_area">
+        <input type="text" id="lastfm_username_input"></input>
+        <select id="lastfm_period">
+            <option value="7day">7 day</option>
+            <option value="1month">1 month</option>
+            <option value="3month">3 month</option>
+            <option value="6month">6 month</option>
+            <option value="12month">12 month</option>
+            <option value="overakk">overall</option>
+        </select>
+        <button id='lastfm_gettoptracks'>load last.fm data</button>
+    </div>
+</div>
 <br>
 <!-- <button id='show_all_playlists'>show all playlists</button> -->
-<br>
-<div id='currentPlaybackDiv'></div>
-<br>
-<p>search playlist</p>
-<input type="text" id="playlist_input"></input>
-<input type="checkbox" id="playlistExactMatch">exact match</input>
-<button id='get_playlist'>show playlist detail</button>
-<br>
-<button id='get_liked_song'>show liked songs</button>
+<p class="nice-tag">search playlist</p><br>
+<div class="input_area">
+    <input type="text" id="playlist_input"></input>
+    <input type="checkbox" id="playlistExactMatch">exact match</input>
+    <button id='get_playlist'>show playlist detail</button>
+    <br>
+    <button id='get_liked_song'>show liked songs</button>
+</div>
 <br>
 <div id='currentPlaylistDiv'></div>
 
@@ -44,6 +64,9 @@ if(code){
 }
 // var playlists = [];
 
+var lastfm_toptracks = [];
+var lastfm_tracknameartistcount = {};
+
 $(document).ready(function(){
     $('#login').click(function(){
         login();
@@ -55,6 +78,21 @@ $(document).ready(function(){
         }
     });
 
+    EnterExec('#lastfm_username_input', function(){
+        $('#lastfm_gettoptracks').html('loading');
+        lastfm_fetch();
+        $('#lastfm_gettoptracks').html('load last.fm data'); 
+    });
+
+    $('#lastfm_gettoptracks').click(function(){
+        $('#lastfm_gettoptracks').html('loading');
+        lastfm_fetch();
+        $('#lastfm_gettoptracks').html('load last.fm data');
+    });
+
+
+
+
     $('#current_playback').click(function(){
         play = spott_get('https://api.spotify.com/v1/me/player', token, function(xhr){
             console.log(xhr['item']['name'],'by', xhr['item']['artists'][0]['name']);
@@ -64,17 +102,24 @@ $(document).ready(function(){
             }
             temp = temp.slice(0,-2);
             currentPlaybackhtml = xhr['item']['name']+' - '+temp;
-            $('#currentPlaybackDiv').html(currentPlaybackhtml);
+            $('#currentPlaybackDiv').html(currentPlaybackhtml).show();
       });
     });
 
-    $('#playlist_input').keypress(function(e){
-        if(e.which == 13){
-            $('#get_playlist').html('loading');
-            get_playlist_details();
-            $('#get_playlist').html('show playlist detail');
-        }
+
+    EnterExec('#playlist_input', function(){
+        $('#get_playlist').html('loading');
+        get_playlist_details();
+        $('#get_playlist').html('show playlist detail');
     });
+
+    // $('#playlist_input').keypress(function(e){
+    //     if(e.which == 13){
+    //         $('#get_playlist').html('loading');
+    //         get_playlist_details();
+    //         $('#get_playlist').html('show playlist detail');
+    //     }
+    // });
 
     $('#get_playlist').click(function(){
         $('#get_playlist').html('loading');

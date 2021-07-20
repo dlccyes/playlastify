@@ -189,7 +189,9 @@ function get_playlist_details(use_liked_song=false){
             playlistDivhtml = '<div id="PlaylistMeta">\
                                     <h1>'+playlist_name+'</h1>\
                                 </div>\
-                                <div id="NumDiv" class="greycardDiv" style="padding: 10px 20px;">'+all_tracks.length+' songs</div>\
+                                <div id="NumDiv" class="smol greycardDiv">\
+                                    '+all_tracks.length+' songs\
+                                </div>\
                                 <div id="ArtistDiv">\
                                     <div id="ArtistGraph" style="float: left;">\
                                         <h2 style="margin: 0;">Artists pie chart of '+playlist_name+'</h2>\
@@ -242,24 +244,46 @@ function get_playlist_details(use_liked_song=false){
             });
 
 
-            printable(sortedArtistArr, 10, 'ArtistListDiv', 'Artist', 'number of tracks');
+            printable2(sortedArtistArr, 10, 'ArtistListDiv', 'Artist', 'number of tracks');
 
 
             tracknameartistdateDict = TrackNameArtistDate(all_tracks);
             sortedtracknameartistdateArr = sortDict(tracknameartistdateDict);
+            if(Object.keys(lastfm_tracknameartistcount).length != 0){ //last.fm
+                for(var item of sortedtracknameartistdateArr){
+                    stuff = item[0].split(' - ');
+                    title = stuff[0]+' - '+stuff[1].split(', ')[0];
+                    console.log(title);
+                    if(lastfm_tracknameartistcount[title.toLowerCase()]){ //'song_title - 1st_artist'
+                        item.push(lastfm_tracknameartistcount[title.toLowerCase()]);
+                    }else{ //no play record
+                        item.push('0');
+                    }
+                }
+            }
+            console.log(sortedtracknameartistdateArr);
 
-            printable(sortedtracknameartistdateArr, 10, 'OldestDiv', 'track', 'days since added');
+            if(Object.keys(lastfm_tracknameartistcount).length != 0){
+                plays = 'plays';                
+            }else{
+                plays = null;
+            }
+            printable4(sortedtracknameartistdateArr, 10, 'OldestDiv', 'title', 'artist', 'days since added', plays);
 
             sortedtracknameartistdateArr_r = sortedtracknameartistdateArr;
             sortedtracknameartistdateArr_r.reverse();
 
-            printable(sortedtracknameartistdateArr_r, 10, 'NewestDiv', 'track', 'days since added');
+            printable4(sortedtracknameartistdateArr_r, 10, 'NewestDiv', 'title', 'artist', 'days since added', plays);
 
-            $('#srch_dur_input').keypress(function(e){
-                if(e.which == 13){
-                    searchSong(sortedtracknameartistdateArr);
-                }
+            EnterExec('#srch_dur_input', function(){
+                searchSong(sortedtracknameartistdateArr);
             });
+            // $('#srch_dur_input').keypress(function(e){
+            //     if(e.which == 13){
+            //         searchSong(sortedtracknameartistdateArr);
+            //     }
+            // });
+
             $('#srch_dur').click(function(){
                 searchSong(sortedtracknameartistdateArr);
             });
@@ -277,22 +301,109 @@ function get_playlist_details(use_liked_song=false){
     }
 }
 
+function lastfm_fetch(){
+    username = $('#lastfm_username_input').val();
+    period = $('#lastfm_period').val();
+    var continuue = true;
+    var page = 1;
+    // var failure = false;
+    // console.log(period);
+    // continuue = false;
+    while(continuue){
+        var result;
+        url = 'https://ws.audioscrobbler.com/2.0/?method=user.gettoptracks\
+                &user='+username+'\
+                &period='+period+'\
+                &page='+page+'\
+                &api_key=df7b292e433f23776b084ff739c37918&format=json'
+        $.ajax({
+            async: false,
+            url : url,
+            dataType : 'json',
+            type : 'GET',
+            success: function(xhr) {
+                result = xhr;
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                // alert('failed');
+                continuue = false;
+                // failure = true;
+                console.log('error ' + textStatus);
+                console.log(jqXHR);
+            },
+            timeout: 5000
+        });
+        if(result){
+            if(result['toptracks']['@attr']['page']==result['toptracks']['@attr']['totalPages']){ //final page
+                continuue = false;
+            }
+            page += 1;
+            lastfm_toptracks = lastfm_toptracks.concat(result['toptracks']['track']);
+        }else{
+            break;
+        }
+
+    }
+    if(result){
+        console.log(lastfm_toptracks);
+        for(var track of lastfm_toptracks){
+            title = track['name']+' - '+track['artist']['name'];
+            lastfm_tracknameartistcount[title.toLowerCase()] = track['playcount']; //{'Freesol - Seven Lions' : 20}
+        }
+        console.log(lastfm_tracknameartistcount);
+    }else{
+        alert('Failed. Check your username.');
+    }
+}
+
 function DaystoToday(date){ //date in ISO format
     target = new Date(date);
     today = new Date();
     return Math.round((today-target)/86400000) //ms to day
 }
 
-function printable(array, num, targetDiv, title1, title2){ //array structure: [[a,b],[c,d],....]
+function printable2(array, num, targetDiv, title1, title2, title3=null){ //array structure: [[a,b],[c,d],....]
     temp = '<table style=""><th>'+title1+'</th>\
             <th>'+title2+'</th>';
+    if(title3){
+        temp += '<th>'+title3+'</th>';
+    }
 
     for(var i=0; i<num; i++){
         if(!array[i]){ //is less than num artists
             break;
         }
         temp += '<tr><td>'+array[i][0]+'</td>\
-                <td>'+array[i][1]+'</td></tr>'
+                <td>'+array[i][1]+'</td>'
+        if(title3){
+            temp += '<td>'+array[i][2]+'</td>';
+        }
+        temp += '</tr>';
+    }
+    // console.log(temp);
+
+    $('#'+targetDiv).append(temp);
+}
+
+function printable4(array, num, targetDiv, title1, title2, title3, title4){ //array structure: [[a,b],[c,d],....]
+    temp = '<table style=""><th>'+title1+'</th>\
+            <th>'+title2+'</th>\
+            <th>'+title3+'</th>';
+    if(title4){
+            temp += '<th>'+title4+'</th>';
+    }
+
+    for(var i=0; i<num; i++){
+        if(!array[i]){ //is less than num artists
+            break;
+        }
+        temp += '<tr><td>'+array[i][0].split(' - ')[0]+'</td>\
+                <td>'+array[i][0].split(' - ')[1]+'</td>\
+                <td>'+array[i][1]+'</td>';
+        if(title4){
+            temp += '<td>'+array[i][2]+'</td>';
+        }
+        temp += '</tr>';
     }
     // console.log(temp);
 
@@ -301,27 +412,39 @@ function printable(array, num, targetDiv, title1, title2){ //array structure: [[
 
 function searchSong(sortedtracknameartistdateArr){
     input = $('#srch_dur_input').val();
-    temp = '<table style=""><th>song</th>\
+    temp = '<table style=""><th>title</th>\
+            <th>artist</th>\
             <th>days since added</th>';
+    if(sortedtracknameartistdateArr[0][2]){
+        temp += '<th>plays</th>';
+    }
     matches = 0;
     const regex = new RegExp("\\b"+input+"\\b");
     // console.log(regex.text());
-    if($('#WholeExactMatch').prop("checked")==true){
+    if($('#WholeExactMatch').prop("checked")==true){ //whole word and match case
         for(var item of sortedtracknameartistdateArr){
             if(regex.test(item[0])){
                 matches += 1;
-                temp += '<tr><td>'+item[0]+'</td>\
-                            <td>'+item[1]+'</td></tr>';
+                temp += '<tr><td>'+item[0].split(' - ')[0]+'</td>\
+                            <td>'+item[0].split(' - ')[1]+'</td>\
+                            <td>'+item[1]+'</td>';
+                if(item[2] || item[2]==0){
+                    temp += '<td>'+item[2]+'</td>';
+                }
+                temp += '</tr>';
             }
         }
     }else{
         for(var item of sortedtracknameartistdateArr){
             if(item[0].toLowerCase().indexOf(input.toLowerCase()) != -1){
                 matches += 1;
-                temp += '<tr><td>'+item[0]+'</td>\
-                            <td>'+item[1]+'</td></tr>';
-                // console.log(item);
-                // break;
+                temp += '<tr><td>'+item[0].split(' - ')[0]+'</td>\
+                            <td>'+item[0].split(' - ')[1]+'</td>\
+                            <td>'+item[1]+'</td>';
+                if(item[2]){
+                    temp += '<td>'+item[2]+'</td>';
+                }
+                temp += '</tr>';
             }
         }
     }
@@ -330,7 +453,7 @@ function searchSong(sortedtracknameartistdateArr){
         // temp = 'no result';
         alert('no result');
     }else{
-        temp = '<span style="color:#ffd8d2;">'+matches+' results</span><br>'+temp;
+        temp = '<span style="color:#ffd8d2;">'+matches+' results</span><br>'+temp; //insert
         $('#SearchDurationResult').html(temp).show();
     }
 }
@@ -349,4 +472,12 @@ function iterateAll(next_url){
         });
     }
     return temp;
+}
+
+function EnterExec(jq, callback){ //press enter to execute
+    $(jq).keypress(function(e){
+        if(e.which == 13){
+            callback();
+        }
+    });
 }

@@ -43,6 +43,15 @@ input[type=checkbox] {
     margin: 1%;
 }
 
+select {
+    padding: 10px;
+    border-radius: 20px;
+}
+
+th td {
+    padding: 0px 20px;
+}
+
 #currentPlaylistDiv {
 }
 
@@ -64,15 +73,35 @@ input[type=checkbox] {
     margin: 1%;
 }
 
-.greycardDiv {
+.smol, .greycardDiv {
     display: inline-block;
     margin: 1%;
     background: #ffffff5c;
     border-radius: 20px;
     padding: 0px 27px 30px;
-    margin-bottom: 4%;
+    /*margin-bottom: 4%;*/
 }
 
+.smol {
+    @extend .greycardDiv;
+    padding: 10px 20px;
+    margin-bottom: 0;
+}
+
+.nice-tag {
+    font-weight: bold;
+    /*float: left;*/
+    background: #f47c7cba;
+    padding: 6px 16px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-right: 8px;
+    text-transform: uppercase;
+}
+
+.input_area {
+    margin-left: 25px;
+}
 /*#ArtistListDiv {
     display: inline-block;
     margin: 1%;
