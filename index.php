@@ -10,7 +10,14 @@
 </head>
 
 <body>
-
+<div id="loadingOverlay"><embed id="loadingOverlayGIF" src="https://i.imgur.com/dVi5Ilw.gif"></embed></div>
+<h1>Playlistifie</h1>
+<div id="changeBGDiv">
+    <img src="https://i.imgur.com/hAcGmG3.jpg" id='BG1' class="smolBG"><br>   
+    <img src="https://img.wallpapersafari.com/desktop/1440/900/32/54/hn3Wf6.jpeg" id='BG2' class="smolBG"><br>
+    <img src="https://i.giphy.com/media/xTiTnxpQ3ghPiB2Hp6/giphy.webp" id='BG3' class="smolBG"><br>
+</div>
+<br>
 <button id='login' style='margin: 0%;'>login to spotify</button>
 <br>
 <button id='current_playback' style='margin-left: 0%;'>show current playback</button>
@@ -18,11 +25,12 @@
 <div id='currentPlaybackDiv' class="smol greycardDiv" style="display: none; margin-bottom: 3%;"></div>
 <br>
 <div>
-    <p class="nice-tag">OPTIONAL</p>
+    <p class="nice-tag">load last.fm data</p>
+    <p class="nice-tag" style="background: #bdaaff7a;">OPTIONAL</p>
     <p style="display: inline;">type your last.fm username to get play count data</p>
     <br>
     <div class="input_area">
-        <input type="text" id="lastfm_username_input"></input>
+        <input type="text" id="lastfm_username_input" placeholder="last.fm username"></input>
         <select id="lastfm_period">
             <option value="7day">7 day</option>
             <option value="1month">1 month</option>
@@ -33,17 +41,19 @@
         </select>
         <button id='lastfm_gettoptracks'>load last.fm data</button>
     </div>
+    <span id="lastfm_loadcomp" class="ldComp" style="display: none">loading complete!</span>
 </div>
 <br>
 <!-- <button id='show_all_playlists'>show all playlists</button> -->
-<p class="nice-tag">search playlist</p><br>
+<p class="nice-tag">search your spotify playlists</p><br>
 <div class="input_area">
-    <input type="text" id="playlist_input"></input>
+    <input type="text" id="playlist_input" placeholder="spotify playlist name"></input>
     <input type="checkbox" id="playlistExactMatch">exact match</input>
     <button id='get_playlist'>show playlist detail</button>
     <br>
     <button id='get_liked_song'>show liked songs</button>
 </div>
+<span id="spot_loadcomp" class="ldComp" style="display: none">loading complete!</span>
 <br>
 <div id='currentPlaylistDiv'></div>
 
@@ -68,6 +78,9 @@ var lastfm_toptracks = [];
 var lastfm_tracknameartistcount = {};
 
 $(document).ready(function(){
+    $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), url("https://i.imgur.com/hAcGmG3.jpg")');
+    $('body').css('background-size',window.innerWidth*1.2+"px");
+
     $('#login').click(function(){
         login();
     });
@@ -78,16 +91,43 @@ $(document).ready(function(){
         }
     });
 
+    // $('[id^=BG]').click(function(){
+    //     $('body').css('background-image','none');
+    //     $('body').css('background-image','url("'+$(this).attr('src')+'")');
+    //     // $(this).attr('src');
+    // })
+
+    $('#BG1').click(function(){
+        $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), url("https://i.imgur.com/hAcGmG3.jpg")');
+        $('body').css('background-size',window.innerWidth*1.2+"px");
+    })
+    $('#BG2').click(function(){
+        $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url("https://img.wallpapersafari.com/desktop/1440/900/32/54/hn3Wf6.jpeg")');
+        $('body').css('background-size','');
+    })
+    $('#BG3').click(function(){
+        $('body').css('background-image','linear-gradient(rgba(0, 0, 0, .3), rgba(0, 0, 0, 0.3)), url("https://i.giphy.com/media/xTiTnxpQ3ghPiB2Hp6/giphy.webp")');
+        $('body').css('background-size','');
+        // $('body').css('background-size',window.innerWidth+' '+window.innerHeight);
+    })
+
     EnterExec('#lastfm_username_input', function(){
         $('#lastfm_gettoptracks').html('loading');
-        lastfm_fetch();
-        $('#lastfm_gettoptracks').html('load last.fm data'); 
+        withLoading(lastfm_fetch);
+        // $('#loadingOverlay').show();
+        // lastfm_fetch();
+        // $('#loadingOverlay').hide();
+        $('#lastfm_gettoptracks').html('load last.fm data');
+        $('#lastfm_loadcomp').show();
     });
 
     $('#lastfm_gettoptracks').click(function(){
+        $('#lastfm_gettoptracks').css('cursor','wait');
         $('#lastfm_gettoptracks').html('loading');
-        lastfm_fetch();
+        withLoading(lastfm_fetch);
+        // lastfm_fetch();
         $('#lastfm_gettoptracks').html('load last.fm data');
+        $('#lastfm_loadcomp').show();
     });
 
 
@@ -109,8 +149,10 @@ $(document).ready(function(){
 
     EnterExec('#playlist_input', function(){
         $('#get_playlist').html('loading');
-        get_playlist_details();
+        withLoading(get_playlist_details);
+        // get_playlist_details();
         $('#get_playlist').html('show playlist detail');
+        $('#spot_loadcomp').show();
     });
 
     // $('#playlist_input').keypress(function(e){
@@ -123,14 +165,19 @@ $(document).ready(function(){
 
     $('#get_playlist').click(function(){
         $('#get_playlist').html('loading');
-        get_playlist_details();
+        withLoading(get_playlist_details);
+        // get_playlist_details();
         $('#get_playlist').html('show playlist detail');
+        $('#spot_loadcomp').show();
     });
     
     $('#get_liked_song').click(function(){
         $('#get_liked_song').html('loading');
-        get_playlist_details(use_liked_song=true);        
+        withLoading(function(){
+            get_playlist_details(use_liked_song=true);        
+        });
         $('#get_liked_song').html('show liked songs');
+        $('#spot_loadcomp').show();
     })
 
 

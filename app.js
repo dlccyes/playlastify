@@ -187,25 +187,25 @@ function get_playlist_details(use_liked_song=false){
             // console.log(sortedArtistArrwTitle);
             // sortedArtistArr.splice(0,0,['Artist','Number']);
             playlistDivhtml = '<div id="PlaylistMeta">\
-                                    <h1>'+playlist_name+'</h1>\
+                                    <h2>'+playlist_name+'</h2>\
                                 </div>\
                                 <div id="NumDiv" class="smol greycardDiv">\
                                     '+all_tracks.length+' songs\
                                 </div>\
                                 <div id="ArtistDiv">\
                                     <div id="ArtistGraph" style="float: left;">\
-                                        <h2 style="margin: 0;">Artists pie chart of '+playlist_name+'</h2>\
+                                        <h3 style="margin: 0;">Artists pie chart of '+playlist_name+'</h3>\
                                         <div id="ArtistPiechart" style="width: 900px; height: 500px; margin-top: -45px;""></div>\
                                     </div>\
                                     <div id="ArtistListDiv" class="greycardDiv">\
-                                        <h2>top 10 artists</h2>\
+                                        <h3>top 10 artists</h3>\
                                     </div>\
                                 </div><br>\
                                 <div id="OldestDiv" class="greycardDiv">\
-                                    <h2>top 10 oldest tracks</h2>\
+                                    <h3>top 10 oldest tracks</h3>\
                                 </div>\
                                 <div id="NewestDiv" class="greycardDiv">\
-                                    <h2>top 10 newest tracks</h2>\
+                                    <h3>top 10 newest tracks</h3>\
                                 </div><br>\
                                 <div id="SearchDurationDiv" style="margin:1%;">\
                                     <input type="text" id="srch_dur_input"></input>\
@@ -299,6 +299,12 @@ function get_playlist_details(use_liked_song=false){
         alert('please login first');
         // console.log('no token');
     }
+}
+
+function withLoading(callback){
+    $('#loadingOverlay').show();
+    callback();
+    $('#loadingOverlay').hide();
 }
 
 function lastfm_fetch(){
@@ -459,19 +465,24 @@ function searchSong(sortedtracknameartistdateArr){
 }
 
 function iterateAll(next_url){
-    var temp = []
-    var continuue = true;
-    while(continuue){
-        spott_get_sync(next_url, token, function(xhr){
-            temp = temp.concat(xhr['items']);
-            if(xhr['next']){
-                next_url = xhr['next'];
-            }else{
-                continuue = false;
-            }
-        });
+    if(token){
+        var temp = []
+        var continuue = true;
+        while(continuue){
+            spott_get_sync(next_url, token, function(xhr){
+                temp = temp.concat(xhr['items']);
+                if(xhr['next']){
+                    next_url = xhr['next'];
+                }else{
+                    continuue = false;
+                }
+            });
+        }
+        return temp;
+    }else{
+        alert('pleas login');
+        return;
     }
-    return temp;
 }
 
 function EnterExec(jq, callback){ //press enter to execute

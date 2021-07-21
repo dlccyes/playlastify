@@ -1,10 +1,36 @@
+:root {
+    /*pruple nebula*/
+    --bgimgurl: url("https://i.imgur.com/hAcGmG3.jpg");
+    /*grey texture*/
+    /*--bgimgurl: url("https://img.wallpapersafari.com/desktop/1440/900/32/54/hn3Wf6.jpeg");*/
+    /*blue tech node gif*/
+    /*--bgimgurl: url("https://i.giphy.com/media/xTiTnxpQ3ghPiB2Hp6/giphy.webp");*/
+    /*grey block gif*/
+    /*--bgimgurl: url("https://i.giphy.com/media/l0HluEQoNGbtXgNos/giphy.webp");*/
+}
+
+h1 {
+    font-family: segoe script;
+    text-align: center;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+h2 {
+    text-align: center;
+    font-size: 34px;
+}
+
 body {
     font-family: Segoe Print;
-    background-image: linear-gradient(rgba(0, 0, 0, .06), rgba(0, 0, 0, .19)), url("https://i.imgur.com/hAcGmG3.jpg") !important;
-    background-size: 1970px 1080px;
-    background-position: 10% 20%;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), var(--bgimgurl);
+    /*background-image:  var(--bgimgurl);*/
+    /*background-size: 1970px 1080px;*/
+    /*background-position: 10% 20%;*/
     color: #FFFFFFE6;
     margin: 5%;
+    background-attachment: fixed;
+
 }
 
 table {
@@ -48,7 +74,7 @@ select {
     border-radius: 20px;
 }
 
-th td {
+th, td {
     padding: 0px 20px;
 }
 
@@ -71,6 +97,7 @@ th td {
     border-radius: 20px;
     background: #ffffff5c;
     margin: 1%;
+    /*margin-bottom: 0;*/
 }
 
 .smol, .greycardDiv {
@@ -88,7 +115,7 @@ th td {
     margin-bottom: 0;
 }
 
-.nice-tag {
+.nice-tag, .ldComp{
     font-weight: bold;
     /*float: left;*/
     background: #f47c7cba;
@@ -97,6 +124,11 @@ th td {
     display: inline-block;
     margin-right: 8px;
     text-transform: uppercase;
+}
+
+.ldComp{
+    margin: 1%;
+    background: #79c2f8b8;
 }
 
 .input_area {
@@ -117,3 +149,48 @@ th td {
     border-radius: 20px;
     padding: 0px 27px 30px;
 }*/
+
+#changeBGDiv{
+    background: #ffffff5c;
+    border-radius: 20px;
+    display: inline-block;
+    padding: 27px;
+    margin-bottom: 2%;  
+    float: right;
+}
+
+.smolBG {
+    width: 80px;
+    border-radius: 20px;
+    opacity: 0.6;
+    /*align-content: center;*/
+}
+.smolBG:hover {
+    /*align-content: center;*/
+    opacity: 1;
+    cursor: pointer;
+    /*width: 100px;*/
+    transition-timing-function: ease-in;
+}
+
+#loadingOverlay {
+  position: fixed; /* Sit on top of the page content */
+  display: none;  Hidden by default 
+  width: 100%; /* Full width (cover the whole page) */
+  height: 100%; /* Full height (cover the whole page) */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+  z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+  cursor: wait; /* Add a pointer on hover */
+}
+
+#loadingOverlayGIF{
+    border-radius: 50px;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+}
