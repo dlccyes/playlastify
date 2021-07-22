@@ -10,7 +10,7 @@
 </head>
 
 <body>
-<div id="loadingOverlay"><embed id="loadingOverlayGIF" src="https://i.imgur.com/dVi5Ilw.gif"></embed></div>
+<div id="loadingOverlay"><embed id="loadingOverlayGIF" src="https://i.imgur.com/dVi5Ilw.gif"></embed><span id="loadingOverlayText">this may take a while ...</span></div>
 <h1>Playlistifie</h1>
 <div id="changeBGDiv">
     <img src="https://i.imgur.com/hAcGmG3.jpg" id='BG1' class="smolBG"><br>   
@@ -25,9 +25,9 @@
 <div id='currentPlaybackDiv' class="smol greycardDiv" style="display: none; margin-bottom: 3%;"></div>
 <br>
 <div>
-    <p class="nice-tag">load last.fm data</p>
+    <p class="nice-tag">load your last.fm data</p>
     <p class="nice-tag" style="background: #bdaaff7a;">OPTIONAL</p>
-    <p style="display: inline;">type your last.fm username to get play count data</p>
+    <p style="display: inline;">type your last.fm username to get playcount data</p>
     <br>
     <div class="input_area">
         <input type="text" id="lastfm_username_input" placeholder="last.fm username"></input>
@@ -41,7 +41,7 @@
         </select>
         <button id='lastfm_gettoptracks'>load last.fm data</button>
     </div>
-    <span id="lastfm_loadcomp" class="ldComp" style="display: none">loading complete!</span>
+    <span id="lastfm_loadcomp" style="display: none"></span>
 </div>
 <br>
 <!-- <button id='show_all_playlists'>show all playlists</button> -->
@@ -53,7 +53,8 @@
     <br>
     <button id='get_liked_song'>show liked songs</button>
 </div>
-<span id="spot_loadcomp" class="ldComp" style="display: none">loading complete!</span>
+<span id="spot_loadcomp" class="ldComp" style="display: none"></span><br>
+<span id="spot_loadcomp_tip" class="smol" style="display: none"></span>
 <br>
 <div id='currentPlaylistDiv'></div>
 
@@ -85,7 +86,7 @@ $(document).ready(function(){
         login();
     });
 
-    $('#show_all_playlists').click(function(){
+    $('#show_all_playlists').click(function(){ //obsolete
         if(playlists.length == 0){ //alreadt executed
             get_all_playlists();
         }
@@ -103,31 +104,30 @@ $(document).ready(function(){
     })
     $('#BG2').click(function(){
         $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url("https://img.wallpapersafari.com/desktop/1440/900/32/54/hn3Wf6.jpeg")');
-        $('body').css('background-size','');
+        $('body').css('background-size','auto');
     })
     $('#BG3').click(function(){
         $('body').css('background-image','linear-gradient(rgba(0, 0, 0, .3), rgba(0, 0, 0, 0.3)), url("https://i.giphy.com/media/xTiTnxpQ3ghPiB2Hp6/giphy.webp")');
-        $('body').css('background-size','');
+        $('body').css('background-size','auto');
         // $('body').css('background-size',window.innerWidth+' '+window.innerHeight);
     })
 
     EnterExec('#lastfm_username_input', function(){
-        $('#lastfm_gettoptracks').html('loading');
+        // $('#lastfm_gettoptracks').html('loading');
         withLoading(lastfm_fetch);
         // $('#loadingOverlay').show();
         // lastfm_fetch();
         // $('#loadingOverlay').hide();
-        $('#lastfm_gettoptracks').html('load last.fm data');
-        $('#lastfm_loadcomp').show();
+        // $('#lastfm_gettoptracks').html('load last.fm data');
+        // $('#lastfm_loadcomp').show();
     });
 
     $('#lastfm_gettoptracks').click(function(){
-        $('#lastfm_gettoptracks').css('cursor','wait');
-        $('#lastfm_gettoptracks').html('loading');
+        // $('#lastfm_gettoptracks').html('loading');
         withLoading(lastfm_fetch);
         // lastfm_fetch();
-        $('#lastfm_gettoptracks').html('load last.fm data');
-        $('#lastfm_loadcomp').show();
+        // $('#lastfm_gettoptracks').html('load last.fm data');
+        // $('#lastfm_loadcomp').show();
     });
 
 
@@ -135,24 +135,28 @@ $(document).ready(function(){
 
     $('#current_playback').click(function(){
         play = spott_get('https://api.spotify.com/v1/me/player', token, function(xhr){
-            console.log(xhr['item']['name'],'by', xhr['item']['artists'][0]['name']);
-            temp = '';
-            for(var artist of xhr['item']['artists']){
-                temp += artist['name'] + ', ';
+            if(xhr){
+                // console.log(xhr['item']['name'],'by', xhr['item']['artists'][0]['name']);
+                temp = '';
+                for(var artist of xhr['item']['artists']){
+                    temp += artist['name'] + ', ';
+                }
+                temp = temp.slice(0,-2);
+                currentPlaybackhtml = xhr['item']['name']+' - '+temp;
+            }else{
+                currentPlaybackhtml = 'nothing is playing';
             }
-            temp = temp.slice(0,-2);
-            currentPlaybackhtml = xhr['item']['name']+' - '+temp;
             $('#currentPlaybackDiv').html(currentPlaybackhtml).show();
       });
     });
 
 
     EnterExec('#playlist_input', function(){
-        $('#get_playlist').html('loading');
+        // $('#get_playlist').html('loading');
         withLoading(get_playlist_details);
         // get_playlist_details();
-        $('#get_playlist').html('show playlist detail');
-        $('#spot_loadcomp').show();
+        // $('#get_playlist').html('show playlist detail');
+        // $('#spot_loadcomp').show();
     });
 
     // $('#playlist_input').keypress(function(e){
@@ -164,20 +168,20 @@ $(document).ready(function(){
     // });
 
     $('#get_playlist').click(function(){
-        $('#get_playlist').html('loading');
+        // $('#get_playlist').html('loading');
         withLoading(get_playlist_details);
         // get_playlist_details();
-        $('#get_playlist').html('show playlist detail');
-        $('#spot_loadcomp').show();
+        // $('#get_playlist').html('show playlist detail');
+        // $('#spot_loadcomp').show();
     });
     
     $('#get_liked_song').click(function(){
-        $('#get_liked_song').html('loading');
+        // $('#get_liked_song').html('loading');
         withLoading(function(){
             get_playlist_details(use_liked_song=true);        
         });
-        $('#get_liked_song').html('show liked songs');
-        $('#spot_loadcomp').show();
+        // $('#get_liked_song').html('show liked songs');
+        // $('#spot_loadcomp').show();
     })
 
 

@@ -62,7 +62,7 @@ function spott_get(url, token, callback, async=true){
             timeout: 5000
         });
     }else{
-        alert('please login first');
+        alert('please login to Spotify first');
     }
 }
 
@@ -120,7 +120,7 @@ function ArtistDistribution(tracks){
     return sortDict(artists);
 }
 
-function sortDict(ogDict) {
+function sortDict(ogDict){
     var keys = keys = Object.keys(ogDict);
     sortedKey = keys.sort(function(a,b){return ogDict[b]-ogDict[a]});
     sortedArr = [];
@@ -130,6 +130,49 @@ function sortDict(ogDict) {
     }
     // console.log(sortedArr);
     return sortedArr;
+}
+
+function sortArr(ogArr, key){
+    newArr = ogArr.sort(function(a,b){return b[key]-a[key]})
+    return newArr;
+}
+
+function get_playlist_audio_features(current_playlist){
+    idStr = '';
+    i=0;
+    var playlistAudioFeaturesRaw = [];
+    var playlistAudioFeatures = {'acousticness':0,'danceability':0,'duration_ms':0,'energy':0,'instrumentalness':0,
+    'liveness':0,'loudness':0,'speechiness':0,'tempo':0,'valence':0};
+    for(var item of current_playlist['tracks']['items']){
+        i++;
+        idStr += item['track']['id']+',';
+        if(i%100 == 0){ //limit = 100
+            url = 'https://api.spotify.com/v1/audio-features?ids='+idStr;
+            spott_get_sync(url, token, function(xhr){
+                playlistAudioFeaturesRaw = playlistAudioFeaturesRaw.concat(xhr['audio_features']);
+            });
+            idStr = '';
+        }
+    }
+    console.log(playlistAudioFeaturesRaw);
+    num = 0;
+    for(var item of playlistAudioFeaturesRaw){
+        if(item){
+            for(var key in playlistAudioFeatures){
+                // console.log(playlistAudioFeaturesRaw[i][key]);
+                // console.log(item);
+                playlistAudioFeatures[key] += item[key];
+            }
+            num += 1;
+        }else{ //item = null when local
+        }
+    }
+    // console.log(playlistAudioFeatures);
+    for(var key in playlistAudioFeatures){
+        playlistAudioFeatures[key] /= num; //avg
+    }
+    console.log(playlistAudioFeatures);
+    return playlistAudioFeatures;
 }
 
 function get_playlist_details(use_liked_song=false){
@@ -182,6 +225,8 @@ function get_playlist_details(use_liked_song=false){
                 // console.log(current_playlist['tracks']['items']);
                 all_tracks = current_playlist['tracks']['items'];
             }
+            console.log(current_playlist);
+            get_playlist_audio_features(current_playlist);
             sortedArtistArr = ArtistDistribution(all_tracks);
             sortedArtistArrwTitle = [['Artist','Number']].concat(sortedArtistArr);
             // console.log(sortedArtistArrwTitle);
@@ -208,16 +253,21 @@ function get_playlist_details(use_liked_song=false){
                                     <h3>top 10 newest tracks</h3>\
                                 </div><br>\
                                 <div id="SearchDurationDiv" style="margin:1%;">\
-                                    <input type="text" id="srch_dur_input"></input>\
-                                    <input type="checkbox" id="WholeExactMatch">whole word and match case</input>\
-                                    <button id="srch_dur">search song</button><br>\
+                                    <p class="nice-tag">search anything in this playlist</p><br>\
+                                    <div class="input_area">\
+                                        <input type="text" id="srch_dur_input" placeholder="title or artist"></input>\
+                                        <input type="checkbox" id="WholeExactMatch">whole word and match case</input>\
+                                        <button id="srch_dur">search song</button><br>\
+                                    </div>\
+                                    <span class="smol">leave it blank to show everything in this playlist</span><br>\
                                     <div id="SearchDurationResult" class="greycardDiv" style="display:none;padding-top:20px;">\
                                     </div>\
                                 </div>'
             $('#currentPlaylistDiv').html(playlistDivhtml);
             if(!use_liked_song){ //add image
                 image_url = current_playlist['images'][0]['url'];
-                $('#PlaylistMeta').append('<img src="'+image_url+'" width="200px" style="height: 350px;border-radius: 20px;width: auto;">');
+                $('#PlaylistMeta').append('<img src="'+image_url+'" width="200px" \
+                    style="height:350px; border-radius:20px; width:auto; position:relative; transform:translate(-50%); left:50%;">');
             }
 
             google.charts.load('current', {'packages':['corechart']});
@@ -253,7 +303,7 @@ function get_playlist_details(use_liked_song=false){
                 for(var item of sortedtracknameartistdateArr){
                     stuff = item[0].split(' - ');
                     title = stuff[0]+' - '+stuff[1].split(', ')[0];
-                    console.log(title);
+                    // console.log(title);
                     if(lastfm_tracknameartistcount[title.toLowerCase()]){ //'song_title - 1st_artist'
                         item.push(lastfm_tracknameartistcount[title.toLowerCase()]);
                     }else{ //no play record
@@ -261,7 +311,7 @@ function get_playlist_details(use_liked_song=false){
                     }
                 }
             }
-            console.log(sortedtracknameartistdateArr);
+            // console.log(sortedtracknameartistdateArr);
 
             if(Object.keys(lastfm_tracknameartistcount).length != 0){
                 plays = 'plays';                
@@ -275,20 +325,27 @@ function get_playlist_details(use_liked_song=false){
 
             printable4(sortedtracknameartistdateArr_r, 10, 'NewestDiv', 'title', 'artist', 'days since added', plays);
 
-            EnterExec('#srch_dur_input', function(){
-                searchSong(sortedtracknameartistdateArr);
-            });
-            // $('#srch_dur_input').keypress(function(e){
-            //     if(e.which == 13){
-            //         searchSong(sortedtracknameartistdateArr);
-            //     }
-            // });
+            if(Object.keys(lastfm_tracknameartistcount).length != 0){
+                mostplayedhtml = '<div id="MostPlayedDiv" class="greycardDiv">\
+                                        <h3>top 10 most played tracks</h3>\
+                                    </div><br>'
+                $(mostplayedhtml).insertAfter("#NewestDiv");
+                sortedbyplay = sortArr(sortedtracknameartistdateArr_r,2);
+                printable4(sortedbyplay, 10, 'MostPlayedDiv', 'title', 'artist', 'days since added', plays);                
+            }
 
             $('#srch_dur').click(function(){
                 searchSong(sortedtracknameartistdateArr);
             });
 
+            EnterExec('#srch_dur_input', function(){
+                searchSong(sortedtracknameartistdateArr);
+            });
+            
+            $('#spot_loadcomp').html('data loaded!').show();
+            $('#spot_loadcomp_tip').html('click any column title to sort (like you do in Spotify)').show();
         }else{
+            $('#spot_loadcomp').html('failed').show();
             alert('no result');
             console.log('failure');
         }
@@ -301,10 +358,15 @@ function get_playlist_details(use_liked_song=false){
     }
 }
 
+
 function withLoading(callback){
-    $('#loadingOverlay').show();
-    callback();
-    $('#loadingOverlay').hide();
+    if(token){
+        $('#loadingOverlay').show();
+        callback();
+        $('#loadingOverlay').hide();
+    }else{
+        alert('please login to Spotify first');
+    }
 }
 
 function lastfm_fetch(){
@@ -351,13 +413,18 @@ function lastfm_fetch(){
 
     }
     if(result){
-        console.log(lastfm_toptracks);
+        $('#lastfm_loadcomp').html('<span class="ldComp">'+period+' playcount loaded!</span>\
+            <span class="ldComp">search your spotify playlist now!</span><br>\
+            <span class="smol">some last.fm playcount may be incorrect due to some technical issues</span>').show();
+
+        // console.log(lastfm_toptracks);
         for(var track of lastfm_toptracks){
             title = track['name']+' - '+track['artist']['name'];
             lastfm_tracknameartistcount[title.toLowerCase()] = track['playcount']; //{'Freesol - Seven Lions' : 20}
         }
-        console.log(lastfm_tracknameartistcount);
+        // console.log(lastfm_tracknameartistcount);
     }else{
+        $('#lastfm_loadcomp').html('<span class="ldComp">loading failed!</span>').show();
         alert('Failed. Check your username.');
     }
 }
@@ -394,9 +461,9 @@ function printable2(array, num, targetDiv, title1, title2, title3=null){ //array
 function printable4(array, num, targetDiv, title1, title2, title3, title4){ //array structure: [[a,b],[c,d],....]
     temp = '<table style=""><th>'+title1+'</th>\
             <th>'+title2+'</th>\
-            <th>'+title3+'</th>';
+            <th id="days_th">'+title3+'</th>';
     if(title4){
-            temp += '<th>'+title4+'</th>';
+            temp += '<th id="count_th">'+title4+'</th>';
     }
 
     for(var i=0; i<num; i++){
@@ -459,7 +526,11 @@ function searchSong(sortedtracknameartistdateArr){
         // temp = 'no result';
         alert('no result');
     }else{
-        temp = '<span style="color:#ffd8d2;">'+matches+' results</span><br>'+temp; //insert
+        if(matches == 1){
+            temp = '<span style="color:#ffd8d2;">'+1+' result</span><br>'+temp; //insert
+        }else{
+            temp = '<span style="color:#ffd8d2;">'+matches+' results</span><br>'+temp; //insert
+        }
         $('#SearchDurationResult').html(temp).show();
     }
 }
@@ -492,3 +563,44 @@ function EnterExec(jq, callback){ //press enter to execute
         }
     });
 }
+
+//table sort on clicking header
+// https://stackoverflow.com/a/19947532
+$(document).off('click','th');
+$(document).on('click','th',function(){
+    var table = $(this).parents('table').eq(0);
+    i = 0;
+    while(table.find('th:eq('+i+')').text()){ //remove the arrows other from the clicked element
+        elElement = table.find('th:eq('+i+')');
+        if(elElement.text() != $(this)[0]['textContent']){
+            if(elElement.text().indexOf(' ↑')!=-1 || elElement.text().indexOf(' ↓')!=-1){
+                elElement.html(elElement.text().slice(0,-2));
+            }
+        }
+        i++;
+        if(i>=10){ //insurance
+            console.log('fuck');
+            break;
+        }
+    }
+    // console.log(table.find('th:eq(0)').text());
+    currenttext = $(this)[0]['textContent'];
+    if(currenttext.indexOf(' ↑')!=-1){
+        $(this).html($(this)[0]['textContent'].slice(0,-2)+' ↓');
+    }else if(currenttext.indexOf(' ↓')!=-1){
+        $(this).html($(this)[0]['textContent'].slice(0,-2)+' ↑');
+    }else{
+        $(this).html($(this)[0]['textContent']+' ↑');
+    }
+    var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+    this.asc = !this.asc;
+    if (!this.asc){rows = rows.reverse()}
+    for (var i = 0; i < rows.length; i++){table.append(rows[i])}
+});
+function comparer(index) {
+    return function(a, b) {
+        var valA = getCellValue(a, index), valB = getCellValue(b, index)
+        return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB)
+    }
+}
+function getCellValue(row, index){ return $(row).children('td').eq(index).text() }

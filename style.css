@@ -12,7 +12,7 @@
 h1 {
     font-family: segoe script;
     text-align: center;
-    font-size: 40px;
+    font-size: 44px;
     font-weight: bold;
 }
 
@@ -21,11 +21,15 @@ h2 {
     font-size: 34px;
 }
 
+h3 {
+    font-size: 22px;
+}
+
 body {
     font-family: Segoe Print;
     background-image: linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), var(--bgimgurl);
     /*background-image:  var(--bgimgurl);*/
-    /*background-size: 1970px 1080px;*/
+    background-size: 2035px;
     /*background-position: 10% 20%;*/
     color: #FFFFFFE6;
     margin: 5%;
@@ -76,6 +80,11 @@ select {
 
 th, td {
     padding: 0px 20px;
+}
+
+th {
+    cursor: pointer;
+    user-select: none;
 }
 
 #currentPlaylistDiv {
@@ -175,7 +184,7 @@ th, td {
 
 #loadingOverlay {
   position: fixed; /* Sit on top of the page content */
-  display: none;  Hidden by default 
+  display: none; 
   width: 100%; /* Full width (cover the whole page) */
   height: 100%; /* Full height (cover the whole page) */
   top: 0;
@@ -193,4 +202,12 @@ th, td {
     transform: translate(-50%, -50%);
     top: 50%;
     left: 50%;
+}
+
+#loadingOverlayText {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 88%;
+    left: 67%;
+}
 }
