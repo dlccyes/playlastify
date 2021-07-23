@@ -17,7 +17,7 @@ h1 {
 }
 
 h2 {
-    text-align: center;
+    /*text-align: center;*/
     font-size: 34px;
 }
 
@@ -85,6 +85,12 @@ th, td {
 th {
     cursor: pointer;
     user-select: none;
+}
+
+.horizCen {
+    position: relative;
+    transform: translate(-50%);
+    left: 50%;
 }
 
 #currentPlaylistDiv {
@@ -210,4 +216,4 @@ th {
     top: 88%;
     left: 67%;
 }
-}
+

@@ -19,6 +19,7 @@
 </div>
 <br>
 <button id='login' style='margin: 0%;'>login to spotify</button>
+<span id="logincomp" class="ldComp" style="display: none">you've logged in!</span>
 <br>
 <button id='current_playback' style='margin-left: 0%;'>show current playback</button>
 <br>
@@ -66,25 +67,43 @@ var token = null;
 var scopes = 'user-read-private user-read-email user-library-read user-read-currently-playing\
                 user-read-playback-state playlist-read-private';
 
-var url = String(window.location);
-if(url.search(/=/)!=-1){
-    var code = url.slice(url.search(/=/)+1,);
-}
-if(code){
-    token = get_token();
-}
+
+// if(code){
+//     token = get_token();
+// }
 // var playlists = [];
+login_token();
 
 var lastfm_toptracks = [];
 var lastfm_tracknameartistcount = {};
+var url;
 
 $(document).ready(function(){
     $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), url("https://i.imgur.com/hAcGmG3.jpg")');
     $('body').css('background-size',window.innerWidth*1.2+"px");
 
     $('#login').click(function(){
-        login();
+        // login();
+        get_token_implicit();
+        login_token();
+        // console.log(token);
     });
+
+    // var newurl = String(window.location);
+    // var code = newurl.slice(newurl.search(/=/)+1,);
+    // $.ajax({
+    //     url: "tolkien.php",
+    //     type: "POST",
+    //     data: {
+    //         code: code,
+    //     },
+    //     cache: false,
+    //     success: function(xhr){
+    //         console.log(xhr);
+    //         token = xhr;
+    //     }
+            
+    // });
 
     $('#show_all_playlists').click(function(){ //obsolete
         if(playlists.length == 0){ //alreadt executed
