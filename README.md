@@ -6,6 +6,7 @@ https://playlistifie.herokuapp.com
 
 ## screenshots
 ![Image](https://i.imgur.com/SlQDHj8.png)
+![](https://i.imgur.com/S6CWjvX.png)
 ![Image](https://i.imgur.com/OlVEDkv.png)
 ![Image](https://i.imgur.com/pGZAnrI.png)
 ![Image](https://i.imgur.com/JszkGgw.png)
