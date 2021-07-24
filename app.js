@@ -75,7 +75,7 @@ function spott_get(url, token, callback, async=true){
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                alert('please logieen');
+                alert('please login');
                 if(callback){
                     callback('nooooooooo');
                 }
@@ -240,15 +240,6 @@ function get_playlist_details(use_liked_song=false){
         if(playlist_id != ''){
             if(use_liked_song){
                 next_url = 'https://api.spotify.com/v1/me/tracks?limit=50';
-                // spott_get_sync(next_url, token, function(xhr){
-                //     console.log('saved',xhr);
-                //     // temp = temp.concat(xhr['items']);
-                //     // if(xhr['next']){
-                //     //     next_url = xhr['next'];
-                //     // }else{
-                //     //     continuue = false;
-                //     // }
-                // });
                 liked_songs = iterateAll('https://api.spotify.com/v1/me/tracks?limit=50');
                 all_tracks = liked_songs;
                 console.log('saved',liked_songs);
@@ -300,11 +291,10 @@ function get_playlist_details(use_liked_song=false){
             $('#currentPlaylistDiv').html(playlistDivhtml);
             if(!use_liked_song){ //add image
                 image_url = current_playlist['images'][0]['url'];
-                $('#PlaylistMeta').append('<img src="'+image_url+'" width="200px" \
-                    style="height:350px; border-radius:20px; width:auto; float:left; opacity:0.85;">');
+                $('#PlaylistMeta').append('<img src="'+image_url+'" class="meta_img">');
             }
 
-            $('#PlaylistMeta').append('<div id="AudioFeatureDiv" class="" style="display:inline-block;vertical-align:middle;margin:0;margin-left:15px;"></div>');
+            $('#PlaylistMeta').append('<div id="AudioFeatureDiv" class="audiofeature"></div>');
             
             tracknameartistdateDict = TrackNameArtistDate(all_tracks);
             sortedtracknameartistdateArr = sortDict(tracknameartistdateDict);
@@ -324,7 +314,7 @@ function get_playlist_details(use_liked_song=false){
 
             drawRadar(AudioFeatureDict, 'AudioFeatureDiv');
 
-            AudioFeature2html = '<div id="AudioFeature2Div" class="" style="display:inline-block;vertical-align:middle;margin:0;margin-left:15px;">\
+            AudioFeature2html = '<div id="AudioFeature2Div" class="audiofeature">\
                                     <table>\
                                         <th></th><th></th>\
                                         <tr><td>total tracks</td><td>'+all_tracks.length+'</td></tr>\
@@ -426,14 +416,17 @@ function withLoading(callback){
     }
 }
 
+function dict_len(dict){
+    return Object.keys(dict).length;
+}
+
 function lastfm_fetch(){
+    lastfm_toptracks = [];
     username = $('#lastfm_username_input').val();
     period = $('#lastfm_period').val();
     var continuue = true;
     var page = 1;
-    // var failure = false;
-    // console.log(period);
-    // continuue = false;
+
     while(continuue){
         var result;
         url = 'https://ws.audioscrobbler.com/2.0/?method=user.gettoptracks\
@@ -459,30 +452,39 @@ function lastfm_fetch(){
             timeout: 5000
         });
         if(result){
-            if(result['toptracks']['@attr']['page']==result['toptracks']['@attr']['totalPages']){ //final page
+            if(result['toptracks']['@attr']['totalPages'] == 0){ //no scrobbles in this period
+                result = 'no data';
                 continuue = false;
+                // alert('no scrobble data');
+                break;
+            }else{
+                page += 1;
+                lastfm_toptracks = lastfm_toptracks.concat(result['toptracks']['track']);
+                if(result['toptracks']['@attr']['page']==result['toptracks']['@attr']['totalPages']){ //final page
+                    continuue = false;
+                    break;
+                }
             }
-            page += 1;
-            lastfm_toptracks = lastfm_toptracks.concat(result['toptracks']['track']);
         }else{
             break;
         }
 
     }
     if(result){
-        $('#lastfm_loadcomp').html('<span class="ldComp">'+period+' scrobbles loaded!</span>\
-            <span class="ldComp">search your spotify playlist now!</span><br>\
-            <span class="smol">some last.fm scrobbles may not correctly match the song</span>').show();
-
-        // console.log(lastfm_toptracks);
         for(var track of lastfm_toptracks){
             title = track['name']+' - '+track['artist']['name'];
             lastfm_tracknameartistcount[title.toLowerCase()] = track['playcount']; //{'Freesol - Seven Lions' : 20}
         }
-        // console.log(lastfm_tracknameartistcount);
+        if(lastfm_toptracks.length == 0){
+            $('#lastfm_loadcomp').html('<span class="ldComp">no scrobbles for this period for this user</span>').show();
+        }else{
+            $('#lastfm_loadcomp').html('<span class="ldComp">'+period+' scrobbles loaded!</span>\
+                <span class="ldComp">search your spotify playlist now!</span><br>\
+                <span class="smol">some last.fm scrobbles may not correctly match the song</span>').show();
+        }
     }else{
-        $('#lastfm_loadcomp').html('<span class="ldComp">loading failed!</span>').show();
         alert('Failed. Check your username.');
+        $('#lastfm_loadcomp').html('<span class="ldComp">loading failed!</span>').show();
     }
 }
 
@@ -542,41 +544,40 @@ function printable4(array, num, targetDiv, title1, title2, title3, title4){ //ar
 
 function searchSong(sortedtracknameartistdateArr){
     input = $('#srch_dur_input').val();
-    temp = '<table style=""><th>title</th>\
-            <th>artist</th>\
-            <th>days since added</th>';
+    temp = '<table id="searchSongTable" style="margin-top:15px;">\
+                <th>title</th>\
+                <th>artist</th>\
+                <th>days since added</th>';
     if(sortedtracknameartistdateArr[0][2]){
-        temp += '<th>plays</th>';
+        temp += '<th>scrobbles</th>';
     }
     matches = 0;
     const regex = new RegExp("\\b"+input+"\\b");
     // console.log(regex.text());
-    if($('#WholeExactMatch').prop("checked")==true){ //whole word and match case
-        for(var item of sortedtracknameartistdateArr){
-            if(regex.test(item[0])){
-                matches += 1;
-                temp += '<tr><td>'+item[0].split(' - ')[0]+'</td>\
-                            <td>'+item[0].split(' - ')[1]+'</td>\
-                            <td>'+item[1]+'</td>';
-                if(item[2] || item[2]==0){
-                    temp += '<td>'+item[2]+'</td>';
-                }
-                temp += '</tr>';
-            }
+    var totalscrobbles = null;
+    if(sortedtracknameartistdateArr[0][2]){
+        totalscrobbles = 0;
+    }
+    for(var item of sortedtracknameartistdateArr){
+        if($('#WholeExactMatch').prop("checked")==true){ //whole exact match
+            condition = regex.test(item[0])==true;
+        }else{ //whatever match
+            condition = item[0].toLowerCase().indexOf(input.toLowerCase())!=-1;
         }
-    }else{
-        for(var item of sortedtracknameartistdateArr){
-            if(item[0].toLowerCase().indexOf(input.toLowerCase()) != -1){
-                matches += 1;
-                temp += '<tr><td>'+item[0].split(' - ')[0]+'</td>\
-                            <td>'+item[0].split(' - ')[1]+'</td>\
-                            <td>'+item[1]+'</td>';
-                if(item[2]){
-                    temp += '<td>'+item[2]+'</td>';
-                }
-                temp += '</tr>';
+        if(condition){
+            matches += 1;
+            temp += '<tr><td>'+item[0].split(' - ')[0]+'</td>\
+                        <td>'+item[0].split(' - ')[1]+'</td>\
+                        <td>'+item[1]+'</td>';
+            if(item[2] || item[2]==0){
+                totalscrobbles += parseInt(item[2]); 
+                temp += '<td>'+item[2]+'</td>';
             }
+            temp += '</tr>';
         }
+    }
+    if(totalscrobbles){
+        temp = '<span style="color:#ffd8d2; float:right;">'+totalscrobbles+' scrobbles</span>'+temp;
     }
 
     if(matches == 0){
@@ -584,9 +585,9 @@ function searchSong(sortedtracknameartistdateArr){
         alert('no result');
     }else{
         if(matches == 1){
-            temp = '<span style="color:#ffd8d2;">'+1+' result</span><br>'+temp; //insert
+            temp = '<span style="color:#ffd8d2;">'+1+' result</span>'+temp; //insert
         }else{
-            temp = '<span style="color:#ffd8d2;">'+matches+' results</span><br>'+temp; //insert
+            temp = '<span style="color:#ffd8d2;">'+matches+' results</span>'+temp; //insert
         }
         $('#SearchDurationResult').html(temp).show();
     }
@@ -659,7 +660,9 @@ $(document).on('click','th',function(){
     }else{
         $(this).html($(this)[0]['textContent']+' ↑');
     }
-    var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+    var rows = table.find('tr:gt(0)').toArray().sort(
+        comparer($(this).index())
+    );
     this.asc = !this.asc;
     if (!this.asc){rows = rows.reverse()}
     for (var i = 0; i < rows.length; i++){table.append(rows[i])}
@@ -672,434 +675,3 @@ function comparer(index) {
 }
 function getCellValue(row, index){ return $(row).children('td').eq(index).text() }
 
-function drawRadar(data, id){
-    google.charts.load('upcoming', {
-      'packages': ['vegachart']
-    }).then(loadCharts);
-
-    console.log(data);
-
-    // dataArr = []
-    // for(var feat in data){
-    //     if(feat=='acousticness' || feat=='danceability' || feat=='energy' || feat=='instrumentalness' 
-    //         || feat=='liveness' || feat=='speechiness' || feat=='valence'){
-    //         dataArr.push([feat, data[feat],'']);
-    //     }
-    // }
-    const dataArr = [
-        ['speechiness',data['speechiness'],''],
-        ['acousticness',data['acousticness'],''],
-        ['danceability',data['danceability'],''],
-        ['energy',data['energy'],''],
-        ['instrumentalness',data['instrumentalness'],''],
-        // ['liveness',data['liveness'],''],
-        ['valence',data['valence'],'']
-    ]
-
-    // const lasagna = dataArr;
-    // const lasagna = [
-    //   ["Protein", 0.1308, "Lasagna, cheese, frozen, prepared"],
-    //   ["Carbohydrates", 0.05032727272727273, "Lasagna, frozen, prepared"],
-    //   ["Vitamin C", 0.228, "Lasagna, cheese, frozen, prepared"],
-    //   ["Calcium", 0.08538461538461538, "Lasagna, cheese, frozen, prepared"],
-    //   ["Zinc", 0.11375, "Lasagna, cheese, frozen, prepared"],
-    //   ["Sodium", 0.18933333333333333, "Lasagna, cheese, frozen, prepared"],
-    //   ["Sodjium", 0.11, "Lasagna, cheese, frozen, prepared"],
-    //   ["Soddjium", 0.1, "Lasagna, cheese, frozen, prepared"]
-    // ];
-
-
-    function loadCharts() {
-      addChart('', dataArr, "#FFB588E6");
-    };
-
-    function addChart(title, data, color) {
-      const dataTable = new google.visualization.DataTable();
-      dataTable.addColumn({
-        type: 'string',
-        'id': 'key'
-      });
-      dataTable.addColumn({
-        type: 'number',
-        'id': 'value'
-      });
-      dataTable.addColumn({
-        type: 'string',
-        'id': 'category'
-      });
-      dataTable.addRows(data);
-
-      var strokewidth = 1.4;
-      var strokecolor = '#ffffffcc';
-      const options = {
-        'vega': {
-          "$schema": "https://vega.github.io/schema/vega/v5.json",
-          "width": 350,
-          "height":315,
-          "autosize": "none",
-          "title": {
-            "text": title,
-            "anchor": "middle",
-            "fontSize": 14,
-            "dy": -8,
-            "dx": {
-              "signal": "-width/4"
-            },
-            // "subtitle": "RDI per 100g"
-          },
-          "signals": [{
-            "name": "radius",
-            "update": "90"
-          }],
-          "data": [{
-              "name": "table",
-              "source": "datatable",
-            },
-            {
-              "name": "keys",
-              "source": "table",
-              "transform": [{
-                "type": "aggregate",
-                "groupby": ["key"]
-              }]
-            }
-          ],
-          "scales": [{
-              "name": "angular",
-              "type": "point",
-              "range": {
-                "signal": "[-PI, PI]"
-              },
-              "padding": 0.5,
-              "domain": {
-                "data": "table",
-                "field": "key"
-              }
-            },
-            {
-              "name": "radial",
-              "type": "linear",
-              "range": {
-                "signal": "[0, radius]"
-              },
-              "zero": true,
-              "nice": false,
-              "domain": [0, 1],
-            }
-          ],
-          "encode": {
-            "enter": {
-              "x": {
-                "signal": "width/2"
-              },
-              "y": {
-                "signal": "height/2 + 20"
-              }
-            }
-          },
-          "marks": [{
-              "type": "group",
-              "name": "categories",
-              "zindex": 1,
-              "from": {
-                "facet": {
-                  "data": "table",
-                  "name": "facet",
-                  "groupby": ["category"]
-                }
-              },
-              "marks": [{
-                  "type": "line",
-                  "name": "category-line",
-                  "from": {
-                    "data": "facet"
-                  },
-                  "encode": {
-                    "enter": {
-                      "interpolate": {
-                        "value": "linear-closed"
-                      },
-                      "x": {
-                        "signal": "scale('radial', datum.value) * cos(scale('angular', datum.key))"
-                      },
-                      "y": {
-                        "signal": "scale('radial', datum.value) * sin(scale('angular', datum.key))"
-                      },
-                      "stroke": {
-                        "value": color
-                      },
-                      "strokeWidth": {
-                        "value": 2
-                      },
-                      "fill": {
-                        "value": color
-                      },
-                      "fillOpacity": {
-                        "value": 0.4
-                      }
-                    }
-                  }
-                },
-                {
-                  "type": "text",
-                  "name": "value-text",
-                  "from": {
-                    "data": "category-line"
-                  },
-                  "encode": {
-                    "enter": {
-                      "x": {
-                        "signal": "datum.x + 14 * cos(scale('angular', datum.datum.key))"
-                      },
-                      "y": {
-                        "signal": "datum.y + 14 * sin(scale('angular', datum.datum.key))"
-                      },
-                      "text": {
-                        "signal": "format(datum.datum.value,'.1%')"
-                      },
-                      "opacity": {
-                        "signal": "datum.datum.value > 0.01 ? 1 : 0"
-                      },
-                      "align": {
-                        "value": "center"
-                      },
-                      "baseline": {
-                        "value": "middle"
-                      },
-                      "fontWeight": {
-                        "value": "bold"
-                      },
-                      "fill": {
-                        "value": '#ffffff00'
-                      },
-                    }
-                  }
-                }
-              ]
-            },
-            {
-              "type": "rule",
-              "name": "radial-grid",
-              "from": {
-                "data": "keys"
-              },
-              "zindex": 0,
-              "encode": {
-                "enter": {
-                  "x": {
-                    "value": 0
-                  },
-                  "y": {
-                    "value": 0
-                  },
-                  "x2": {
-                    "signal": "radius * cos(scale('angular', datum.key))"
-                  },
-                  "y2": {
-                    "signal": "radius * sin(scale('angular', datum.key))"
-                  },
-                  "stroke": {
-                    "value": strokecolor
-                  },
-                  "strokeWidth": {
-                    "value": strokewidth
-                  }
-                }
-              }
-            },
-            {
-              "type": "text",
-              "name": "key-label",
-              "from": {
-                "data": "keys"
-              },
-              "zindex": 1,
-              "encode": {
-                "enter": {
-                  "x": {
-                    "signal": "(radius + 11) * cos(scale('angular', datum.key))"
-                  },
-                  "y": [{
-                      "test": "sin(scale('angular', datum.key)) > 0",
-                      "signal": "5 + (radius + 11) * sin(scale('angular', datum.key))"
-                    },
-                    {
-                      "test": "sin(scale('angular', datum.key)) < 0",
-                      "signal": "-5 + (radius + 11) * sin(scale('angular', datum.key))"
-                    },
-                    {
-                      "signal": "(radius + 11) * sin(scale('angular', datum.key))"
-                    }
-                  ],
-                  "text": {
-                    "field": "key"
-                  },
-                  "align": {
-                    "value": "center"
-                  },
-                  "baseline": [{
-                      "test": "scale('angular', datum.key) > 0",
-                      "value": "top"
-                    },
-                    {
-                      "test": "scale('angular', datum.key) == 0",
-                      "value": "middle"
-                    },
-                    {
-                      "value": "bottom"
-                    }
-                  ],
-                  "fill": {
-                    "value": "#fff"
-                  },
-                  "fontSize": {
-                    "value": 15
-                  },
-                  "font":{"value": "Segoe Script"},
-                }
-              }
-            },
-            {
-              "type": "line",
-              "name": "twenty-line",
-              "from": {
-                "data": "keys"
-              },
-              "encode": {
-                "enter": {
-                  "interpolate": {
-                    "value": "linear-closed"
-                  },
-                  "x": {
-                    "signal": "0.25 * radius * cos(scale('angular', datum.key))"
-                  },
-                  "y": {
-                    "signal": "0.25 * radius * sin(scale('angular', datum.key))"
-                  },
-                  "stroke": {
-                    "value": strokecolor
-                  },
-                  "strokeWidth": {
-                    "value": strokewidth
-                  }
-                }
-              }
-            },
-            {
-              "type": "line",
-              "name": "fourty-line",
-              "from": {
-                "data": "keys"
-              },
-              "encode": {
-                "enter": {
-                  "interpolate": {
-                    "value": "linear-closed"
-                  },
-                  "x": {
-                    "signal": "0.5 * radius * cos(scale('angular', datum.key))"
-                  },
-                  "y": {
-                    "signal": "0.5 * radius * sin(scale('angular', datum.key))"
-                  },
-                  "stroke": {
-                    "value": strokecolor
-                  },
-                  "strokeWidth": {
-                    "value": strokewidth
-                  }
-                }
-              }
-            },
-            {
-              "type": "line",
-              "name": "sixty-line",
-              "from": {
-                "data": "keys"
-              },
-              "encode": {
-                "enter": {
-                  "interpolate": {
-                    "value": "linear-closed"
-                  },
-                  "x": {
-                    "signal": "0.75 * radius * cos(scale('angular', datum.key))"
-                  },
-                  "y": {
-                    "signal": "0.75 * radius * sin(scale('angular', datum.key))"
-                  },
-                  "stroke": {
-                    "value": strokecolor
-                  },
-                  "strokeWidth": {
-                    "value": strokewidth
-                  }
-                }
-              }
-            },
-            // {
-            //   "type": "line",
-            //   "name": "eighty-line",
-            //   "from": {
-            //     "data": "keys"
-            //   },
-            //   "encode": {
-            //     "enter": {
-            //       "interpolate": {
-            //         "value": "linear-closed"
-            //       },
-            //       "x": {
-            //         "signal": "0.8 * radius * cos(scale('angular', datum.key))"
-            //       },
-            //       "y": {
-            //         "signal": "0.8 * radius * sin(scale('angular', datum.key))"
-            //       },
-            //       "stroke": {
-            //         "value": "lightgray"
-            //       },
-            //       "strokeWidth": {
-            //         "value": 1
-            //       }
-            //     }
-            //   }
-            // },
-            {
-              "type": "line",
-              "name": "outer-line",
-              "from": {
-                "data": "radial-grid"
-              },
-              "encode": {
-                "enter": {
-                  "interpolate": {
-                    "value": "linear-closed"
-                  },
-                  "x": {
-                    "field": "x2"
-                  },
-                  "y": {
-                    "field": "y2"
-                  },
-                  "stroke": {
-                    "value": strokecolor
-                  },
-                  "strokeWidth": {
-                    "value": strokewidth
-                  }
-                }
-              }
-            }
-          ]
-        }
-      };
-
-      const elem = document.createElement("div");
-      // elem.setAttribute("style", "display: inline-block; width: 250px; height: 300px; padding: 20px;");
-
-      const chart = new google.visualization.VegaChart(elem);
-      chart.draw(dataTable, options);
-
-      document.getElementById(id).appendChild(elem);
-    }
-
-}

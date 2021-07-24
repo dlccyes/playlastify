@@ -6,12 +6,14 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="config.js"></script>
     <script src="app.js"></script>
+    <script src="radarjs.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 
 <body>
 <div id="loadingOverlay"><embed id="loadingOverlayGIF" src="https://i.imgur.com/dVi5Ilw.gif"></embed><span id="loadingOverlayText">this may take a while ...</span></div>
-<h1>Playlistifie</h1>
+<h1>Playlastify</h1>
+<h3 style="font-family:Segoe Script;">Dig into your Spotify playlists with last.fm!</h3>
 <div id="changeBGDiv">
     <img src="https://i.imgur.com/hAcGmG3.jpg" id='BG1' class="smolBG"><br>   
     <img src="https://img.wallpapersafari.com/desktop/1440/900/32/54/hn3Wf6.jpeg" id='BG2' class="smolBG"><br>
@@ -21,14 +23,10 @@
 <button id='login' style='margin: 0%;'>login to spotify</button>
 <span id="logincomp" class="ldComp" style="display: none">you've logged in!</span>
 <br>
-<button id='current_playback' style='margin-left: 0%;'>show current playback</button>
-<br>
-<div id='currentPlaybackDiv' class="smol greycardDiv" style="display: none; margin-bottom: 3%;"></div>
-<br>
 <div>
     <p class="nice-tag">load your last.fm data</p>
     <p class="nice-tag" style="background: #bdaaff7a;">OPTIONAL</p>
-    <p style="display: inline;">type your last.fm username to get playcount data</p>
+    <p style="display: inline;">enter your last.fm username to get your scrobbles data</p>
     <br>
     <div class="input_area">
         <input type="text" id="lastfm_username_input" placeholder="last.fm username"></input>
@@ -38,11 +36,20 @@
             <option value="3month">3 month</option>
             <option value="6month">6 month</option>
             <option value="12month">12 month</option>
-            <option value="overakk">overall</option>
+            <option value="overall">overall</option>
         </select>
         <button id='lastfm_gettoptracks'>load last.fm data</button>
     </div>
     <span id="lastfm_loadcomp" style="display: none"></span>
+</div>
+<br>
+<button id='current_playback' style='margin-left: 0%;'>show current playback</button>
+<br>
+<div id='currentPlaybackDiv' style="display: none; margin-bottom: 3%; margin-left: 25px;">
+    <h3 id="currentTitle"></h3>
+    <div id="currentImg"></div>    
+    <div id="currentAudioFeatureDiv" class="audiofeature"></div>
+    <div id="currentAudioFeature2Div" class="audiofeature"></div>
 </div>
 <br>
 <!-- <button id='show_all_playlists'>show all playlists</button> -->
@@ -57,8 +64,13 @@
 <span id="spot_loadcomp" class="ldComp" style="display: none"></span><br>
 <span id="spot_loadcomp_tip" class="smol" style="display: none"></span>
 <br>
-<div id='currentPlaylistDiv'></div>
-
+<div id='currentPlaylistDiv' style="margin-left: 25px;"></div>
+<div id="sauceDiv" class="">
+    <a href="https://github.com/dlccyes/playlastify" style="display:flex; text-decoration:none;" target="_blank">
+        <!-- <img src="https://logos-world.net/wp-content/uploads/2020/11/GitHub-Emblem.png" width="80px"> -->
+        <p style="font-family:Consolas;color: #ffe7e7;">Github</p>
+    </a>
+</div>
 
 <script>
 
@@ -67,11 +79,6 @@ var token = null;
 var scopes = 'user-read-private user-read-email user-library-read user-read-currently-playing\
                 user-read-playback-state playlist-read-private';
 
-
-// if(code){
-//     token = get_token();
-// }
-// var playlists = [];
 login_token();
 
 var lastfm_toptracks = [];
@@ -89,33 +96,12 @@ $(document).ready(function(){
         // console.log(token);
     });
 
-    // var newurl = String(window.location);
-    // var code = newurl.slice(newurl.search(/=/)+1,);
-    // $.ajax({
-    //     url: "tolkien.php",
-    //     type: "POST",
-    //     data: {
-    //         code: code,
-    //     },
-    //     cache: false,
-    //     success: function(xhr){
-    //         console.log(xhr);
-    //         token = xhr;
-    //     }
-            
-    // });
 
     $('#show_all_playlists').click(function(){ //obsolete
         if(playlists.length == 0){ //alreadt executed
             get_all_playlists();
         }
     });
-
-    // $('[id^=BG]').click(function(){
-    //     $('body').css('background-image','none');
-    //     $('body').css('background-image','url("'+$(this).attr('src')+'")');
-    //     // $(this).attr('src');
-    // })
 
     $('#BG1').click(function(){
         $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), url("https://i.imgur.com/hAcGmG3.jpg")');
@@ -132,75 +118,99 @@ $(document).ready(function(){
     })
 
     EnterExec('#lastfm_username_input', function(){
-        // $('#lastfm_gettoptracks').html('loading');
-        withLoading(lastfm_fetch);
-        // $('#loadingOverlay').show();
-        // lastfm_fetch();
-        // $('#loadingOverlay').hide();
-        // $('#lastfm_gettoptracks').html('load last.fm data');
-        // $('#lastfm_loadcomp').show();
+        withLoading(function(){
+            lastfm_fetch()
+        });
     });
 
     $('#lastfm_gettoptracks').click(function(){
-        // $('#lastfm_gettoptracks').html('loading');
-        withLoading(lastfm_fetch);
-        // lastfm_fetch();
-        // $('#lastfm_gettoptracks').html('load last.fm data');
-        // $('#lastfm_loadcomp').show();
+        withLoading(function(){
+            lastfm_fetch()
+        });        // lastfm_fetch();
     });
 
 
 
 
     $('#current_playback').click(function(){
+        // current_id='';
         play = spott_get('https://api.spotify.com/v1/me/player', token, function(xhr){
             if(xhr){
-                // console.log(xhr['item']['name'],'by', xhr['item']['artists'][0]['name']);
+                current_id = xhr['item']['id'];
                 temp = '';
                 for(var artist of xhr['item']['artists']){
                     temp += artist['name'] + ', ';
                 }
                 temp = temp.slice(0,-2);
                 currentPlaybackhtml = xhr['item']['name']+' - '+temp;
+                // $('#currentPlaybackDiv').append('');
+                current_AudioFeatureDict = {};
+                var current_track;
+                spott_get_sync('https://api.spotify.com/v1/tracks/'+current_id, token, function(xhr){
+                    current_track = xhr;
+                    console.log(xhr);
+                    current_AudioFeatureDict['duration_ms'] = xhr['duration_ms'];
+                    current_AudioFeatureDict['popularity'] = xhr['popularity'];
+                    $('#currentImg').html('<img src="'+xhr['album']['images'][0]['url']+'" class="meta_img">')
+                });
+                spott_get_sync('https://api.spotify.com/v1/audio-features/'+current_id, token, function(xhr){
+                    console.log(xhr);
+                    temp = ['acousticness','danceability','duration_ms','energy','instrumentalness',
+                    'liveness','loudness','speechiness','tempo','valence']
+                    for(var item of temp){
+                        current_AudioFeatureDict[item] = xhr[item];
+                    }
+                    $('#currentAudioFeatureDiv').html(''); //clear
+                    drawRadar(current_AudioFeatureDict, 'currentAudioFeatureDiv');
+                });
+
+                currentAudioFeature2html = '<table>\
+                                                    <th></th><th></th>\
+                                                    <tr><td>popularity</td><td>'+current_AudioFeatureDict["popularity"]+'/100</td></tr>\
+                                                    <tr><td>duration</td><td>'+Math.floor(current_AudioFeatureDict["duration_ms"]/1000/60)+'m'+Math.round(current_AudioFeatureDict["duration_ms"]/1000)%60+'s</td></tr>\
+                                                    <tr><td>tempo</td><td>'+Math.round(current_AudioFeatureDict["tempo"])+' BPM</td></tr>\
+                                                    <tr><td>loudness</td><td>'+Math.round(current_AudioFeatureDict["loudness"])+' dB</td></tr>'
+                if(dict_len(lastfm_tracknameartistcount) != 0){
+                    // for(var item of sortedtracknameartistdateArr){
+                        title = current_track['name']+' - '+current_track['artists'][0]['name'];
+                        // console.log(title);
+                    if(lastfm_tracknameartistcount[title.toLowerCase()]){ //'song_title - 1st_artist'
+                        count = lastfm_tracknameartistcount[title.toLowerCase()];
+                    }else{ //no play record
+                        count = 0;
+                    }
+                    // }
+                    console.log(count);
+                    currentAudioFeature2html += '<tr><td>scrobbles</td><td>'+count+'</td></tr>';
+                }
+                currentAudioFeature2html += '</table>'
+                $('#currentAudioFeature2Div').html(currentAudioFeature2html);
+
+                $('#currentPlaybackDiv').show();
             }else{
                 currentPlaybackhtml = 'nothing is playing';
             }
-            $('#currentPlaybackDiv').html(currentPlaybackhtml).show();
+            $('#currentTitle').html(currentPlaybackhtml).show();
+
+
       });
     });
 
 
     EnterExec('#playlist_input', function(){
-        // $('#get_playlist').html('loading');
         withLoading(get_playlist_details);
-        // get_playlist_details();
-        // $('#get_playlist').html('show playlist detail');
-        // $('#spot_loadcomp').show();
     });
 
-    // $('#playlist_input').keypress(function(e){
-    //     if(e.which == 13){
-    //         $('#get_playlist').html('loading');
-    //         get_playlist_details();
-    //         $('#get_playlist').html('show playlist detail');
-    //     }
-    // });
 
     $('#get_playlist').click(function(){
-        // $('#get_playlist').html('loading');
         withLoading(get_playlist_details);
-        // get_playlist_details();
-        // $('#get_playlist').html('show playlist detail');
-        // $('#spot_loadcomp').show();
+
     });
     
     $('#get_liked_song').click(function(){
-        // $('#get_liked_song').html('loading');
         withLoading(function(){
             get_playlist_details(use_liked_song=true);        
         });
-        // $('#get_liked_song').html('show liked songs');
-        // $('#spot_loadcomp').show();
     })
 
 
