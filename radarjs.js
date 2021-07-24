@@ -1,7 +1,5 @@
 function drawRadar(data, id){
-    google.charts.load('upcoming', {
-      'packages': ['vegachart']
-    }).then(loadCharts);
+    google.charts.load('upcoming', {'packages': ['vegachart']}).then(loadCharts);
 
     console.log(data);
 

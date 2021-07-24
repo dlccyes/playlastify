@@ -211,6 +211,20 @@ function avg_popularity(all_tracks){
     return temp;
 }
 
+function date_count(all_tracks){
+    dateVScountDict = {};
+    for(var track of all_tracks){
+        this_date = track['added_at'].slice(0,7); //2021-05
+        // this_date = new Date(track['added_at'].slice(0,7)); //2021-05
+        if(!dateVScountDict[this_date]){ //init
+            dateVScountDict[this_date] = 0;
+        }
+        dateVScountDict[this_date] += 1;
+    }
+    console.log(dateVScountDict);
+    return dateVScountDict;
+}
+
 function get_playlist_details(use_liked_song=false){
     if(token){
         if(use_liked_song){
@@ -262,6 +276,8 @@ function get_playlist_details(use_liked_song=false){
                                     <h2>'+playlist_name+'</h2>\
                                 </div><br>\
                                 <br>\
+                                <div id="DateGraphDiv" class="">\
+                                </div><br>\
                                 <div id="ArtistDiv">\
                                     <div id="ArtistGraph" style="float: left;">\
                                         <h3 style="margin: 0;">Artists pie chart of '+playlist_name+'</h3>\
@@ -298,7 +314,7 @@ function get_playlist_details(use_liked_song=false){
             
             tracknameartistdateDict = TrackNameArtistDate(all_tracks);
             sortedtracknameartistdateArr = sortDict(tracknameartistdateDict);
-            if(Object.keys(lastfm_tracknameartistcount).length != 0){ //last.fm
+            if(dict_len(lastfm_tracknameartistcount) != 0){ //last.fm
                 for(var item of sortedtracknameartistdateArr){
                     stuff = item[0].split(' - ');
                     title = stuff[0]+' - '+stuff[1].split(', ')[0];
@@ -322,7 +338,7 @@ function get_playlist_details(use_liked_song=false){
                                         <tr><td>average duration</td><td>'+Math.floor(AudioFeatureDict["duration_ms"]/1000/60)+'m'+Math.round(AudioFeatureDict["duration_ms"]/1000)%60+'s</td></tr>\
                                         <tr><td>average tempo</td><td>'+Math.round(AudioFeatureDict["tempo"])+' BPM</td></tr>\
                                         <tr><td>average loudness</td><td>'+Math.round(AudioFeatureDict["loudness"])+' dB</td></tr>'
-            if(Object.keys(lastfm_tracknameartistcount).length != 0){
+            if(dict_len(lastfm_tracknameartistcount) != 0){
                 count = 0
                 for(var item of sortedtracknameartistdateArr){
                     count += parseInt(item[2]);
@@ -360,7 +376,7 @@ function get_playlist_details(use_liked_song=false){
             printable2(sortedArtistArr, 10, 'ArtistListDiv', 'Artist', 'number of tracks');
 
 
-            if(Object.keys(lastfm_tracknameartistcount).length != 0){
+            if(dict_len(lastfm_tracknameartistcount) != 0){
                 plays = 'scrobbles';                
             }else{
                 plays = null;
@@ -372,7 +388,7 @@ function get_playlist_details(use_liked_song=false){
 
             printable4(sortedtracknameartistdateArr_r, 10, 'NewestDiv', 'title', 'artist', 'days since added', plays);
 
-            if(Object.keys(lastfm_tracknameartistcount).length != 0){
+            if(dict_len(lastfm_tracknameartistcount) != 0){
                 mostplayedhtml = '<div id="MostPlayedDiv" class="greycardDiv">\
                                         <h3>top 10 most played tracks</h3>\
                                     </div><br>'
@@ -380,6 +396,68 @@ function get_playlist_details(use_liked_song=false){
                 sortedbyplay = sortArr(sortedtracknameartistdateArr_r,2);
                 printable4(sortedbyplay, 10, 'MostPlayedDiv', 'title', 'artist', 'days since added', plays);                
             }
+
+            dateVScountDict = date_count(all_tracks);
+            dateVScountArr = [];
+            for(var date in dateVScountDict){
+                dateVScountArr.push([date,dateVScountDict[date]]);
+            }
+            dateVScountArr.sort();
+
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(function(){
+            // function drawChart () {
+                // dateVScountArr = [['a','f']].concat(dateVScountArr);
+                var data = new google.visualization.DataTable();
+                // var data = google.visualization.arrayToDataTable(dateVScountArr);
+                data.addColumn('date','date');
+                data.addColumn('number','tracks added');
+                for(var date of dateVScountArr){
+                    data.addRow([new Date(date[0]), date[1]]);
+                }
+
+                var options = {
+                    width: 1200,
+                    height: 500,
+                    series:{0:{color:'#ffd8d2'}},
+                    backgroundColor: {fill:'transparent',stroke:'transparent'},
+                    chartArea: {backgroundColor:{fill:'transparent',stroke:'#fff'}},
+                    chart: {
+                      title: '',
+                      // subtitle: 'based on hours studied'
+                    },
+                    curveType: 'function',
+                    // tooltip:{textStyle:{color:'#fff'}},
+                    legend:{textStyle: {color:'transparent'}},
+                    hAxis: { //x-axis
+                        title: 'added month',
+                        titleTextStyle:{color:"#fff", fontName:"Segoe Print", fontSize:18},
+                        textStyle:{color:'#fff'},
+                        baselineColor:'transparent',
+                        gridlines:{color:'transparent'},
+                        minorGridlines:{color:'transparent'},
+                        format: 'yy-MM',
+                    },
+                    vAxis: { //y-axis
+                        title: 'num of tracks', 
+                        titleTextStyle:{color:"#fff", fontName:"Segoe Print", fontSize:18},
+                        viewWindow: {min:0},
+                        textStyle:{color:'#fff'},
+                        baselineColor:'transparent',
+                        gridlines:{color:'transparent',multiple:1},
+                        // minorGridlines:{color:'transparent',minSpacing:0}
+                    }
+                };
+
+                var chart = new google.visualization.LineChart(document.getElementById('DateGraphDiv'));
+
+                chart.draw(data, options);
+            // }
+
+            });
+
+
+
 
             $('#srch_dur').click(function(){
                 searchSong(sortedtracknameartistdateArr);

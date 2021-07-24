@@ -87,6 +87,22 @@ th {
     user-select: none;
 }
 
+.meta_img {
+    height: 350px;
+    border-radius: 20px;
+    width: auto;
+    float: left;
+    opacity: 0.85;
+}
+
+.audiofeature {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+        margin-left: 0px;
+    margin-left: 15px;
+}
+
 .horizCen {
     position: relative;
     transform: translate(-50%);
@@ -197,12 +213,12 @@ th {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+  background-color: rgba(0,0,0,0.7); /* Black background with opacity */
   z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
   cursor: wait; /* Add a pointer on hover */
 }
 
-#loadingOverlayGIF{
+#loadingOverlayGIF {
     border-radius: 50px;
     position: absolute;
     transform: translate(-50%, -50%);
@@ -217,3 +233,10 @@ th {
     left: 67%;
 }
 
+#sauceDiv {
+    padding: 1px 20px;
+    left: 50%;
+    position: absolute;
+    display: flex;
+    transform: translate(-50%);
+}
