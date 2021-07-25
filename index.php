@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
     <link rel='stylesheet' href="style.css" type='text/css' media='all' /> 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
     <script src="config.js"></script>
     <script src="app.js"></script>
     <script src="radarjs.js"></script>
@@ -47,9 +48,11 @@
 <br>
 <div id='currentPlaybackDiv' style="display: none; margin-bottom: 3%; margin-left: 25px;">
     <h3 id="currentTitle"></h3>
-    <div id="currentImg"></div>    
-    <div id="currentAudioFeatureDiv" class="audiofeature"></div>
-    <div id="currentAudioFeature2Div" class="audiofeature"></div>
+    <div id="currentMeta">
+        <div id="currentImg"></div>
+        <div id="currentAudioFeatureDiv" class="audiofeature"></div>
+        <div id="currentAudioFeature2Div" class="audiofeature"></div>
+    </div>
 </div>
 <br>
 <!-- <button id='show_all_playlists'>show all playlists</button> -->
@@ -79,7 +82,7 @@ var token = null;
 var scopes = 'user-read-private user-read-email user-library-read user-read-currently-playing\
                 user-read-playback-state playlist-read-private';
 
-login_token();
+parse_token();
 
 var lastfm_toptracks = [];
 var lastfm_tracknameartistcount = {};
@@ -87,13 +90,11 @@ var url;
 
 $(document).ready(function(){
     $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), url("https://i.imgur.com/hAcGmG3.jpg")');
-    $('body').css('background-size',window.innerWidth*1.2+"px");
+    // $('body').css('background-size',window.innerWidth*1.2+"px");
 
     $('#login').click(function(){
-        // login();
         get_token_implicit();
-        login_token();
-        // console.log(token);
+        parse_token();
     });
 
 
@@ -104,12 +105,15 @@ $(document).ready(function(){
     });
 
     $('#BG1').click(function(){
-        $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), url("https://i.imgur.com/hAcGmG3.jpg")');
-        $('body').css('background-size',window.innerWidth*1.2+"px");
+        $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)),\
+            url("https://i.imgur.com/hAcGmG3.jpg")');
+        $('body').css('background-size','cover');
+        // $('body').css('background-size',window.innerWidth*1.2+"px");
     })
     $('#BG2').click(function(){
         $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url("https://img.wallpapersafari.com/desktop/1440/900/32/54/hn3Wf6.jpeg")');
-        $('body').css('background-size','auto');
+        $('body').css('background-size','cover');
+        // $('body').css('background-size','auto');
     })
     $('#BG3').click(function(){
         $('body').css('background-image','linear-gradient(rgba(0, 0, 0, .3), rgba(0, 0, 0, 0.3)), url("https://i.giphy.com/media/xTiTnxpQ3ghPiB2Hp6/giphy.webp")');
@@ -129,82 +133,24 @@ $(document).ready(function(){
         });        // lastfm_fetch();
     });
 
-
-
-
     $('#current_playback').click(function(){
         // current_id='';
-        play = spott_get('https://api.spotify.com/v1/me/player', token, function(xhr){
-            if(xhr){
-                current_id = xhr['item']['id'];
-                temp = '';
-                for(var artist of xhr['item']['artists']){
-                    temp += artist['name'] + ', ';
-                }
-                temp = temp.slice(0,-2);
-                currentPlaybackhtml = xhr['item']['name']+' - '+temp;
-                // $('#currentPlaybackDiv').append('');
-                current_AudioFeatureDict = {};
-                var current_track;
-                spott_get_sync('https://api.spotify.com/v1/tracks/'+current_id, token, function(xhr){
-                    current_track = xhr;
-                    console.log(xhr);
-                    current_AudioFeatureDict['duration_ms'] = xhr['duration_ms'];
-                    current_AudioFeatureDict['popularity'] = xhr['popularity'];
-                    $('#currentImg').html('<img src="'+xhr['album']['images'][0]['url']+'" class="meta_img">')
-                });
-                spott_get_sync('https://api.spotify.com/v1/audio-features/'+current_id, token, function(xhr){
-                    console.log(xhr);
-                    temp = ['acousticness','danceability','duration_ms','energy','instrumentalness',
-                    'liveness','loudness','speechiness','tempo','valence']
-                    for(var item of temp){
-                        current_AudioFeatureDict[item] = xhr[item];
-                    }
-                    $('#currentAudioFeatureDiv').html(''); //clear
-                    drawRadar(current_AudioFeatureDict, 'currentAudioFeatureDiv');
-                });
-
-                currentAudioFeature2html = '<table>\
-                                                    <th></th><th></th>\
-                                                    <tr><td>popularity</td><td>'+current_AudioFeatureDict["popularity"]+'/100</td></tr>\
-                                                    <tr><td>duration</td><td>'+Math.floor(current_AudioFeatureDict["duration_ms"]/1000/60)+'m'+Math.round(current_AudioFeatureDict["duration_ms"]/1000)%60+'s</td></tr>\
-                                                    <tr><td>tempo</td><td>'+Math.round(current_AudioFeatureDict["tempo"])+' BPM</td></tr>\
-                                                    <tr><td>loudness</td><td>'+Math.round(current_AudioFeatureDict["loudness"])+' dB</td></tr>'
-                if(dict_len(lastfm_tracknameartistcount) != 0){
-                    // for(var item of sortedtracknameartistdateArr){
-                        title = current_track['name']+' - '+current_track['artists'][0]['name'];
-                        // console.log(title);
-                    if(lastfm_tracknameartistcount[title.toLowerCase()]){ //'song_title - 1st_artist'
-                        count = lastfm_tracknameartistcount[title.toLowerCase()];
-                    }else{ //no play record
-                        count = 0;
-                    }
-                    // }
-                    console.log(count);
-                    currentAudioFeature2html += '<tr><td>scrobbles</td><td>'+count+'</td></tr>';
-                }
-                currentAudioFeature2html += '</table>'
-                $('#currentAudioFeature2Div').html(currentAudioFeature2html);
-
-                $('#currentPlaybackDiv').show();
-            }else{
-                currentPlaybackhtml = 'nothing is playing';
-            }
-            $('#currentTitle').html(currentPlaybackhtml).show();
-
-
-      });
+        withLoading(function(){
+            show_current_playback();
+        });
     });
 
-
     EnterExec('#playlist_input', function(){
-        withLoading(get_playlist_details);
+        withLoading(function(){
+            get_playlist_details();
+        });
     });
 
 
     $('#get_playlist').click(function(){
-        withLoading(get_playlist_details);
-
+        withLoading(function(){
+            get_playlist_details();
+        });
     });
     
     $('#get_liked_song').click(function(){
@@ -212,7 +158,6 @@ $(document).ready(function(){
             get_playlist_details(use_liked_song=true);        
         });
     })
-
 
 });
 

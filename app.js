@@ -1,4 +1,3 @@
-
 function get_token_implicit(){ //implicit grant flow
     var url='https://accounts.spotify.com/authorize'
     url += "?client_id=" + client_id;
@@ -9,7 +8,7 @@ function get_token_implicit(){ //implicit grant flow
     location.href = url;
 }
 
-function login_token(){
+function parse_token(){
     var url = String(window.location);
     if(url.search(/=/)!=-1){
         token = url.slice(url.search(/=/)+1,url.search(/&/));
@@ -160,6 +159,71 @@ function sortArr(ogArr, key){
     return newArr;
 }
 
+function show_current_playback(){
+    play = spott_get('https://api.spotify.com/v1/me/player', token, function(xhr){
+        if(xhr){
+            $('#currentMeta').show();
+            current_id = xhr['item']['id'];
+            temp = '';
+            for(var artist of xhr['item']['artists']){
+                temp += artist['name'] + ', ';
+            }
+            temp = temp.slice(0,-2);
+            currentPlaybackhtml = xhr['item']['name']+' - '+temp;
+            // $('#currentPlaybackDiv').append('');
+            current_AudioFeatureDict = {};
+            var current_track;
+            spott_get_sync('https://api.spotify.com/v1/tracks/'+current_id, token, function(xhr){
+                current_track = xhr;
+                console.log(xhr);
+                current_AudioFeatureDict['duration_ms'] = xhr['duration_ms'];
+                current_AudioFeatureDict['popularity'] = xhr['popularity'];
+                $('#currentImg').html('<img src="'+xhr['album']['images'][0]['url']+'" class="meta_img">')
+            });
+            spott_get_sync('https://api.spotify.com/v1/audio-features/'+current_id, token, function(xhr){
+                console.log(xhr);
+                temp = ['acousticness','danceability','duration_ms','energy','instrumentalness',
+                'liveness','loudness','speechiness','tempo','valence']
+                for(var item of temp){
+                    current_AudioFeatureDict[item] = xhr[item];
+                }
+                $('#currentAudioFeatureDiv').html(''); //clear
+                drawRadar(current_AudioFeatureDict, 'currentAudioFeatureDiv');
+            });
+
+            currentAudioFeature2html = '<table>\
+                                                <th></th><th></th>\
+                                                <tr><td>popularity</td><td>'+current_AudioFeatureDict["popularity"]+'/100</td></tr>\
+                                                <tr><td>duration</td><td>'+Math.floor(current_AudioFeatureDict["duration_ms"]/1000/60)+'m'+Math.round(current_AudioFeatureDict["duration_ms"]/1000)%60+'s</td></tr>\
+                                                <tr><td>tempo</td><td>'+Math.round(current_AudioFeatureDict["tempo"])+' BPM</td></tr>\
+                                                <tr><td>loudness</td><td>'+Math.round(current_AudioFeatureDict["loudness"])+' dB</td></tr>'
+            if(dict_len(lastfm_tracknameartistcount) != 0){
+                // for(var item of sortedtracknameartistdateArr){
+                    title = current_track['name']+' - '+current_track['artists'][0]['name'];
+                    // console.log(title);
+                if(lastfm_tracknameartistcount[title.toLowerCase()]){ //'song_title - 1st_artist'
+                    count = lastfm_tracknameartistcount[title.toLowerCase()];
+                }else{ //no play record
+                    count = 0;
+                }
+                // }
+                console.log(count);
+                currentAudioFeature2html += '<tr><td>scrobbles</td><td>'+count+'</td></tr>';
+            }
+            currentAudioFeature2html += '</table>'
+            $('#currentAudioFeature2Div').html(currentAudioFeature2html);
+
+            $('#currentPlaybackDiv').show();
+        }else{
+            $('#currentMeta').hide();
+            currentPlaybackhtml = 'nothing is playing';
+        }
+        $('#currentTitle').html(currentPlaybackhtml).show();
+
+
+    });
+}
+
 function get_playlist_audio_features(all_tracks){
     idStr = '';
     i=0;
@@ -305,7 +369,7 @@ function get_playlist_details(use_liked_song=false){
                                     </div>\
                                 </div>'
             $('#currentPlaylistDiv').html(playlistDivhtml);
-            if(!use_liked_song){ //add image
+            if(!use_liked_song && current_playlist['images'].length>0){ //add image
                 image_url = current_playlist['images'][0]['url'];
                 $('#PlaylistMeta').append('<img src="'+image_url+'" class="meta_img">');
             }
@@ -485,12 +549,17 @@ function get_playlist_details(use_liked_song=false){
 
 
 function withLoading(callback){
-    if(token){
-        $('#loadingOverlay').show();
-        callback();
+    try{
+        if(token){
+            $('#loadingOverlay').show();
+            callback();
+            $('#loadingOverlay').hide();
+        }else{
+            alert('please login to Spotify first');
+        }
+    }catch{
+        alert('something went wrong 😭😭\n\nplease try another playlist');
         $('#loadingOverlay').hide();
-    }else{
-        alert('please login to Spotify first');
     }
 }
 
