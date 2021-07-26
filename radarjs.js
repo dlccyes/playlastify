@@ -1,3 +1,29 @@
+function drawPie(dataArr, id){
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(function(){
+        var data = google.visualization.arrayToDataTable(dataArr);
+        var options = {
+          // title: 'Artist pie chart of '+playlist_name,
+            width: 800, //800
+            pieHole: 0.2,
+            backgroundColor: {
+                fill: 'transparent',
+                // stroke: '#000',
+            },
+            legend: {
+                textStyle:{
+                    color: '#fff'
+                }
+            },
+            // pieSliceBorderColor: 'transparent',
+            sliceVisibilityThreshold: .0041, //smaller than this → others
+        };
+        var chart = new google.visualization.PieChart(document.getElementById(id));
+        chart.draw(data, options);    
+    });
+}
+
+
 function drawRadar(data, id){
     google.charts.load('upcoming', {'packages': ['vegachart']}).then(loadCharts);
 

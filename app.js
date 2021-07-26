@@ -74,7 +74,7 @@ function spott_get(url, token, callback, async=true){
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                alert('please login');
+                alert("Something's wrong. Please relogin, wait a while or try another playlist.");
                 if(callback){
                     callback('nooooooooo');
                 }
@@ -169,37 +169,71 @@ function show_current_playback(){
                 temp += artist['name'] + ', ';
             }
             temp = temp.slice(0,-2);
-            currentPlaybackhtml = xhr['item']['name']+' - '+temp;
+            currentTitle = xhr['item']['name']+' - '+temp;
             // $('#currentPlaybackDiv').append('');
             current_AudioFeatureDict = {};
             var current_track;
-            spott_get_sync('https://api.spotify.com/v1/tracks/'+current_id, token, function(xhr){
-                current_track = xhr;
-                console.log(xhr);
-                current_AudioFeatureDict['duration_ms'] = xhr['duration_ms'];
-                current_AudioFeatureDict['popularity'] = xhr['popularity'];
-                $('#currentImg').html('<img src="'+xhr['album']['images'][0]['url']+'" class="meta_img">')
-            });
-            spott_get_sync('https://api.spotify.com/v1/audio-features/'+current_id, token, function(xhr){
-                console.log(xhr);
-                temp = ['acousticness','danceability','duration_ms','energy','instrumentalness',
-                'liveness','loudness','speechiness','tempo','valence']
-                for(var item of temp){
-                    current_AudioFeatureDict[item] = xhr[item];
-                }
-                $('#currentAudioFeatureDiv').html(''); //clear
-                drawRadar(current_AudioFeatureDict, 'currentAudioFeatureDiv');
-            });
+            artists_ids = [];
+            if(!current_id){
+                alert('no detailed data for local song');
+                $('#currentMeta').hide();
+            }
+            if(current_id){
+                spott_get_sync('https://api.spotify.com/v1/tracks/'+current_id, token, function(xhr){
+                    current_track = xhr;
+                    console.log(xhr);
+                    for(var artist of xhr['artists']){
+                        artists_ids.push(artist['id']);
+                    }
+                    current_AudioFeatureDict['duration_ms'] = xhr['duration_ms'];
+                    current_AudioFeatureDict['popularity'] = xhr['popularity'];
+                    $('#currentImg').html('<img src="'+xhr['album']['images'][0]['url']+'" class="meta_img">')
+                });
+                spott_get_sync('https://api.spotify.com/v1/audio-features/'+current_id, token, function(xhr){
+                    console.log(xhr);
+                    temp = ['acousticness','danceability','duration_ms','energy','instrumentalness',
+                    'liveness','loudness','speechiness','tempo','valence']
+                    for(var item of temp){
+                        current_AudioFeatureDict[item] = xhr[item];
+                    }
+                    $('#currentAudioFeatureDiv').html(''); //clear
+                    drawRadar(current_AudioFeatureDict, 'currentAudioFeatureDiv');
+                });
 
-            currentAudioFeature2html = '<table>\
-                                                <th></th><th></th>\
-                                                <tr><td>popularity</td><td>'+current_AudioFeatureDict["popularity"]+'/100</td></tr>\
-                                                <tr><td>duration</td><td>'+Math.floor(current_AudioFeatureDict["duration_ms"]/1000/60)+'m'+Math.round(current_AudioFeatureDict["duration_ms"]/1000)%60+'s</td></tr>\
-                                                <tr><td>tempo</td><td>'+Math.round(current_AudioFeatureDict["tempo"])+' BPM</td></tr>\
-                                                <tr><td>loudness</td><td>'+Math.round(current_AudioFeatureDict["loudness"])+' dB</td></tr>'
+                currentGenreDict = {};
+                for(var id of artists_ids){
+                    spott_get_sync('https://api.spotify.com/v1/artists/'+id, token, function(xhr){
+                        console.log(xhr);
+                        for(var gen of xhr['genres']){
+                            if(!currentGenreDict[gen]){
+                                currentGenreDict[gen] = true;
+                            }
+                        }
+                    });
+                }
+                genreStr = '';
+                for(var gen of Object.keys(currentGenreDict)){
+                    genreStr += gen + '<br>';        
+                }
+            }
+
+            currentAudioFeature2html = '<table><th></th><th></th>';
+            if(current_id){
+                currentAudioFeature2html += '<tr><td>popularity</td><td>'+current_AudioFeatureDict["popularity"]+'/100</td></tr>\
+                                                    <tr><td>duration</td><td>'+Math.floor(current_AudioFeatureDict["duration_ms"]/1000/60)+'m'+Math.round(current_AudioFeatureDict["duration_ms"]/1000)%60+'s</td></tr>\
+                                                    <tr><td>tempo</td><td>'+Math.round(current_AudioFeatureDict["tempo"])+' BPM</td></tr>\
+                                                    <tr><td>loudness</td><td>'+Math.round(current_AudioFeatureDict["loudness"])+' dB</td></tr>\
+                                                    <tr><td>artist genres</td><td>'+genreStr+'</td></tr>';
+            }
             if(dict_len(lastfm_tracknameartistcount) != 0){
                 // for(var item of sortedtracknameartistdateArr){
-                    title = current_track['name']+' - '+current_track['artists'][0]['name'];
+                    stuff = currentTitle.split(' - ');
+                    title = stuff[0]+' - '+stuff[1].split(', ')[0];
+                    // if(current_id){
+                    //     title = current_track['name']+' - '+current_track['artists'][0]['name'];
+                    // }else{
+                    //     title = currentTitle;
+                    // }
                     // console.log(title);
                 if(lastfm_tracknameartistcount[title.toLowerCase()]){ //'song_title - 1st_artist'
                     count = lastfm_tracknameartistcount[title.toLowerCase()];
@@ -213,12 +247,12 @@ function show_current_playback(){
             currentAudioFeature2html += '</table>'
             $('#currentAudioFeature2Div').html(currentAudioFeature2html);
 
-            $('#currentPlaybackDiv').show();
         }else{
             $('#currentMeta').hide();
-            currentPlaybackhtml = 'nothing is playing';
+            currentTitle = 'nothing is playing';
         }
-        $('#currentTitle').html(currentPlaybackhtml).show();
+        $('#currentTitle').html(currentTitle).show();
+        $('#currentPlaybackDiv').show();
 
 
     });
@@ -289,12 +323,49 @@ function date_count(all_tracks){
     return dateVScountDict;
 }
 
+function idDictify(all_tracks){
+    var idDict = {};
+    for(item of all_tracks){
+        for(var artist of item['track']['artists']){
+            if(!idDict[artist['id']]){
+                idDict[artist['id']] = 0;
+            }
+            idDict[artist['id']] += 1;
+        }
+    }
+    return idDict;
+    // console.log(idDict);
+}
+
+function getGenresArr(idDict){
+    var genreDict = {};
+    for(var id in idDict){
+        if(id && id!='null'){
+            spott_get_sync('https://api.spotify.com/v1/artists/'+id, token, function(xhr){
+                // console.log(xhr);
+                for(var gen of xhr['genres']){
+                    if(!genreDict[gen]){
+                        genreDict[gen] = 0;
+                    }
+                    genreDict[gen] += idDict[id];
+                }
+            });
+        }
+    }
+    genreArr = sortDict(genreDict);
+    console.log(genreDict);
+    return genreArr;
+}
+
 function get_playlist_details(use_liked_song=false){
     if(token){
         if(use_liked_song){
             var playlist_name = 'Liked Songs';
         }else{
             var playlists = get_all_playlists();
+            if(!playlists){
+                return;
+            }
             name = $('#playlist_input').val();
             var playlist_id = '';
             var playlist_name = '';
@@ -319,6 +390,9 @@ function get_playlist_details(use_liked_song=false){
             if(use_liked_song){
                 next_url = 'https://api.spotify.com/v1/me/tracks?limit=50';
                 liked_songs = iterateAll('https://api.spotify.com/v1/me/tracks?limit=50');
+                if(!liked_songs){
+                    return;
+                }
                 all_tracks = liked_songs;
                 console.log('saved',liked_songs);
             }else{
@@ -327,6 +401,9 @@ function get_playlist_details(use_liked_song=false){
                 });
 
                 current_playlist['tracks']['items'] = iterateAll('https://api.spotify.com/v1/playlists/'+playlist_id+'/tracks?limit=100'); //replace
+                if(!current_playlist['tracks']['items']){
+                    return;
+                }
                 // console.log(current_playlist['tracks']['items']);
                 all_tracks = current_playlist['tracks']['items'];
             }
@@ -340,17 +417,21 @@ function get_playlist_details(use_liked_song=false){
                                     <h2>'+playlist_name+'</h2>\
                                 </div><br>\
                                 <br>\
-                                <div id="DateGraphDiv" class="">\
+                                <div id="DateGraphDiv" class="" style="height:500px;">\
                                 </div><br>\
                                 <div id="ArtistDiv">\
-                                    <div id="ArtistGraph" style="float: left;">\
+                                    <div id="ArtistGraph" style="float:left;">\
                                         <h3 style="margin: 0;">Artists pie chart of '+playlist_name+'</h3>\
-                                        <div id="ArtistPiechart" style="width: 900px; height: 500px; margin-top: -45px;""></div>\
+                                        <div id="ArtistPiechart" style="width: auto; height: 500px; margin-top: -45px;""></div>\
                                     </div>\
                                     <div id="ArtistListDiv" class="greycardDiv">\
                                         <h3>top 10 artists</h3>\
                                     </div>\
                                 </div><br>\
+                                <div id="GenreGraph" style="float:left;">\
+                                    <h3 style="margin: 0;">Genre pie chart of '+playlist_name+'</h3>\
+                                    <div id="GenrePiechart" style="width: auto; height: 500px; margin-top: -45px;""></div>\
+                                </div>\
                                 <div id="OldestDiv" class="greycardDiv">\
                                     <h3>top 10 oldest tracks</h3>\
                                 </div>\
@@ -413,28 +494,30 @@ function get_playlist_details(use_liked_song=false){
             AudioFeature2html += '</table></div>'
             $('#PlaylistMeta').append(AudioFeature2html)
 
-            google.charts.load('current', {'packages':['corechart']});
-            google.charts.setOnLoadCallback(function(){
-                var data = google.visualization.arrayToDataTable(sortedArtistArrwTitle);
-                var options = {
-                  // title: 'Artist pie chart of '+playlist_name,
-                    width: 800,
-                    pieHole: 0.2,
-                    backgroundColor: {
-                        fill: 'transparent',
-                        // stroke: '#000',
-                    },
-                    legend: {
-                        textStyle:{
-                            color: '#fff'
-                        }
-                    },
-                    // pieSliceBorderColor: 'transparent',
-                    sliceVisibilityThreshold: .0041, //smaller than this → others
-                };
-                var chart = new google.visualization.PieChart(document.getElementById('ArtistPiechart'));
-                chart.draw(data, options);    
-            });
+            drawPie(sortedArtistArrwTitle, 'ArtistPiechart');
+
+            // google.charts.load('current', {'packages':['corechart']});
+            // google.charts.setOnLoadCallback(function(){
+            //     var data = google.visualization.arrayToDataTable(sortedArtistArrwTitle);
+            //     var options = {
+            //       // title: 'Artist pie chart of '+playlist_name,
+            //         width: 800, //800
+            //         pieHole: 0.2,
+            //         backgroundColor: {
+            //             fill: 'transparent',
+            //             // stroke: '#000',
+            //         },
+            //         legend: {
+            //             textStyle:{
+            //                 color: '#fff'
+            //             }
+            //         },
+            //         // pieSliceBorderColor: 'transparent',
+            //         sliceVisibilityThreshold: .0041, //smaller than this → others
+            //     };
+            //     var chart = new google.visualization.PieChart(document.getElementById('ArtistPiechart'));
+            //     chart.draw(data, options);    
+            // });
 
 
             printable2(sortedArtistArr, 10, 'ArtistListDiv', 'Artist', 'number of tracks');
@@ -481,8 +564,8 @@ function get_playlist_details(use_liked_song=false){
                 }
 
                 var options = {
-                    width: 1200,
-                    height: 500,
+                    width: 'auto', //1200
+                    height: 'auto', //500
                     series:{0:{color:'#ffd8d2'}},
                     backgroundColor: {fill:'transparent',stroke:'transparent'},
                     chartArea: {backgroundColor:{fill:'transparent',stroke:'#fff'}},
@@ -520,8 +603,13 @@ function get_playlist_details(use_liked_song=false){
 
             });
 
-
-
+            idDict = idDictify(all_tracks);
+            genreArr = getGenresArr(idDict);
+            // for(var gen in genreDict){
+            //     genreArr.push([gen,genreDict[gen]]);
+            // }
+            genreArrwTitle = [['a','b']].concat(genreArr);
+            drawPie(genreArrwTitle, 'GenrePiechart');
 
             $('#srch_dur').click(function(){
                 searchSong(sortedtracknameartistdateArr);
@@ -742,14 +830,15 @@ function searchSong(sortedtracknameartistdateArr){
 
 function iterateAll(next_url){
     if(token){
-        var temp = []
+        var temp = [];
         var continuue = true;
         try{
             while(continuue){
                 spott_get_sync(next_url, token, function(xhr){
                     if(xhr == 'nooooooooo'){
-                        alert('FAILED');
-                        continuue = false; 
+                        // alert('FAILED');
+                        continuue = false;
+                        temp = null;
                     }else{
                         temp = temp.concat(xhr['items']);
                         if(xhr['next']){

@@ -35,14 +35,14 @@ body {
     margin: 5%;
     background-attachment: fixed;
     background-size: cover;
-
+    height: 100vh;
 }
 
 table {
     text-align: center;   
 }
 
-button {
+button, #lastfm_gettoptracks {
     background-color: #1db954;
     border-radius: 500px;
     transition-duration: .3s;
@@ -55,8 +55,15 @@ button {
     padding: 10px;
     margin: 1%;
 }
+#lastfm_gettoptracks {
+    background-color: #ab0000 !important;
+    color: #fff;
+}
 button:hover {
     background-color: #42d275;
+}
+#lastfm_gettoptracks:hover {
+    background-color: #cd0000 !important;
 }
 button:active {
     opacity: 0.8;
@@ -122,13 +129,13 @@ th {
 
 }
 
-#ArtistGraph {
+#ArtistGraph, #GenreGraph {
     float: left;    
     width: 672px;
     padding: 19px;
     border-radius: 20px;
     background: #ffffff5c;
-    margin: 1%;
+    margin: 1%; 
     /*margin-bottom: 0;*/
 }
 
