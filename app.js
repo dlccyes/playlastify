@@ -309,10 +309,16 @@ function avg_popularity(all_tracks){
     return temp;
 }
 
-function date_count(all_tracks){
+function date_count(all_tracks, type){
     dateVScountDict = {};
     for(var track of all_tracks){
-        this_date = track['added_at'].slice(0,7); //2021-05
+        if(type == 'added'){
+            this_date = track['added_at'].slice(0,7); //2021-05
+        }else if(type == 'released'){
+            if(track['track']['album']['release_date']){
+                this_date = track['track']['album']['release_date'].slice(0,7); //2021-05            
+            }
+        }
         // this_date = new Date(track['added_at'].slice(0,7)); //2021-05
         if(!dateVScountDict[this_date]){ //init
             dateVScountDict[this_date] = 0;
@@ -323,38 +329,59 @@ function date_count(all_tracks){
     return dateVScountDict;
 }
 
-function idDictify(all_tracks){
-    var idDict = {};
+function idArrify(all_tracks){
+    var idArr = [];
     for(item of all_tracks){
         for(var artist of item['track']['artists']){
-            if(!idDict[artist['id']]){
-                idDict[artist['id']] = 0;
-            }
-            idDict[artist['id']] += 1;
+            idArr.push(artist['id']);
+            // if(!idDict[artist['id']]){
+                // idDict[artist['id']] = 0;
+            // }
+            // idDict[artist['id']] += 1;
         }
     }
-    return idDict;
+    return idArr;
     // console.log(idDict);
 }
 
-function getGenresArr(idDict){
-    var genreDict = {};
-    for(var id in idDict){
+function getGenresArr(idArr){
+    idStr = '';
+    i = 0;
+    result = [];
+    for(var id of idArr){
         if(id && id!='null'){
-            spott_get_sync('https://api.spotify.com/v1/artists/'+id, token, function(xhr){
-                // console.log(xhr);
-                for(var gen of xhr['genres']){
-                    if(!genreDict[gen]){
-                        genreDict[gen] = 0;
-                    }
-                    genreDict[gen] += idDict[id];
-                }
-            });
+            i++;
+            idStr += id+',';
+            if(i%50 == 0 || id==idArr[idArr.length-1]){ //limit = 50
+                idStr = idStr.slice(0,-1);
+                spott_get_sync('https://api.spotify.com/v1/artists/?ids='+idStr, token, function(xhr){
+                    result = result.concat(xhr['artists']);
+                    // console.log(xhr);
+                });
+                idStr = '';
+            }
+        }
+    }
+    var genreDict = {};
+    for(var item of result){
+        for(var gen of item['genres']){
+            if(!genreDict[gen]){
+                genreDict[gen] = 0;
+            }
+            genreDict[gen] += 1;
         }
     }
     genreArr = sortDict(genreDict);
     console.log(genreDict);
     return genreArr;
+}
+
+function Arr2cloudData(ogArr){
+    cloudData = [];
+    for(var item of ogArr){
+        cloudData.push({"x":item[0],"value":item[1]});
+    }
+    return cloudData;
 }
 
 function get_playlist_details(use_liked_song=false){
@@ -419,19 +446,33 @@ function get_playlist_details(use_liked_song=false){
                                 <br>\
                                 <div id="DateGraphDiv" class="" style="height:500px;">\
                                 </div><br>\
+                                <div id="releasedDateGraphDiv" class="" style="height:500px;">\
+                                </div><br>\
                                 <div id="ArtistDiv">\
-                                    <div id="ArtistGraph" style="float:left;">\
-                                        <h3 style="margin: 0;">Artists pie chart of '+playlist_name+'</h3>\
-                                        <div id="ArtistPiechart" style="width: auto; height: 500px; margin-top: -45px;""></div>\
+                                    <div id="ArtistGraph" class="graph" style="float:left;">\
+                                        <h3 style="">Artists pie chart of '+playlist_name+'</h3>\
+                                        <div id="ArtistPiechart" style="width: auto; height: 454px; margin-top: -45px;""></div>\
                                     </div>\
                                     <div id="ArtistListDiv" class="greycardDiv">\
                                         <h3>top 10 artists</h3>\
                                     </div>\
                                 </div><br>\
-                                <div id="GenreGraph" style="float:left;">\
-                                    <h3 style="margin: 0;">Genre pie chart of '+playlist_name+'</h3>\
-                                    <div id="GenrePiechart" style="width: auto; height: 500px; margin-top: -45px;""></div>\
-                                </div>\
+                                <div id="GenreDiv">\
+                                    <div id="GenreGraph" class="graph" style="float:left;">\
+                                        <h3 style="">Genre cloud of '+playlist_name+'</h3>\
+                                        <div id="GenrePiechart" style="width: auto; height: 454px; margin-top: -45px;""></div>\
+                                    </div>\
+                                    <div id="GenreListDiv" class="greycardDiv">\
+                                        <h3>top 10 genres</h3>\
+                                    </div>\
+                                    <div id="GenreOccGraph" class="graph" style="float:left;">\
+                                        <h3 style="">Genre word cloud of '+playlist_name+'</h3>\
+                                        <div id="GenreCloud" style="width: auto; height: 454px; margin-top: -45px;""></div>\
+                                    </div>\
+                                    <div id="bigGenreListDiv" class="greycardDiv">\
+                                        <h3>top 10 word occurences</h3>\
+                                    </div>\
+                                </div><br>\
                                 <div id="OldestDiv" class="greycardDiv">\
                                     <h3>top 10 oldest tracks</h3>\
                                 </div>\
@@ -496,30 +537,6 @@ function get_playlist_details(use_liked_song=false){
 
             drawPie(sortedArtistArrwTitle, 'ArtistPiechart');
 
-            // google.charts.load('current', {'packages':['corechart']});
-            // google.charts.setOnLoadCallback(function(){
-            //     var data = google.visualization.arrayToDataTable(sortedArtistArrwTitle);
-            //     var options = {
-            //       // title: 'Artist pie chart of '+playlist_name,
-            //         width: 800, //800
-            //         pieHole: 0.2,
-            //         backgroundColor: {
-            //             fill: 'transparent',
-            //             // stroke: '#000',
-            //         },
-            //         legend: {
-            //             textStyle:{
-            //                 color: '#fff'
-            //             }
-            //         },
-            //         // pieSliceBorderColor: 'transparent',
-            //         sliceVisibilityThreshold: .0041, //smaller than this → others
-            //     };
-            //     var chart = new google.visualization.PieChart(document.getElementById('ArtistPiechart'));
-            //     chart.draw(data, options);    
-            // });
-
-
             printable2(sortedArtistArr, 10, 'ArtistListDiv', 'Artist', 'number of tracks');
 
 
@@ -544,72 +561,57 @@ function get_playlist_details(use_liked_song=false){
                 printable4(sortedbyplay, 10, 'MostPlayedDiv', 'title', 'artist', 'days since added', plays);                
             }
 
-            dateVScountDict = date_count(all_tracks);
+            dateVScountDict = date_count(all_tracks, 'added');
             dateVScountArr = [];
             for(var date in dateVScountDict){
                 dateVScountArr.push([date,dateVScountDict[date]]);
             }
             dateVScountArr.sort();
 
-            google.charts.load('current', {'packages':['corechart']});
-            google.charts.setOnLoadCallback(function(){
-            // function drawChart () {
-                // dateVScountArr = [['a','f']].concat(dateVScountArr);
-                var data = new google.visualization.DataTable();
-                // var data = google.visualization.arrayToDataTable(dateVScountArr);
-                data.addColumn('date','date');
-                data.addColumn('number','tracks added');
-                for(var date of dateVScountArr){
-                    data.addRow([new Date(date[0]), date[1]]);
-                }
+            drawLine(dateVScountArr, 'DateGraphDiv', 'date added to '+playlist_name+' (unit: month)', 'num of tracks');
 
-                var options = {
-                    width: 'auto', //1200
-                    height: 'auto', //500
-                    series:{0:{color:'#ffd8d2'}},
-                    backgroundColor: {fill:'transparent',stroke:'transparent'},
-                    chartArea: {backgroundColor:{fill:'transparent',stroke:'#fff'}},
-                    chart: {
-                      title: '',
-                      // subtitle: 'based on hours studied'
-                    },
-                    curveType: 'function',
-                    // tooltip:{textStyle:{color:'#fff'}},
-                    legend:{textStyle: {color:'transparent'}},
-                    hAxis: { //x-axis
-                        title: 'added month',
-                        titleTextStyle:{color:"#fff", fontName:"Segoe Print", fontSize:18},
-                        textStyle:{color:'#fff'},
-                        baselineColor:'transparent',
-                        gridlines:{color:'transparent'},
-                        minorGridlines:{color:'transparent'},
-                        format: 'yy-MM',
-                    },
-                    vAxis: { //y-axis
-                        title: 'num of tracks', 
-                        titleTextStyle:{color:"#fff", fontName:"Segoe Print", fontSize:18},
-                        viewWindow: {min:0},
-                        textStyle:{color:'#fff'},
-                        baselineColor:'transparent',
-                        gridlines:{color:'transparent',multiple:1},
-                        // minorGridlines:{color:'transparent',minSpacing:0}
-                    }
-                };
+            releaseddateVScountDict = date_count(all_tracks, 'released');
+            releaseddateVScountArr = [];
+            for(var date in releaseddateVScountDict){
+                releaseddateVScountArr.push([date,releaseddateVScountDict[date]]);
+            }
+            releaseddateVScountArr.sort();
+            console.log(releaseddateVScountArr);
+            drawLine(releaseddateVScountArr, 'releasedDateGraphDiv', 'date released (unit: month)', 'num of tracks');
 
-                var chart = new google.visualization.LineChart(document.getElementById('DateGraphDiv'));
-
-                chart.draw(data, options);
-            // }
-
-            });
-
-            idDict = idDictify(all_tracks);
-            genreArr = getGenresArr(idDict);
+            idArr = idArrify(all_tracks);
+            genreArr = getGenresArr(idArr);
             // for(var gen in genreDict){
             //     genreArr.push([gen,genreDict[gen]]);
             // }
-            genreArrwTitle = [['a','b']].concat(genreArr);
-            drawPie(genreArrwTitle, 'GenrePiechart');
+            // genreArrwTitle = [['genre','num']].concat(genreArr);
+            // drawPie(genreArrwTitle, 'GenrePiechart');
+            genreCloudData = Arr2cloudData(genreArr);
+            drawCloud(genreCloudData, 'GenrePiechart');
+            printable2(genreArr, 10, 'GenreListDiv', 'Genre', 'tracks with artist<br>of this genre');
+
+            bigGenreDict = {};
+
+            for(var item of genreArr){
+                if(item[0].split(' ').includes('lo-fi')){
+                    bigGens = item[0].split(' ');
+                }else{
+                    bigGens = item[0].split(/ |-/); //separate with ' ' or '-' e.g. j-indie k-pop
+                }
+              for(var Gen of bigGens){
+                if(!bigGenreDict[Gen]){
+                  bigGenreDict[Gen] = 0;
+                }
+                bigGenreDict[Gen] += item[1];   
+              }
+            }
+            bigGenreArr = sortDict(bigGenreDict);
+            console.log(bigGenreArr);
+            bigGenreCloudData = Arr2cloudData(bigGenreArr);
+
+            drawCloud(bigGenreCloudData, "GenreCloud");
+
+            printable2(bigGenreArr, 10, 'bigGenreListDiv', 'big Genre', 'num of occurences');
 
             $('#srch_dur').click(function(){
                 searchSong(sortedtracknameartistdateArr);

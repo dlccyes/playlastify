@@ -129,14 +129,22 @@ th {
 
 }
 
-#ArtistGraph, #GenreGraph {
+/*#ArtistGraph, #GenreGraph, #GenreOccGraph {*/
+.graph {
     float: left;    
     width: 672px;
     padding: 19px;
+    padding-bottom: 0;
     border-radius: 20px;
-    background: #ffffff5c;
+    /*background: #ffffff5c;*/
+    /*background: #ffb33c38;*/
+    background: #6be3ff42;
     margin: 1%; 
-    /*margin-bottom: 0;*/
+    margin-bottom: 0;
+}
+
+.graph h3{
+    margin: 0px 0px 30px;
 }
 
 .smol, .greycardDiv {

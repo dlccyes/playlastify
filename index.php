@@ -7,8 +7,10 @@
     <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
     <script src="config.js"></script>
     <script src="app.js"></script>
-    <script src="radarjs.js"></script>
+    <script src="charts.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/v8/js/anychart-tag-cloud.min.js"></script>
 </head>
 
 <body>

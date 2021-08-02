@@ -4,7 +4,7 @@ function drawPie(dataArr, id){
         var data = google.visualization.arrayToDataTable(dataArr);
         var options = {
           // title: 'Artist pie chart of '+playlist_name,
-            width: 800, //800
+            width: 676, //800
             pieHole: 0.2,
             backgroundColor: {
                 fill: 'transparent',
@@ -413,4 +413,78 @@ function drawRadar(data, id){
       document.getElementById(id).appendChild(elem);
     }
 
+}
+
+function drawCloud(data, id){
+  anychart.onDocumentReady(function () {
+
+      var chart = anychart.tagCloud(data);
+
+      // set the chart title
+      chart.title('')
+      // set array of angles, by which words will be placed
+      chart.angles([0])
+      // enable color range
+      // set color range length
+      chart.colorRange().length('80%');
+      chart.background().fill('transparent');
+      chart.background().corners(20);
+      // chart.fontColor('transparent');
+      // display chart
+      chart.container(id);
+      chart.draw();
+  });
+
+}
+
+function drawLine(dataArr, id, xName, yName){
+  google.charts.load('current', {'packages':['corechart']});
+  google.charts.setOnLoadCallback(function(){
+  // function drawChart () {
+      // dateVScountArr = [['a','f']].concat(dateVScountArr);
+      var data = new google.visualization.DataTable();
+      // var data = google.visualization.arrayToDataTable(dateVScountArr);
+      data.addColumn('date','date');
+      data.addColumn('number','tracks added');
+      for(var date of dataArr){
+          data.addRow([new Date(date[0]), date[1]]);
+      }
+
+      var options = {
+          width: 'auto', //1200
+          height: 'auto', //500
+          series:{0:{color:'#ffd8d2'}},
+          backgroundColor: {fill:'transparent',stroke:'transparent'},
+          chartArea: {backgroundColor:{fill:'transparent',stroke:'#fff'}},
+          chart: {
+            title: '',
+            // subtitle: 'based on hours studied'
+          },
+          curveType: 'function',
+          // tooltip:{textStyle:{color:'#fff'}},
+          legend:{textStyle: {color:'transparent'}},
+          hAxis: { //x-axis
+              title: xName,
+              titleTextStyle:{color:"#fff", fontName:"Segoe Print", fontSize:18},
+              textStyle:{color:'#fff'},
+              baselineColor:'transparent',
+              gridlines:{color:'transparent'},
+              minorGridlines:{color:'transparent'},
+              format: 'yy-MM',
+          },
+          vAxis: { //y-axis
+              title: yName, 
+              titleTextStyle:{color:"#fff", fontName:"Segoe Print", fontSize:18},
+              viewWindow: {min:0},
+              textStyle:{color:'#fff'},
+              baselineColor:'transparent',
+              gridlines:{color:'transparent',multiple:1},
+              // minorGridlines:{color:'transparent',minSpacing:0}
+          }
+      };
+
+      var chart = new google.visualization.LineChart(document.getElementById(id));
+
+      chart.draw(data, options);
+  });
 }
