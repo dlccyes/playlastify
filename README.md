@@ -1,4 +1,5 @@
-# playlistifie
+# Playlistify
+*playlist+last.fm+spotify*
 
 simple webapp for some Spotify playlist stats using Spotify WebAPI & last.fm API, hosted on Heroku
 
