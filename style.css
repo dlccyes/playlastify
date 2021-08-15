@@ -36,6 +36,7 @@ body {
     background-attachment: fixed;
     background-size: cover;
     height: 100vh;
+    /*background-color: #6f1313;*/
 }
 
 table {
@@ -131,14 +132,16 @@ th {
 
 /*#ArtistGraph, #GenreGraph, #GenreOccGraph {*/
 .graph {
-    float: left;    
-    width: 672px;
+    /*float: left;    */
+    /*width: 672px;*/
+    width: 95%;
     padding: 19px;
     padding-bottom: 0;
     border-radius: 20px;
     /*background: #ffffff5c;*/
     /*background: #ffb33c38;*/
-    background: #6be3ff42;
+    /*background: #6be3ff42;*/
+    background: #3030309e;
     margin: 1%; 
     margin-bottom: 0;
 }
@@ -255,4 +258,19 @@ th {
     position: absolute;
     display: flex;
     transform: translate(-50%);
+}
+
+.anychart-credits {
+    position: absolute;
+    overflow: hidden;
+    right: 9px;
+    bottom: 6px;
+    height: 18px;
+}
+.anychart-credits-text { 
+    font-size: 13px;
+    line-height: 9px;
+    vertical-align: top;
+    color: #ffdadad1;
+    font-family: Consolas;
 }

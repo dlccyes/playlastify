@@ -7,10 +7,13 @@
     <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
     <script src="config.js"></script>
     <script src="app.js"></script>
+    <script src="helpers.js"></script>
     <script src="charts.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js"></script>
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-tag-cloud.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.10.0/themes/dark_glamour.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.10.0/themes/dark_turquoise.min.js"></script>
 </head>
 
 <body>
@@ -84,7 +87,7 @@ var token = null;
 var scopes = 'user-read-private user-read-email user-library-read user-read-currently-playing\
                 user-read-playback-state playlist-read-private';
 
-parse_token();
+parse_token(); //get implicit token from url
 
 var lastfm_toptracks = [];
 var lastfm_tracknameartistcount = {};
@@ -98,7 +101,6 @@ $(document).ready(function(){
         get_token_implicit();
         parse_token();
     });
-
 
     $('#show_all_playlists').click(function(){ //obsolete
         if(playlists.length == 0){ //alreadt executed

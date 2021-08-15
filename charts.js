@@ -1,3 +1,4 @@
+//chart drawing related function
 function drawPie(dataArr, id){
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(function(){
@@ -417,6 +418,8 @@ function drawRadar(data, id){
 
 function drawCloud(data, id){
   anychart.onDocumentReady(function () {
+      anychart.theme(anychart.themes.darkGlamour);
+      // anychart.theme(anychart.themes.darkTurquoise);
 
       var chart = anychart.tagCloud(data);
 
@@ -428,11 +431,13 @@ function drawCloud(data, id){
       // set color range length
       chart.colorRange().length('80%');
       chart.background().fill('transparent');
+      chart.background().stroke("0 transparent");
       chart.background().corners(20);
       // chart.fontColor('transparent');
       // display chart
       chart.container(id);
       chart.draw();
+      $('.anychart-credits').html('<span class="anychart-credits-text">made with AnyChart</span>') 
   });
 
 }
@@ -487,4 +492,12 @@ function drawLine(dataArr, id, xName, yName){
 
       chart.draw(data, options);
   });
+}
+
+function Arr2AnyChartData(ogArr){ //array to anychart data
+    cloudData = [];
+    for(var item of ogArr){
+        cloudData.push({"x":item[0],"value":item[1]});
+    }
+    return cloudData;
 }
