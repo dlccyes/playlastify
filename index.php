@@ -94,6 +94,8 @@ var lastfm_tracknameartistcount = {};
 var url;
 
 $(document).ready(function(){
+    $('#loadingOverlay').css('width',$(window).width()); //write here s.t. width won't change (in mobile)
+
     $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), url("https://i.imgur.com/hAcGmG3.jpg")');
     // $('body').css('background-size',window.innerWidth*1.2+"px");
 
