@@ -140,7 +140,7 @@ function TrackNameArtistDate(tracks){
         temp = temp.slice(0,-2); //remove last ', '
         tracknameartistdate[temp] = DaystoToday(item['added_at']);
     }
-    console.log(tracknameartistdate);
+    // console.log(tracknameartistdate);
     return tracknameartistdate;
 }
 
@@ -178,7 +178,7 @@ function show_current_playback(){
             if(current_id){
                 spott_get_sync('https://api.spotify.com/v1/tracks/'+current_id, token, function(xhr){
                     current_track = xhr;
-                    console.log(xhr);
+                    // console.log(xhr);
                     for(var artist of xhr['artists']){
                         artists_ids.push(artist['id']);
                     }
@@ -187,7 +187,7 @@ function show_current_playback(){
                     $('#currentImg').html('<img src="'+xhr['album']['images'][0]['url']+'" class="meta_img">')
                 });
                 spott_get_sync('https://api.spotify.com/v1/audio-features/'+current_id, token, function(xhr){
-                    console.log(xhr);
+                    // console.log(xhr);
                     temp = ['acousticness','danceability','duration_ms','energy','instrumentalness',
                     'liveness','loudness','speechiness','tempo','valence']
                     for(var item of temp){
@@ -200,7 +200,7 @@ function show_current_playback(){
                 currentGenreDict = {};
                 for(var id of artists_ids){
                     spott_get_sync('https://api.spotify.com/v1/artists/'+id, token, function(xhr){
-                        console.log(xhr);
+                        // console.log(xhr);
                         for(var gen of xhr['genres']){
                             if(!currentGenreDict[gen]){
                                 currentGenreDict[gen] = true;
@@ -230,7 +230,7 @@ function show_current_playback(){
                 }else{ //no play record
                     count = 0;
                 }
-                console.log(count);
+                // console.log(count);
                 currentAudioFeature2html += '<tr><td>scrobbles</td><td>'+count+'</td></tr>';
             }
             currentAudioFeature2html += '</table>'
@@ -354,7 +354,7 @@ function avg_popularity(all_tracks){
         }
     }
     temp /= all_tracks.length;
-    console.log(temp)
+    // console.log(temp)
     return temp;
 }
 
@@ -373,7 +373,7 @@ function date_count(all_tracks, type){
         }
         dateVScountDict[this_date] += 1;
     }
-    console.log(dateVScountDict);
+    // console.log(dateVScountDict);
     return dateVScountDict;
 }
 
@@ -414,7 +414,7 @@ function getGenresArr(idArr){
         }
     }
     genreArr = sortDict(genreDict);
-    console.log(genreDict);
+    // console.log(genreDict);
     return genreArr;
 }
 
@@ -455,7 +455,7 @@ function get_playlist_details(use_liked_song=false){
                     return;
                 }
                 all_tracks = liked_songs;
-                console.log('saved',liked_songs);
+                // console.log('saved',liked_songs);
             }else{
                 spott_get_sync('https://api.spotify.com/v1/playlists/'+playlist_id, token, function(xhr){
                     current_playlist = xhr;
@@ -467,7 +467,7 @@ function get_playlist_details(use_liked_song=false){
                 }
                 all_tracks = current_playlist['tracks']['items'];
             }
-            console.log(current_playlist);
+            // console.log(current_playlist);
             AudioFeatureDict = get_playlist_audio_features(all_tracks);
             sortedArtistArr = ArtistDistribution(all_tracks);
             sortedArtistArrwTitle = [['Artist','Number']].concat(sortedArtistArr);
@@ -519,6 +519,7 @@ function get_playlist_details(use_liked_song=false){
                                         <button id="srch_dur">search song</button><br>\
                                     </div>\
                                     <span class="smol">leave it blank to show everything in this playlist</span><br>\
+                                    <span class="smol" id="srchTip" style="display:none">click any column title to sort (like you do in Spotify)</span>\
                                     <div id="SearchDurationResult" class="greycardDiv" style="display:none;padding-top:20px;">\
                                     </div>\
                                 </div>'
@@ -582,7 +583,7 @@ function get_playlist_details(use_liked_song=false){
                 releaseddateVScountArr.push([date,releaseddateVScountDict[date]]);
             }
             releaseddateVScountArr.sort();
-            console.log(releaseddateVScountArr);
+            // console.log(releaseddateVScountArr);
             drawLine(releaseddateVScountArr, 'releasedDateGraphDiv', 'date released (unit: month)', 'num of tracks');
 
             drawPie(sortedArtistArrwTitle, 'ArtistPiechart');
@@ -611,7 +612,7 @@ function get_playlist_details(use_liked_song=false){
               }
             }
             bigGenreArr = sortDict(bigGenreDict);
-            console.log(bigGenreArr);
+            // console.log(bigGenreArr);
             bigGenreCloudData = Arr2AnyChartData(bigGenreArr);
             drawCloud(bigGenreCloudData, "GenreCloud");
             printable2(bigGenreArr, 10, 'bigGenreListDiv', 'big Genre', 'num of occurences');
@@ -646,7 +647,7 @@ function get_playlist_details(use_liked_song=false){
                 searchSong(sortedtracknameartistdateArr);
             });
             $('#spot_loadcomp').html('data loaded!').show();
-            $('#spot_loadcomp_tip').html('click any column title to sort (like you do in Spotify)').show();
+            // $('#spot_loadcomp_tip').html('click any column title to sort (like you do in Spotify)').show();
         }else{
             $('#spot_loadcomp').html('failed').show();
             alert('no result');
@@ -702,6 +703,7 @@ function searchSong(sortedtracknameartistdateArr){
         }else{
             temp = '<span style="color:#ffd8d2;">'+matches+' results</span>'+temp; //insert
         }
+        $('#srchTip').show();
         $('#SearchDurationResult').html(temp).show();
     }
 }

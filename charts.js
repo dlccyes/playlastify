@@ -28,7 +28,7 @@ function drawPie(dataArr, id){
 function drawRadar(data, id){
     google.charts.load('upcoming', {'packages': ['vegachart']}).then(loadCharts);
 
-    console.log(data);
+    // console.log(data);
 
     // dataArr = []
     // for(var feat in data){
