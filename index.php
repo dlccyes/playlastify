@@ -4,6 +4,7 @@
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
     <title>Playlastify</title>
     <link rel="icon" href="https://bit.ly/playlastifyicon">
+    <meta name="google-site-verification" content="bvIVFTuzNd14QoDGMXy9ksyR80t9aB-PcBvJ-YzH8YI" />
     <link rel='stylesheet' href="style.css" type='text/css' media='all' /> 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
