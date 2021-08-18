@@ -11,7 +11,10 @@ function get_token_implicit(){ //implicit grant flow
 function parse_token(){
     var url = String(window.location);
     if(url.search(/=/)!=-1){
-        token = url.slice(url.search(/=/)+1,url.search(/&/));
+        token = url.slice(url.search(/=/)+1, url.search(/&/));
+        if(url.search(/localhost/) == -1){
+            window.history.pushState("", "", "/"); //erase the token from displaying url
+        }
         $('#logincomp').show();
     }else{
         $('#logincomp').hide();
