@@ -14,6 +14,13 @@ function drawPie(dataArr, id){
             legend: {
                 textStyle:{
                     color: '#fff'
+                },
+                pagingTextStyle: {
+                  color: '#ffd8d2'
+                },
+                scrollArrows:{
+                  activeColor: '#ffd8d2'
+                  // inactiveColor:'#e0e0e0'
                 }
             },
             // pieSliceBorderColor: 'transparent',
