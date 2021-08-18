@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
+    <title>Playlastify</title>
+    <link rel="icon" href="https://bit.ly/playlastifyicon">
     <link rel='stylesheet' href="style.css" type='text/css' media='all' /> 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
