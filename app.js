@@ -523,6 +523,7 @@ function get_playlist_details(use_liked_song=false){
                                     </div>\
                                     <span class="smol">leave it blank to show everything in this playlist</span><br>\
                                     <span class="smol" id="srchTip" style="display:none">click any column title to sort (like you do in Spotify)</span>\
+                                    <br>\
                                     <div id="SearchDurationResult" class="greycardDiv" style="display:none;padding-top:20px;">\
                                     </div>\
                                 </div>'
