@@ -79,7 +79,11 @@
 <div id="sauceDiv" class="">
     <a href="https://github.com/dlccyes/playlastify" style="display:flex; text-decoration:none;" target="_blank">
         <!-- <img src="https://logos-world.net/wp-content/uploads/2020/11/GitHub-Emblem.png" width="80px"> -->
-        <p style="font-family:Consolas;color: #ffe7e7;">Github</p>
+        <p style="font-family:Consolas;color: #ffe7e7;">Github&nbsp</p>
+    </a>
+    <a href="doc.html" style="display:flex; text-decoration:none;" target="_blank">
+        <!-- <img src="https://logos-world.net/wp-content/uploads/2020/11/GitHub-Emblem.png" width="80px"> -->
+        <p style="font-family:Consolas;color: #ffe7e7;">| doc</p>
     </a>
 </div>
 
@@ -87,8 +91,9 @@
 
 var token = null;
 
-var scopes = 'user-read-private user-read-email user-library-read user-read-currently-playing\
-                user-read-playback-state playlist-read-private';
+// var scopes = 'user-read-private user-read-email user-library-read user-read-currently-playing\
+//                 user-read-playback-state playlist-read-private';
+var scopes = 'user-read-playback-state';
 
 parse_token(); //get implicit token from url
 
