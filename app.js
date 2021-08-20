@@ -4,7 +4,7 @@ function get_token_implicit(){ //implicit grant flow
     url += "&response_type=token";
     url += "&redirect_uri=" + encodeURI(redirect_uri);
     url += "&scope="+scopes;
-    // url += "&show_dialog=true"; //always show accept page
+    url += "&show_dialog=true"; //always show accept page
     location.href = url;
 }
 
