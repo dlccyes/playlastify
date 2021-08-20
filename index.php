@@ -102,6 +102,10 @@ var lastfm_tracknameartistcount = {};
 var url;
 
 $(document).ready(function(){
+    if($(window).width() <= 1130){
+        alert('please use a computer for better experience');
+    }
+
     $('#loadingOverlay').css('width',$(window).width()); //write here s.t. width won't change (in mobile)
 
     $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), url("https://i.imgur.com/hAcGmG3.jpg")');
