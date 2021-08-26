@@ -1,4 +1,4 @@
-# Playlistify
+# Playlastify
 *playlist+last.fm+spotify*
 
 simple webapp for some Spotify playlist stats using Spotify WebAPI & last.fm API, hosted on Heroku
@@ -20,11 +20,13 @@ Enter your last.fm username, select the range of date, and your scrobbling data 
 
 ### current playback
 Details of the song you're currently playing, including scrobbles if you've entered your last.fm username.
-![](https://i.imgur.com/S6CWjvX.png)
+<!-- ![](https://i.imgur.com/S6CWjvX.png) -->
+![Image](https://i.imgur.com/LYnGesA.png)
 
 ### playlist details
 Details of the playlist you've entered, including total scrobbles if you've entered your last.fm username.
-![Image](https://i.imgur.com/LVZVQWx.png)
+<!-- ![Image](https://i.imgur.com/LVZVQWx.png) -->
+![Image](https://i.imgur.com/fKjx5lW.png)
 
 ### date added/released
 Line chart of the added date (the date the song is added to this playlist) & released date (the date the song is released) of the songs in your playlist.

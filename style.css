@@ -119,10 +119,12 @@ th {
 
 .meta_img {
     height: 350px;
-    border-radius: 20px;
     width: auto;
     float: left;
-    opacity: 0.85;
+    /* for spotify regulation */
+    /*border-radius: 20px;*/
+    /*opacity: 0.85;*/
+    /*display: none;*/
 }
 
 .audiofeature {
