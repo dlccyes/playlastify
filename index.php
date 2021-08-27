@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
     <title>Playlastify</title>
-    <link rel="icon" href="https://bit.ly/playlastifyicon">
+    <!-- <link rel="icon" href="https://bit.ly/playlastifyicon"> -->
+    <link rel="icon" href="https://i.imgur.com/mypR8sN.png">
     <meta name="google-site-verification" content="bvIVFTuzNd14QoDGMXy9ksyR80t9aB-PcBvJ-YzH8YI" />
     <link rel='stylesheet' href="style.css" type='text/css' media='all' /> 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -32,8 +33,8 @@
 <button id='login' style='margin: 0%;'>login to spotify</button>
 <span id="logincomp" class="ldComp" style="display: none">you've logged in!</span>
 <br>
-<div>
-    <p class="nice-tag">load your last.fm data</p>
+<!--<div>
+     <p class="nice-tag">load your last.fm data</p>
     <p class="nice-tag" style="background: #bdaaff7a;">OPTIONAL</p>
     <p style="display: inline;">enter your last.fm username to get your scrobbles data</p>
     <br>
@@ -51,7 +52,7 @@
     </div>
     <span id="lastfm_loadcomp" style="display: none"></span>
 </div>
-<br>
+<br>-->
 <button id='current_playback' style='margin-left: 0%;'>show current playback</button>
 <br>
 <div id='currentPlaybackDiv' style="display: none; margin-bottom: 3%; margin-left: 25px;">
