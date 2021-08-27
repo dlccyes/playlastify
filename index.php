@@ -62,8 +62,8 @@
         <div id="currentAudioFeatureDiv" class="audiofeature"></div>
         <div id="currentAudioFeature2Div" class="audiofeature"></div>
     </div>
+    <br>
 </div>
-<br>
 <!-- <button id='show_all_playlists'>show all playlists</button> -->
 <p class="nice-tag">search your spotify playlists</p><br>
 <div class="input_area">
