@@ -21,14 +21,12 @@ Enter your last.fm username, select the range of date, and your scrobbling data 
 ![Image](https://i.imgur.com/SlQDHj8.png) -->
 
 ### current playback
-Details of the song you're currently playing.
- <!-- including scrobbles if you've entered your last.fm username. -->
+Details of the song you're currently playing, including scrobbles if you've entered your last.fm username.
 <!-- ![](https://i.imgur.com/S6CWjvX.png) -->
 ![Image](https://i.imgur.com/LYnGesA.png)
 
 ### playlist details
-Details of the playlist you've entered.
- <!-- including total scrobbles if you've entered your last.fm username. -->
+Details of the playlist you've entered, including total scrobbles if you've entered your last.fm username.
 <!-- ![Image](https://i.imgur.com/LVZVQWx.png) -->
 ![Image](https://i.imgur.com/fKjx5lW.png)
 
@@ -45,6 +43,5 @@ So Spotify's classification of genres is pretty specific. You may see something 
 ![](https://i.imgur.com/H2FJeje.jpg)
 
 ### search and sort anything
-Leave it blank to show everything in this playlist. Click any column title to sort (like you do in Spotify desktop). 
-<!-- Will also show the total scrobbles of the results if you have entered your last.fm username. -->
+Leave it blank to show everything in this playlist. Click any column title to sort (like you do in Spotify desktop). Will also show the total scrobbles of the results if you have entered your last.fm username.
 ![Image](https://i.imgur.com/JOM6Gsg.png)
