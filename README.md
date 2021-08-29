@@ -14,7 +14,8 @@ So there are tons of Spotify or last.fm stats websites out there, but what about
 ## Features
 ### custom background
 select from the 3 backgrounds I've set
-![Image](https://i.imgur.com/LOAhvjK.png)
+<!-- ![Image](https://i.imgur.com/LOAhvjK.png) -->
+![Image](https://i.imgur.com/irJdnFV.png)
 
 <!-- ### last.fm scrobbling stats
 Enter your last.fm username, select the range of date, and your scrobbling data will be loaded.
