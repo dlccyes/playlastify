@@ -12,11 +12,16 @@ function parse_token(){
     var url = String(window.location);
     if(url.search(/=/)!=-1){
         token = url.slice(url.search(/=/)+1, url.search(/&/));
+        document.cookie = 'token=' + token;
         if(url.search(/localhost/) == -1){
             window.history.pushState("", "", "/"); //erase the token from displaying url
         }
         $('#logincomp').show();
     }else{
+        if(document.cookie){
+            cookie = document.cookie
+            token = cookie.slice(cookie.search(/=/)+1,);
+        }
         $('#logincomp').hide();
     }
 }
@@ -116,7 +121,7 @@ function withLoading(callback){ //loading animation
 
 function get_all_playlists(){
     if(token){
-        temp = iterateAll('https://api.spotify.com/v1/me/playlists?limit=50');
+        temp = iterateAll('https://api.spotify.com/v1/me/playlists?limit=50'); //scope: playlist-read-private
         return temp;
 
     }else{
@@ -125,9 +130,9 @@ function get_all_playlists(){
 
 }
 
-function get_all_liked_songs(){
+function get_all_liked_songs(){ //unused
     if(token){
-        savedTracks = iterateAll('"https://api.spotify.com/v1/me/tracks?limit=50');
+        savedTracks = iterateAll('"https://api.spotify.com/v1/me/tracks?limit=50'); //scope: user-library-read
     }else{
         alert('please login first');
     }
@@ -161,7 +166,7 @@ function ArtistDistribution(tracks){
 }
 
 function show_current_playback(){
-    play = spott_get('https://api.spotify.com/v1/me/player', token, function(xhr){
+    play = spott_get('https://api.spotify.com/v1/me/player', token, function(xhr){ //scope: user-read-playback-state
         if(xhr){
             $('#currentMeta').show();
             current_id = xhr['item']['id'];
@@ -179,7 +184,7 @@ function show_current_playback(){
                 $('#currentMeta').hide();
             }
             if(current_id){
-                spott_get_sync('https://api.spotify.com/v1/tracks/'+current_id, token, function(xhr){
+                spott_get_sync('https://api.spotify.com/v1/tracks/'+current_id, token, function(xhr){ //no scope
                     current_track = xhr;
                     // console.log(xhr);
                     for(var artist of xhr['artists']){
@@ -189,7 +194,7 @@ function show_current_playback(){
                     current_AudioFeatureDict['popularity'] = xhr['popularity'];
                     $('#currentImg').html('<img src="'+xhr['album']['images'][0]['url']+'" class="meta_img">')
                 });
-                spott_get_sync('https://api.spotify.com/v1/audio-features/'+current_id, token, function(xhr){
+                spott_get_sync('https://api.spotify.com/v1/audio-features/'+current_id, token, function(xhr){ //no scope
                     // console.log(xhr);
                     temp = ['acousticness','danceability','duration_ms','energy','instrumentalness',
                     'liveness','loudness','speechiness','tempo','valence']
@@ -202,7 +207,7 @@ function show_current_playback(){
 
                 currentGenreDict = {};
                 for(var id of artists_ids){
-                    spott_get_sync('https://api.spotify.com/v1/artists/'+id, token, function(xhr){
+                    spott_get_sync('https://api.spotify.com/v1/artists/'+id, token, function(xhr){ //no scope
                         // console.log(xhr);
                         for(var gen of xhr['genres']){
                             if(!currentGenreDict[gen]){
@@ -326,7 +331,7 @@ function get_playlist_audio_features(all_tracks){
         idStr += item['track']['id']+',';
         if(i%100 == 0 || item == all_tracks[all_tracks.length-1]){ //i|100 or i=last 
             // console.log(idStr);
-            url = 'https://api.spotify.com/v1/audio-features?ids='+idStr;
+            url = 'https://api.spotify.com/v1/audio-features?ids='+idStr; //no scope
             spott_get_sync(url, token, function(xhr){
                 playlistAudioFeaturesRaw = playlistAudioFeaturesRaw.concat(xhr['audio_features']);
             });
@@ -400,7 +405,7 @@ function getGenresArr(idArr){
             idStr += id+',';
             if(i%50 == 0 || id==idArr[idArr.length-1]){ //limit = 50
                 idStr = idStr.slice(0,-1);
-                spott_get_sync('https://api.spotify.com/v1/artists/?ids='+idStr, token, function(xhr){
+                spott_get_sync('https://api.spotify.com/v1/artists/?ids='+idStr, token, function(xhr){ //no scope
                     result = result.concat(xhr['artists']);
                 });
                 idStr = '';
@@ -452,7 +457,7 @@ function get_playlist_details(use_liked_song=false){
         }
         if(playlist_id != ''){
             if(use_liked_song){
-                next_url = 'https://api.spotify.com/v1/me/tracks?limit=50';
+                next_url = 'https://api.spotify.com/v1/me/tracks?limit=50'; //scope: user-library-read
                 liked_songs = iterateAll('https://api.spotify.com/v1/me/tracks?limit=50');
                 if(!liked_songs){
                     return;
@@ -460,7 +465,7 @@ function get_playlist_details(use_liked_song=false){
                 all_tracks = liked_songs;
                 // console.log('saved',liked_songs);
             }else{
-                spott_get_sync('https://api.spotify.com/v1/playlists/'+playlist_id, token, function(xhr){
+                spott_get_sync('https://api.spotify.com/v1/playlists/'+playlist_id, token, function(xhr){ //no scope
                     current_playlist = xhr;
                 });
 

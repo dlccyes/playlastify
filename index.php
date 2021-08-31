@@ -33,7 +33,8 @@
 <button id='login' style='margin: 0%;'>login to spotify</button>
 <span id="logincomp" class="ldComp" style="display: none">you've logged in!</span>
 <br>
-<!--<div>
+<!-- last.fm -->
+<!-- <div>
      <p class="nice-tag">load your last.fm data</p>
     <p class="nice-tag" style="background: #bdaaff7a;">OPTIONAL</p>
     <p style="display: inline;">enter your last.fm username to get your scrobbles data</p>
@@ -52,7 +53,8 @@
     </div>
     <span id="lastfm_loadcomp" style="display: none"></span>
 </div>
-<br>-->
+<br> -->
+<!-- /last.fm -->
 <button id='current_playback' style='margin-left: 0%;'>show current playback</button>
 <br>
 <div id='currentPlaybackDiv' style="display: none; margin-bottom: 3%; margin-left: 25px;">
@@ -94,7 +96,7 @@ var token = null;
 
 // var scopes = 'user-read-private user-read-email user-library-read user-read-currently-playing\
 //                 user-read-playback-state playlist-read-private';
-var scopes = 'user-read-playback-state';
+var scopes = 'user-read-playback-state user-library-read playlist-read-private';
 
 parse_token(); //get implicit token from url
 
