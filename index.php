@@ -34,7 +34,7 @@
 <span id="logincomp" class="ldComp" style="display: none">you've logged in!</span>
 <br>
 <!-- last.fm -->
-<!-- <div>
+<div>
      <p class="nice-tag">load your last.fm data</p>
     <p class="nice-tag" style="background: #bdaaff7a;">OPTIONAL</p>
     <p style="display: inline;">enter your last.fm username to get your scrobbles data</p>
@@ -53,7 +53,7 @@
     </div>
     <span id="lastfm_loadcomp" style="display: none"></span>
 </div>
-<br> -->
+<br>
 <!-- /last.fm -->
 <button id='current_playback' style='margin-left: 0%;'>show current playback</button>
 <br>

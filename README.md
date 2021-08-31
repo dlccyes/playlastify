@@ -1,35 +1,32 @@
 # Playlastify
-<!-- *playlist+last.fm+spotify* -->
+*playlist+last.fm+spotify*
 
-<!-- simple webapp for some Spotify playlist stats using Spotify WebAPI & last.fm API, hosted on Heroku -->
+simple webapp for some Spotify playlist stats using Spotify WebAPI & last.fm API, hosted on Heroku
 
 simple webapp for some Spotify playlist stats using Spotify WebAPI, hosted on Heroku
 
 url: https://playlastify.herokuapp.com
 source code: https://github.com/dlccyes/playlastify
 
-<!-- ## Intro
-So there are tons of Spotify or last.fm stats websites out there, but what about ..... combining the 2? This webapp is focused on your **playlists** mainly. Login and enter one of your playlists' name, and you'll see some pretty detailed stats of the playlist, including **audio features radar chart**, **genre word cloud**, **date added/released line chart**, **artists pie chart** and more. And if you enter your last.fm username, you'll also see the **last.fm scrobbling stats** of your playlist and tracks! You'll see your most played songs, and you can also **search and sort anything in your playlist** (like you do in Spotify) and find out how many times you've listened to your songs! -->
+## Intro
+So there are tons of Spotify or last.fm stats websites out there, but what about ..... combining the 2? This webapp is focused on your **playlists** mainly. Login and enter one of your playlists' name, and you'll see some pretty detailed stats of the playlist, including **audio features radar chart**, **genre word cloud**, **date added/released line chart**, **artists pie chart** and more. And if you enter your last.fm username, you'll also see the **last.fm scrobbling stats** of your playlist and tracks! You'll see your most played songs, and you can also **search and sort anything in your playlist** (like you do in Spotify) and find out how many times you've listened to your songs!
 
 ## Features
 ### custom background
 select from the 3 backgrounds I've set
-<!-- ![Image](https://i.imgur.com/LOAhvjK.png) -->
-![Image](https://i.imgur.com/irJdnFV.png)
+![Image](https://i.imgur.com/LOAhvjK.png)
 
-<!-- ### last.fm scrobbling stats
+### last.fm scrobbling stats
 Enter your last.fm username, select the range of date, and your scrobbling data will be loaded.
-![Image](https://i.imgur.com/SlQDHj8.png) -->
+![Image](https://i.imgur.com/SlQDHj8.png)
 
 ### current playback
-Details of the song you're currently playing.
- <!-- including scrobbles if you've entered your last.fm username. -->
+Details of the song you're currently playing, including scrobbles if you've entered your last.fm username.
 <!-- ![](https://i.imgur.com/S6CWjvX.png) -->
 ![Image](https://i.imgur.com/LYnGesA.png)
 
 ### playlist details
-Details of the playlist you've entered.
- <!-- including total scrobbles if you've entered your last.fm username. -->
+Details of the playlist you've entered, including total scrobbles if you've entered your last.fm username.
 <!-- ![Image](https://i.imgur.com/LVZVQWx.png) -->
 ![Image](https://i.imgur.com/fKjx5lW.png)
 
@@ -46,6 +43,5 @@ So Spotify's classification of genres is pretty specific. You may see something 
 ![](https://i.imgur.com/H2FJeje.jpg)
 
 ### search and sort anything
-Leave it blank to show everything in this playlist. Click any column title to sort (like you do in Spotify desktop). 
-<!-- Will also show the total scrobbles of the results if you have entered your last.fm username. -->
+Leave it blank to show everything in this playlist. Click any column title to sort (like you do in Spotify desktop). Will also show the total scrobbles of the results if you have entered your last.fm username.
 ![Image](https://i.imgur.com/JOM6Gsg.png)
