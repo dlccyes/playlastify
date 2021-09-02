@@ -3,8 +3,6 @@
 
 simple webapp for some Spotify playlist stats using Spotify WebAPI & last.fm API, hosted on Heroku
 
-simple webapp for some Spotify playlist stats using Spotify WebAPI, hosted on Heroku
-
 url: https://playlastify.herokuapp.com
 source code: https://github.com/dlccyes/playlastify
 
