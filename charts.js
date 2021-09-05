@@ -477,7 +477,7 @@ function drawLine(dataArr, id, xName, yName){
           legend:{textStyle: {color:'transparent'}},
           hAxis: { //x-axis
               title: xName,
-              titleTextStyle:{color:"#fff", fontName:"Segoe Print", fontSize:18},
+              titleTextStyle:{color:"#fff", fontName:"verdana", fontSize:18},
               textStyle:{color:'#fff'},
               baselineColor:'transparent',
               gridlines:{color:'transparent'},
@@ -486,7 +486,7 @@ function drawLine(dataArr, id, xName, yName){
           },
           vAxis: { //y-axis
               title: yName, 
-              titleTextStyle:{color:"#fff", fontName:"Segoe Print", fontSize:18},
+              titleTextStyle:{color:"#fff", fontName:"verdana", fontSize:18},
               viewWindow: {min:0},
               textStyle:{color:'#fff'},
               baselineColor:'transparent',

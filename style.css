@@ -61,7 +61,9 @@ body {
 }
 
 table {
-    text-align: center;   
+    text-align: center;
+    font-family: verdana;
+    line-height: 2em;
 }
 
 button, #lastfm_gettoptracks {
