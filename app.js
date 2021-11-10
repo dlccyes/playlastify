@@ -413,17 +413,38 @@ function getGenresArr(idArr){
         }
     }
     var genreDict = {};
+    var bigGenreDict = {};
     for(var item of result){
-        for(var gen of item['genres']){
+        bigGenHist = []; //prevent duplication of big genres within one artist
+        console.log(item['genres']);
+        for(var gen of item['genres']){  //one artist
+            // for specific genres
             if(!genreDict[gen]){
                 genreDict[gen] = 0;
             }
             genreDict[gen] += 1;
+
+            // for big genres
+            if(gen.split(' ').includes('lo-fi')){ //lo-fi is an exception
+                bigGens = gen.split(' ');
+            }else{
+                bigGens = gen.split(/ |-/); //separate with ' ' or '-' e.g. j-indie k-pop
+            }
+            for(var Gen of bigGens){
+                if(!bigGenreDict[Gen]){
+                    bigGenreDict[Gen] = 0;
+                }
+                if(!bigGenHist.includes(Gen)){
+                    bigGenreDict[Gen] += 1;
+                    bigGenHist.push(Gen);
+                }
+            }
         }
     }
     genreArr = sortDict(genreDict);
+    bigGenreArr = sortDict(bigGenreDict);
     // console.log(genreDict);
-    return genreArr;
+    return [genreArr,bigGenreArr];
 }
 
 function get_playlist_details(use_liked_song=false){
@@ -600,28 +621,13 @@ function get_playlist_details(use_liked_song=false){
 
             //genre cloud
             idArr = idArrify(all_tracks);
-            genreArr = getGenresArr(idArr);
+            genreArrs = getGenresArr(idArr);
+            genreArr = genreArrs[0];
             genreCloudData = Arr2AnyChartData(genreArr);
             drawCloud(genreCloudData, 'GenrePiechart');
             printable2(genreArr, 10, 'GenreListDiv', 'Genre', 'tracks with artist<br>of this genre');
 
-            //genre word cloud
-            bigGenreDict = {};
-            for(var item of genreArr){
-                if(item[0].split(' ').includes('lo-fi')){
-                    bigGens = item[0].split(' ');
-                }else{
-                    bigGens = item[0].split(/ |-/); //separate with ' ' or '-' e.g. j-indie k-pop
-                }
-              for(var Gen of bigGens){
-                if(!bigGenreDict[Gen]){
-                  bigGenreDict[Gen] = 0;
-                }
-                bigGenreDict[Gen] += item[1];   
-              }
-            }
-            bigGenreArr = sortDict(bigGenreDict);
-            // console.log(bigGenreArr);
+            bigGenreArr = genreArrs[1];            
             bigGenreCloudData = Arr2AnyChartData(bigGenreArr);
             drawCloud(bigGenreCloudData, "GenreCloud");
             printable2(bigGenreArr, 10, 'bigGenreListDiv', 'big Genre', 'num of occurences');
