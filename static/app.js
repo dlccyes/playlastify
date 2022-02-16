@@ -46,8 +46,8 @@ function requestToken(code){ //to backend
         },
         url: "requestToken",
         success: function(result){
+            token = result['data']['access_token'];
             if(token){
-                token = result['data']['access_token'];
                 document.cookie = 'token=' + token;
             }
         },
