@@ -25,7 +25,7 @@
 <body>
 <div id="loadingOverlay"><embed id="loadingOverlayGIF" src="https://i.imgur.com/dVi5Ilw.gif"></embed><span id="loadingOverlayText">this may take a while ...</span></div>
 <h1>Playlastify</h1>
-<h3 style="font-family:Segoe Script;">Dig into your Spotify playlists with last.fm!</h3>
+<h3>Dig into your Spotify playlists with last.fm!</h3>
 <div id="changeBGDiv">
     <img src="https://i.imgur.com/hAcGmG3.jpg" id='BG1' class="smolBG"><br>   
     <img src="https://img.wallpapersafari.com/desktop/1440/900/32/54/hn3Wf6.jpeg" id='BG2' class="smolBG"><br>
@@ -84,11 +84,11 @@
 <div id="sauceDiv" class="">
     <a href="https://github.com/dlccyes/playlastify" style="display:flex; text-decoration:none;" target="_blank">
         <!-- <img src="https://logos-world.net/wp-content/uploads/2020/11/GitHub-Emblem.png" width="80px"> -->
-        <p style="font-family:Consolas;color: #ffe7e7;">Github&nbsp</p>
+        <p class="sauceText">Github&nbsp</p>
     </a>
     <a href="doc" style="display:flex; text-decoration:none;" target="_blank">
         <!-- <img src="https://logos-world.net/wp-content/uploads/2020/11/GitHub-Emblem.png" width="80px"> -->
-        <p style="font-family:Consolas;color: #ffe7e7;">| doc</p>
+        <p class="sauceText">| doc</p>
     </a>
 </div>
 
@@ -118,13 +118,14 @@ var lastfm_toptracks = [];
 var lastfm_tracknameartistcount = {};
 
 $(document).ready(function(){
+    // if mobile device
     if($(window).width() <= 1130){
         alert('please use a computer for better experience');
     }
 
     $('#loadingOverlay').css('width',$(window).width()); //write here s.t. width won't change (in mobile)
 
-    $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), url("https://i.imgur.com/hAcGmG3.jpg")');
+    $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), url("{% static "nebula.jpg" %}")');
 
     $('#login').click(function(){
         getCode(); //auth code flow step 1
@@ -138,18 +139,21 @@ $(document).ready(function(){
     });
 
     $('#BG1').click(function(){
-        $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)),\
-            url("https://i.imgur.com/hAcGmG3.jpg")');
+        // from https://i.imgur.com/hAcGmG3.jpg
+        $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), url("{% static "nebula.jpg" %}")');
+        
         $('body').css('background-size','cover');
         // $('body').css('background-size',window.innerWidth*1.2+"px");
     })
     $('#BG2').click(function(){
-        $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url("https://img.wallpapersafari.com/desktop/1440/900/32/54/hn3Wf6.jpeg")');
+        // from https://img.wallpapersafari.com/desktop/1440/900/32/54/hn3Wf6.jpeg
+        $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url("{% static "grey.jpeg" %}")');
         $('body').css('background-size','cover');
         // $('body').css('background-size','auto');
     })
     $('#BG3').click(function(){
-        $('body').css('background-image','linear-gradient(rgba(0, 0, 0, .3), rgba(0, 0, 0, 0.3)), url("https://i.giphy.com/media/xTiTnxpQ3ghPiB2Hp6/giphy.webp")');
+        // from https://i.giphy.com/media/xTiTnxpQ3ghPiB2Hp6/giphy.webp
+        $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url("{% static "tech.webp" %}")');
         $('body').css('background-size','auto');
         // $('body').css('background-size',window.innerWidth+' '+window.innerHeight);
     })

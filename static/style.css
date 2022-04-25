@@ -1,6 +1,17 @@
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(https://fonts.gstatic.com/s/montserrat/v23/JTUHjIg1_i6t8kCHKm4532VJOt5-QNFgpCtr6Hw5aXo.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; 
+  }
 :root {
+    --nice-font: "Montserrat", "Roboto";
+    --mono-font: "Consolas", "Hack";
     /*pruple nebula*/
-    --bgimgurl: url("https://i.imgur.com/hAcGmG3.jpg");
+    /* --bgimgurl: url("https://i.imgur.com/hAcGmG3.jpg"); */
+    --bgimgurl: url("/resources/nebula.jpg");
     /*grey texture*/
     /*--bgimgurl: url("https://img.wallpapersafari.com/desktop/1440/900/32/54/hn3Wf6.jpeg");*/
     /*blue tech node gif*/
@@ -29,9 +40,10 @@ html {
     /*border-radius: 4px;*/
     background: rgb(134 134 134);
 }
-
+h1, h2, h3 {
+    font-family: var(--nice-font);
+}
 h1 {
-    font-family: segoe script;
     text-align: center;
     font-size: 44px;
     font-weight: bold;
@@ -47,7 +59,7 @@ h3 {
 }
 
 body {
-    font-family: Segoe Print;
+    font-family: var(--nice-font);
     background-image: linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), var(--bgimgurl);
     /*background-image:  var(--bgimgurl);*/
     /*background-size: 2035px;*/
@@ -96,7 +108,7 @@ button:active {
 input[type=text] {
     border-radius: 20px;
     padding: 10px;
-    font-family: segoe print;
+    font-family: var(--nice-font);
     font-size: 15px;
 }
 
@@ -299,5 +311,9 @@ th {
     line-height: 9px;
     vertical-align: top;
     color: #ffdadad1;
-    font-family: Consolas;
+    font-family: var(--mono-font);
+}
+.sauceText {
+    font-family: var(--mono-font);
+    color: #ffe7e7;
 }
