@@ -11,7 +11,7 @@
     --mono-font: "Consolas", "Hack";
     /*pruple nebula*/
     /* --bgimgurl: url("https://i.imgur.com/hAcGmG3.jpg"); */
-    --bgimgurl: url("/resources/nebula.jpg");
+    --bgimgurl: url("/static/nebula.jpg");
     /*grey texture*/
     /*--bgimgurl: url("https://img.wallpapersafari.com/desktop/1440/900/32/54/hn3Wf6.jpeg");*/
     /*blue tech node gif*/
@@ -317,3 +317,18 @@ th {
     font-family: var(--mono-font);
     color: #ffe7e7;
 }
+/* responsive */
+/* for mobile */
+@media (max-width: 1000px) {
+    #logincomp, #optional, #changeBGDiv, #lastfmTip {
+        display: none !important;
+    }
+    .nice-tag {
+        padding: 10px;
+        margin-top: 8%;
+    }
+    button, #lastfm_gettoptracks, #spot_loadcomp {
+        font-size: 12px;
+        margin: 4% 0 0 0;
+    }
+}   
