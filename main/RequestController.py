@@ -42,25 +42,25 @@ def requestToken(request):
     return JsonResponse({'data':json.loads(response.text)}, status = 200)
 
 def spagett(request):
-    useDB = int(request.GET.get('useDB'))
-    name = request.GET.get('name')
+    # useDB = int(request.GET.get('useDB'))
+    # name = request.GET.get('name')
     iterAll = int(request.GET.get('iterAll'))
-    print(useDB, name, len(response_t.objects.filter(cat=name)))
-    if(useDB): # return db record
-        if(len(response_t.objects.filter(cat=name)) != 0):
-            return JsonResponse({'data':ast.literal_eval(response_t.objects.get(cat=name).data)}, status = 200)
+    # print(useDB, name, len(response_t.objects.filter(cat=name)))
+    # if(useDB): # return db record
+    #     if(len(response_t.objects.filter(cat=name)) != 0):
+    #         return JsonResponse({'data':ast.literal_eval(response_t.objects.get(cat=name).data)}, status = 200)
     url = request.GET.get('url')
     token = request.GET.get('token')
     if(iterAll): # do iterate all
         data = main.helper.iterateAll(url, token)
-        if(name):
-            if(len(response_t.objects.filter(cat=name)) != 0): # exist record
-                db = response_t.objects.get(cat=name)
-                db.data = data
-                db.save()
-            else: # no existing record
-                db = response_t(cat = name, data = data, updated = timezone.now())
-                db.save()
+        # if(name):
+        #     if(len(response_t.objects.filter(cat=name)) != 0): # exist record
+        #         db = response_t.objects.get(cat=name)
+        #         db.data = data
+        #         db.save()
+        #     else: # no existing record
+        #         db = response_t(cat = name, data = data, updated = timezone.now())
+        #         db.save()
         return JsonResponse({'data':data}, status = 200)
     headers = {
         'Content-Type': 'application/json',
@@ -69,12 +69,12 @@ def spagett(request):
     payload = {}
     response = requests.request("GET", url, headers=headers, data=payload)
     resJson = json.loads(response.text)
-    if(name):
-        if(len(response_t.objects.filter(cat=name)) != 0): # exist record
-            db = response_t.objects.get(cat=name)
-            db.data = resJson
-            db.save()
-        else: # no existing record
-            db = response_t(cat = name, data = resJson, updated = timezone.now())
-            db.save()
+    # if(name):
+    #     if(len(response_t.objects.filter(cat=name)) != 0): # exist record
+    #         db = response_t.objects.get(cat=name)
+    #         db.data = resJson
+    #         db.save()
+    #     else: # no existing record
+    #         db = response_t(cat = name, data = resJson, updated = timezone.now())
+    #         db.save()
     return JsonResponse(resJson, status = 200)
