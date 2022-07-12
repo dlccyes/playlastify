@@ -531,7 +531,7 @@ function get_playlist_details(use_liked_song=false){
                                         <h3>top 10 genres</h3>\
                                     </div>\
                                     <div id="bigGenreListDiv" class="greycardDiv">\
-                                        <h3>top 10 word occurences</h3>\
+                                        <h3>top 10 word occurrences</h3>\
                                     </div>\
                                 </div><br>\
                                 <div id="OldestDiv" class="greycardDiv">\
@@ -630,7 +630,7 @@ function get_playlist_details(use_liked_song=false){
             bigGenreArr = genreArrs[1];            
             bigGenreCloudData = Arr2AnyChartData(bigGenreArr);
             drawCloud(bigGenreCloudData, "GenreCloud");
-            printable2(bigGenreArr, 10, 'bigGenreListDiv', 'big Genre', 'num of occurences');
+            printable2(bigGenreArr, 10, 'bigGenreListDiv', 'big Genre', 'num of occurrences');
 
             //oldest & newest & most played table
             if(dict_len(lastfm_tracknameartistcount) != 0){
