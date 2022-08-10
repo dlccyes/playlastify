@@ -313,6 +313,11 @@ th {
     color: #ffdadad1;
     font-family: var(--mono-font);
 }
+/* for radar chart text */
+text {
+    font-family: var(--mono-font);
+    font-size: 14px;
+}
 .sauceText {
     font-family: var(--mono-font);
     color: #ffe7e7;
