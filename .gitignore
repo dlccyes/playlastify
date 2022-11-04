@@ -2,3 +2,5 @@
 venv/
 *.pyc
 db.sqlite3
+*.cache
+desktop.ini

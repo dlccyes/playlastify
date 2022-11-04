@@ -6,7 +6,6 @@ import requests
 import base64
 import json
 
-
 def iterateAll(next_url, token):
     temp = []
     continuue = True
