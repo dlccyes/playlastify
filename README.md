@@ -1,11 +1,10 @@
 # Playlastify
 
-**2022.11.05: The site has been migrated from Heroku to Firebase**
+**2022.11.05: The site has been migrated from Heroku to GCP Cloud Run**
 
 *playlist+last.fm+spotify*
 
-
-Simple webapp for some Spotify playlist stats using Spotify WebAPI & last.fm API, hosted on Heroku
+A webapp that visualize your Spotify playlist stats, and many more!
 
 site url: https://playlastify.web.app/ ([Heroku ver.](https://playlastify.herokuapp.com), may die anytime)  
 source code: https://github.com/dlccyes/playlastify
