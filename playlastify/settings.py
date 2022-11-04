@@ -25,7 +25,12 @@ SECRET_KEY = 'django-insecure-3ffrxdwq4t%l26-m432&b@5v488d#$=^kffa1a65u0!v=zqz3z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','playlastify.herokuapp.com']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    '0.0.0.0',
+    'playlastify.herokuapp.com',
+    'playlastify-sk2jg7hiwa-de.a.run.app',
+]
 
 
 # Application definition

@@ -13,16 +13,16 @@ import os
 
 def getEnv(request):
     load_dotenv()
-    clientID = os.getenv('clientID')
-    redirect_uri = os.getenv('redirect_uri')
+    clientID = os.getenv('CLIENT_ID')
+    redirect_uri = os.getenv('REDIRECT_URI')
     return JsonResponse({'clientID':clientID, 'redirect_uri':redirect_uri}, status=200)
 
 
 def requestToken(request):
     load_dotenv()
-    clientID = os.getenv('clientID')
-    clientSecret = os.getenv('clientSecret')
-    redirect_uri = os.getenv('redirect_uri')
+    clientID = os.getenv('CLIENT_ID')
+    clientSecret = os.getenv('CLIENT_SECRET')
+    redirect_uri = os.getenv('REDIRECT_URI')
     cred = f'{clientID}:{clientSecret}'
     b64_cred = base64.b64encode(cred.encode('ascii')).decode('ascii')
     auth = f'Basic {b64_cred}'
