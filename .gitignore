@@ -5,3 +5,4 @@ db.sqlite3
 *.cache
 desktop.ini
 service_account_key.json
+__pycache__/
