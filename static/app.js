@@ -191,7 +191,7 @@ function ArtistDistribution(tracks){
 
 function show_current_playback(){
     play = spott_get('https://api.spotify.com/v1/me/player', token, function(xhr){ //scope: user-read-playback-state
-        if(xhr){
+        if(xhr && xhr['item']){
             $('#currentMeta').show();
             current_id = xhr['item']['id'];
             temp = '';
