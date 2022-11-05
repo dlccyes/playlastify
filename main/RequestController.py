@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import os
 
 
-def get_env():
+def get_env(request):
     load_dotenv()
     client_id = os.getenv('CLIENT_ID')
     redirect_uri = os.getenv('REDIRECT_URI')
@@ -41,7 +41,7 @@ def spagett(request):
     url = request.GET.get('url')
     token = request.GET.get('token')
     if iter_all: # do iterate all
-        data = main.helper.iterateAll(url, token)
+        data = main.helper.iterate_all(url, token)
         return JsonResponse({'data':data}, status = 200)
     headers = {
         'Content-Type': 'application/json',

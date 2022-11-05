@@ -195,40 +195,39 @@ function show_current_playback(){
             if(!current_id){
                 alert('no detailed data for local song');
                 $('#currentMeta').hide();
+                return
             }
-            if(current_id){
-                spott_get_sync('https://api.spotify.com/v1/tracks/'+current_id, token, function(xhr){ //no scope
-                    for(let artist of xhr['artists']){
-                        artists_ids.push(artist['id']);
-                    }
-                    current_AudioFeatureDict['duration_ms'] = xhr['duration_ms'];
-                    current_AudioFeatureDict['popularity'] = xhr['popularity'];
-                    $('#currentImg').html('<img src="'+xhr['album']['images'][0]['url']+'" class="meta_img">')
-                });
-                spott_get_sync('https://api.spotify.com/v1/audio-features/'+current_id, token, function(xhr){ //no scope
-                    temp = ['acousticness','danceability','duration_ms','energy','instrumentalness',
-                    'liveness','loudness','speechiness','tempo','valence']
-                    for(let item of temp){
-                        current_AudioFeatureDict[item] = xhr[item];
-                    }
-                    $('#currentAudioFeatureDiv').html(''); //clear
-                    drawRadar(current_AudioFeatureDict, 'currentAudioFeatureDiv');
-                });
+            spott_get_sync('https://api.spotify.com/v1/tracks/'+current_id, token, function(xhr){ //no scope
+                for(let artist of xhr['artists']){
+                    artists_ids.push(artist['id']);
+                }
+                current_AudioFeatureDict['duration_ms'] = xhr['duration_ms'];
+                current_AudioFeatureDict['popularity'] = xhr['popularity'];
+                $('#currentImg').html('<img src="'+xhr['album']['images'][2]['url']+'" class="meta_img">')
+            });
+            spott_get_sync('https://api.spotify.com/v1/audio-features/'+current_id, token, function(xhr){ //no scope
+                temp = ['acousticness','danceability','duration_ms','energy','instrumentalness',
+                'liveness','loudness','speechiness','tempo','valence']
+                for(let item of temp){
+                    current_AudioFeatureDict[item] = xhr[item];
+                }
+                $('#currentAudioFeatureDiv').html(''); //clear
+                drawRadar(current_AudioFeatureDict, 'currentAudioFeatureDiv');
+            });
 
-                let currentGenreDict = {};
-                for(let id of artists_ids){
-                    spott_get_sync('https://api.spotify.com/v1/artists/'+id, token, function(xhr){ //no scope
-                        for(let gen of xhr['genres']){
-                            if(!currentGenreDict[gen]){
-                                currentGenreDict[gen] = true;
-                            }
+            let currentGenreDict = {};
+            for(let id of artists_ids){
+                spott_get_sync('https://api.spotify.com/v1/artists/'+id, token, function(xhr){ //no scope
+                    for(let gen of xhr['genres']){
+                        if(!currentGenreDict[gen]){
+                            currentGenreDict[gen] = true;
                         }
-                    });
-                }
-                let genreStr = '';
-                for(let gen of Object.keys(currentGenreDict)){
-                    genreStr += gen + '<br>';        
-                }
+                    }
+                });
+            }
+            let genreStr = '';
+            for(let gen of Object.keys(currentGenreDict)){
+                genreStr += gen + '<br>';        
             }
 
             let currentAudioFeature2html = '<table><th></th><th></th>';
