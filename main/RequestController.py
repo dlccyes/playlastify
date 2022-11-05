@@ -68,13 +68,11 @@ def spagett(request):
     }
     payload = {}
     response = requests.request("GET", url, headers=headers, data=payload)
-    resJson = json.loads(response.text)
-    # if(name):
-    #     if(len(response_t.objects.filter(cat=name)) != 0): # exist record
-    #         db = response_t.objects.get(cat=name)
-    #         db.data = resJson
-    #         db.save()
-    #     else: # no existing record
-    #         db = response_t(cat = name, data = resJson, updated = timezone.now())
-    #         db.save()
-    return JsonResponse(resJson, status = 200)
+    
+    if response.text == None or response.text == '':
+        return JsonResponse({'item':None}, status = 200)
+    
+    res_json = json.loads(response.text)
+    
+    return JsonResponse(res_json, status = 200)
+
