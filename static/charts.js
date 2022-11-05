@@ -424,30 +424,30 @@ function drawRadar(data, id){
 }
 
 function drawCloud(data, id){
-  anychart.onDocumentReady(function () {
-      anychart.theme(anychart.themes.darkGlamour);
-      anychart.theme(anychart.themes.darkTurquoise);
+    $('#'+id).empty();
+    anychart.onDocumentReady(function () {
+        anychart.theme(anychart.themes.darkGlamour);
+        anychart.theme(anychart.themes.darkTurquoise);
 
 
-      let chart = anychart.tagCloud(data);
+        let chart = anychart.tagCloud(data);
 
-      // set the chart title
-      chart.title('')
-      // set array of angles, by which words will be placed
-      chart.angles([0])
-      // enable color range
-      // set color range length
-      chart.colorRange().length('80%');
-      chart.background().fill('transparent');
-      chart.background().stroke("0 transparent");
-      chart.background().corners(20);
-      // chart.fontColor('transparent');
-      // display chart
-      chart.container(id);
-      chart.draw();
-      $('.anychart-credits').html('<span class="anychart-credits-text">made with AnyChart</span>') 
-  });
-
+        // set the chart title
+        chart.title('')
+        // set array of angles, by which words will be placed
+        chart.angles([0])
+        // enable color range
+        // set color range length
+        chart.colorRange().length('80%');
+        chart.background().fill('transparent');
+        chart.background().stroke("0 transparent");
+        chart.background().corners(20);
+        // chart.fontColor('transparent');
+        // display chart
+        chart.container(id);
+        chart.draw();
+        $('.anychart-credits').html('<span class="anychart-credits-text">made with AnyChart</span>') 
+    });
 }
 
 function drawLine(dataArr, id, xName, yName){

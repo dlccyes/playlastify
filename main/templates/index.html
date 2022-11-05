@@ -66,7 +66,6 @@
     </div>
     <br>
 </div>
-<!-- <button id='show_all_playlists'>show all playlists</button> -->
 <p class="nice-tag">search your spotify playlists</p><br>
 <div class="input_area">
     <input type="text" id="playlist_input" placeholder="spotify playlist name"></input>
@@ -78,14 +77,71 @@
 <span id="spot_loadcomp" class="ldComp" style="display: none"></span><br>
 <span id="spot_loadcomp_tip" class="smol" style="display: none"></span>
 <br>
-<div id='currentPlaylistDiv' style="margin-left: 25px;"></div>
+<div id='currentPlaylistDiv' style="margin-left: 25px; display: None">
+    <div id="PlaylistMeta" style="display: inline-block">
+        <h2><span class="playlistName"></span></h2>
+    </div><br>
+    <br>
+    <div id="DateGraphDiv" class="graph" style="height:500px;">
+    </div><br>
+    <div id="releasedDateGraphDiv" class="graph" style="height:500px;">
+    </div><br>
+    <div id="ArtistDiv">
+        <div id="ArtistGraph" class="graph" style="float:left; width:auto;">
+            <h3 style="">Artists pie chart of <span class="playlistName"></span></h3>
+            <div id="ArtistPiechart" style="width: auto; height: 454px; margin-top: -45px;"></div>
+        </div>
+        <div class="greycardDiv">
+            <h3>top 10 artists</h3>
+            <div id="ArtistListDiv"></div>
+        </div>
+    </div><br>
+    <div id="GenreDiv">
+        <div id="GenreGraph" class="graph" style="float:left;">
+            <h3 style="">Genre cloud of <span class="playlistName"></span></h3>
+            <div id="genreCloud" style="width: auto; height: 454px; margin-top: -45px;"></div>
+        </div><br>
+        <div id="GenreOccGraph" class="graph" style="float:left;">
+            <h3 style="">Genre word cloud of <span class="playlistName"></span></h3>
+            <div id="bigGenreCloud" style="width: auto; height: 454px; margin-top: -45px;"></div>
+        </div><br>
+        <div class="greycardDiv">
+            <h3>top 10 genres</h3>
+            <div id="GenreListDiv"></div>
+        </div>
+        <div class="greycardDiv">
+            <h3>top 10 word occurrences</h3>
+            <div id="bigGenreListDiv"></div>
+        </div>
+    </div><br>
+    <div class="greycardDiv">
+        <h3>top 10 oldest tracks</h3>
+        <div id="OldestDiv"></div>
+    </div>
+    <div class="greycardDiv">
+        <h3>top 10 newest tracks</h3>
+        <div id="NewestDiv"></div>
+        
+    </div><br>
+    <div id="SearchDurationDiv" style="margin:1%;">
+        <p class="nice-tag">search anything in this playlist</p><br>
+        <div class="input_area">
+            <input type="text" id="srch_dur_input" placeholder="title or artist"></input>
+            <input type="checkbox" id="WholeExactMatch">whole word and match case</input>
+            <button id="srch_dur">search song</button><br>
+        </div>
+        <span class="smol">leave it blank to show everything in this playlist</span><br>
+        <span class="smol" id="srchTip" style="display:none">click any column title to sort (like you do in Spotify)</span>
+        <br>
+        <div id="SearchDurationResult" class="greycardDiv" style="display:none;padding-top:20px;">
+        </div>
+    </div>
+</div>
 <div id="sauceDiv" class="">
     <a href="https://github.com/dlccyes/playlastify" style="display:flex; text-decoration:none;" target="_blank">
-        <!-- <img src="https://logos-world.net/wp-content/uploads/2020/11/GitHub-Emblem.png" width="80px"> -->
         <p class="sauceText">Github&nbsp</p>
     </a>
     <a href="doc" style="display:flex; text-decoration:none;" target="_blank">
-        <!-- <img src="https://logos-world.net/wp-content/uploads/2020/11/GitHub-Emblem.png" width="80px"> -->
         <p class="sauceText">| doc</p>
     </a>
 </div>

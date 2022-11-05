@@ -448,7 +448,6 @@ function getGenresArr(idArr){
     }
     genreArr = sortDict(genreDict);
     bigGenreArr = sortDict(bigGenreDict);
-    // console.log(genreDict);
     return [genreArr,bigGenreArr];
 }
 
@@ -461,19 +460,19 @@ function get_playlist_details(use_liked_song=false){
             if(!playlists){
                 return;
             }
-            name = $('#playlist_input').val();
+            _name = $('#playlist_input').val();
             var playlist_id = '';
             var playlist_name = '';
             if($("#playlistExactMatch").prop("checked")==true){ //need exact match
                 for(var i=0; i<playlists.length; i++) {
-                    if(playlists[i]['name'] == name){ //ignore case and search
+                    if(playlists[i]['name'] == _name){ //ignore case and search
                         playlist_id = playlists[i]['id'];
                         playlist_name = playlists[i]['name'];
                     }
                 }        
             }else{
                 for(var i=0; i<playlists.length; i++){ //no need exact match
-                    if(playlists[i]['name'].toLowerCase().indexOf(name.toLowerCase()) != -1){ //ignore case and search
+                    if(playlists[i]['name'].toLowerCase().indexOf(_name.toLowerCase()) != -1){ //ignore case and search
                         playlist_id = playlists[i]['id'];
                         playlist_name = playlists[i]['name'];
                     }
@@ -510,61 +509,64 @@ function get_playlist_details(use_liked_song=false){
             sortedArtistArr = ArtistDistribution(all_tracks);
             sortedArtistArrwTitle = [['Artist','Number']].concat(sortedArtistArr);
             //html of playlist div
-            playlistDivhtml = '<div id="PlaylistMeta" style="display: inline-block">\
-                                    <h2>'+playlist_name+'</h2>\
-                                </div><br>\
-                                <br>\
-                                <div id="DateGraphDiv" class="graph" style="height:500px;">\
-                                </div><br>\
-                                <div id="releasedDateGraphDiv" class="graph" style="height:500px;">\
-                                </div><br>\
-                                <div id="ArtistDiv">\
-                                    <div id="ArtistGraph" class="graph" style="float:left; width:auto;">\
-                                        <h3 style="">Artists pie chart of '+playlist_name+'</h3>\
-                                        <div id="ArtistPiechart" style="width: auto; height: 454px; margin-top: -45px;""></div>\
-                                    </div>\
-                                    <div id="ArtistListDiv" class="greycardDiv">\
-                                        <h3>top 10 artists</h3>\
-                                    </div>\
-                                </div><br>\
-                                <div id="GenreDiv">\
-                                    <div id="GenreGraph" class="graph" style="float:left;">\
-                                        <h3 style="">Genre cloud of '+playlist_name+'</h3>\
-                                        <div id="GenrePiechart" style="width: auto; height: 454px; margin-top: -45px;""></div>\
-                                    </div><br>\
-                                    <div id="GenreOccGraph" class="graph" style="float:left;">\
-                                        <h3 style="">Genre word cloud of '+playlist_name+'</h3>\
-                                        <div id="GenreCloud" style="width: auto; height: 454px; margin-top: -45px;""></div>\
-                                    </div><br>\
-                                    <div id="GenreListDiv" class="greycardDiv">\
-                                        <h3>top 10 genres</h3>\
-                                    </div>\
-                                    <div id="bigGenreListDiv" class="greycardDiv">\
-                                        <h3>top 10 word occurrences</h3>\
-                                    </div>\
-                                </div><br>\
-                                <div id="OldestDiv" class="greycardDiv">\
-                                    <h3>top 10 oldest tracks</h3>\
-                                </div>\
-                                <div id="NewestDiv" class="greycardDiv">\
-                                    <h3>top 10 newest tracks</h3>\
-                                </div><br>\
-                                <div id="SearchDurationDiv" style="margin:1%;">\
-                                    <p class="nice-tag">search anything in this playlist</p><br>\
-                                    <div class="input_area">\
-                                        <input type="text" id="srch_dur_input" placeholder="title or artist"></input>\
-                                        <input type="checkbox" id="WholeExactMatch">whole word and match case</input>\
-                                        <button id="srch_dur">search song</button><br>\
-                                    </div>\
-                                    <span class="smol">leave it blank to show everything in this playlist</span><br>\
-                                    <span class="smol" id="srchTip" style="display:none">click any column title to sort (like you do in Spotify)</span>\
-                                    <br>\
-                                    <div id="SearchDurationResult" class="greycardDiv" style="display:none;padding-top:20px;">\
-                                    </div>\
-                                </div>'
-            $('#currentPlaylistDiv').html(playlistDivhtml);
+            // playlistDivhtml = '<div id="PlaylistMeta" style="display: inline-block">\
+            //                         <h2>'+playlist_name+'</h2>\
+            //                     </div><br>\
+            //                     <br>\
+            //                     <div id="DateGraphDiv" class="graph" style="height:500px;">\
+            //                     </div><br>\
+            //                     <div id="releasedDateGraphDiv" class="graph" style="height:500px;">\
+            //                     </div><br>\
+            //                     <div id="ArtistDiv">\
+            //                         <div id="ArtistGraph" class="graph" style="float:left; width:auto;">\
+            //                             <h3 style="">Artists pie chart of '+playlist_name+'</h3>\
+            //                             <div id="ArtistPiechart" style="width: auto; height: 454px; margin-top: -45px;""></div>\
+            //                         </div>\
+            //                         <div id="ArtistListDiv" class="greycardDiv">\
+            //                             <h3>top 10 artists</h3>\
+            //                         </div>\
+            //                     </div><br>\
+            //                     <div id="GenreDiv">\
+            //                         <div id="GenreGraph" class="graph" style="float:left;">\
+            //                             <h3 style="">Genre cloud of '+playlist_name+'</h3>\
+            //                             <div id="GenrePiechart" style="width: auto; height: 454px; margin-top: -45px;""></div>\
+            //                         </div><br>\
+            //                         <div id="GenreOccGraph" class="graph" style="float:left;">\
+            //                             <h3 style="">Genre word cloud of '+playlist_name+'</h3>\
+            //                             <div id="GenreCloud" style="width: auto; height: 454px; margin-top: -45px;""></div>\
+            //                         </div><br>\
+            //                         <div id="GenreListDiv" class="greycardDiv">\
+            //                             <h3>top 10 genres</h3>\
+            //                         </div>\
+            //                         <div id="bigGenreListDiv" class="greycardDiv">\
+            //                             <h3>top 10 word occurrences</h3>\
+            //                         </div>\
+            //                     </div><br>\
+            //                     <div id="OldestDiv" class="greycardDiv">\
+            //                         <h3>top 10 oldest tracks</h3>\
+            //                     </div>\
+            //                     <div id="NewestDiv" class="greycardDiv">\
+            //                         <h3>top 10 newest tracks</h3>\
+            //                     </div><br>\
+            //                     <div id="SearchDurationDiv" style="margin:1%;">\
+            //                         <p class="nice-tag">search anything in this playlist</p><br>\
+            //                         <div class="input_area">\
+            //                             <input type="text" id="srch_dur_input" placeholder="title or artist"></input>\
+            //                             <input type="checkbox" id="WholeExactMatch">whole word and match case</input>\
+            //                             <button id="srch_dur">search song</button><br>\
+            //                         </div>\
+            //                         <span class="smol">leave it blank to show everything in this playlist</span><br>\
+            //                         <span class="smol" id="srchTip" style="display:none">click any column title to sort (like you do in Spotify)</span>\
+            //                         <br>\
+            //                         <div id="SearchDurationResult" class="greycardDiv" style="display:none;padding-top:20px;">\
+            //                         </div>\
+            //                     </div>'
+            // $('#currentPlaylistDiv').html(playlistDivhtml);
+            $('.playlistName').html(playlist_name);
+            $('#currentPlaylistDiv').show();
+            $('#PlaylistMeta').empty();
             if(!use_liked_song && current_playlist['images'].length>0){ //add image
-                image_url = current_playlist['images'][0]['url'];
+                    let image_url = current_playlist['images'][0]['url'];
                 $('#PlaylistMeta').append('<img src="'+image_url+'" class="meta_img">');
             }
 
@@ -633,12 +635,12 @@ function get_playlist_details(use_liked_song=false){
             genreArrs = getGenresArr(idArr);
             genreArr = genreArrs[0];
             genreCloudData = Arr2AnyChartData(genreArr);
-            drawCloud(genreCloudData, 'GenrePiechart');
+            drawCloud(genreCloudData, 'genreCloud');
             printable2(genreArr, 10, 'GenreListDiv', 'Genre', 'tracks with artist<br>of this genre');
 
             bigGenreArr = genreArrs[1];            
             bigGenreCloudData = Arr2AnyChartData(bigGenreArr);
-            drawCloud(bigGenreCloudData, "GenreCloud");
+            drawCloud(bigGenreCloudData, "bigGenreCloud");
             printable2(bigGenreArr, 10, 'bigGenreListDiv', 'big Genre', 'num of occurrences');
 
             //oldest & newest & most played table
@@ -655,11 +657,12 @@ function get_playlist_details(use_liked_song=false){
             printable4(sortedtracknameartistdateArr_r, 10, 'NewestDiv', 'title', 'artist', 'days since added', plays);
 
             if(dict_len(lastfm_tracknameartistcount) != 0){
-                mostplayedhtml = '<div id="MostPlayedDiv" class="greycardDiv">\
+                let mostplayedhtml = '<div class="greycardDiv">\
                                         <h3>top 10 most played tracks</h3>\
+                                        <div id="MostPlayedDiv"></div>\
                                     </div><br>'
                 $(mostplayedhtml).insertAfter("#NewestDiv");
-                sortedbyplay = sortArr(sortedtracknameartistdateArr_r,2);
+                let sortedbyplay = sortArr(sortedtracknameartistdateArr_r,2);
                 printable4(sortedbyplay, 10, 'MostPlayedDiv', 'title', 'artist', 'days since added', plays);                
             }
 
@@ -671,7 +674,6 @@ function get_playlist_details(use_liked_song=false){
                 searchSong(sortedtracknameartistdateArr);
             });
             $('#spot_loadcomp').html('data loaded!').show();
-            // $('#spot_loadcomp_tip').html('click any column title to sort (like you do in Spotify)').show();
         }else{
             $('#spot_loadcomp').html('failed').show();
             alert('no result');

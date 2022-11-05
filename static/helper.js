@@ -81,7 +81,7 @@ function printable2(array, num, targetDiv, title1, title2, title3=null){ //array
         }
         temp += '</tr>';
     }
-    $('#'+targetDiv).append(temp);
+    $('#'+targetDiv).html(temp);
 }
 
 function printable4(array, num, targetDiv, title1, title2, title3, title4=null){ //array structure: [[a,b],[c,d],....]
@@ -103,5 +103,5 @@ function printable4(array, num, targetDiv, title1, title2, title3, title4=null){
         }
         temp += '</tr>';
     }
-    $('#'+targetDiv).append(temp);
+    $('#'+targetDiv).html(temp);
 }
