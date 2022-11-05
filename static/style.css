@@ -308,7 +308,7 @@ th {
     font-family: var(--mono-font);
 }
 /* for radar chart text */
-text {
+.mark-text > text {
     font-family: var(--mono-font);
     font-size: 14px;
 }

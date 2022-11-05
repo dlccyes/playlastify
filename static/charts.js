@@ -2,8 +2,8 @@
 function drawPie(dataArr, id){
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(function(){
-        var data = google.visualization.arrayToDataTable(dataArr);
-        var options = {
+        let data = google.visualization.arrayToDataTable(dataArr);
+        let options = {
           // title: 'Artist pie chart of '+playlist_name,
             width: 676, //800
             pieHole: 0.2,
@@ -26,7 +26,7 @@ function drawPie(dataArr, id){
             // pieSliceBorderColor: 'transparent',
             sliceVisibilityThreshold: .0041, //smaller than this → others
         };
-        var chart = new google.visualization.PieChart(document.getElementById(id));
+        let chart = new google.visualization.PieChart(document.getElementById(id));
         chart.draw(data, options);    
     });
 }
@@ -74,8 +74,8 @@ function drawRadar(data, id){
       });
       dataTable.addRows(data);
 
-      var strokewidth = 1.4;
-      var strokecolor = '#ffffffcc';
+      let strokewidth = 1.4;
+      let strokecolor = '#ffffffcc';
       const options = {
         'vega': {
           "$schema": "https://vega.github.io/schema/vega/v5.json",
@@ -426,9 +426,10 @@ function drawRadar(data, id){
 function drawCloud(data, id){
   anychart.onDocumentReady(function () {
       anychart.theme(anychart.themes.darkGlamour);
-      // anychart.theme(anychart.themes.darkTurquoise);
+      anychart.theme(anychart.themes.darkTurquoise);
 
-      var chart = anychart.tagCloud(data);
+
+      let chart = anychart.tagCloud(data);
 
       // set the chart title
       chart.title('')
@@ -454,15 +455,15 @@ function drawLine(dataArr, id, xName, yName){
   google.charts.setOnLoadCallback(function(){
   // function drawChart () {
       // dateVScountArr = [['a','f']].concat(dateVScountArr);
-      var data = new google.visualization.DataTable();
+      let data = new google.visualization.DataTable();
       // var data = google.visualization.arrayToDataTable(dateVScountArr);
       data.addColumn('date','date');
       data.addColumn('number','tracks added');
-      for(var date of dataArr){
+      for(let date of dataArr){
           data.addRow([new Date(date[0]), date[1]]);
       }
 
-      var options = {
+      let options = {
           width: 'auto', //1200
           height: 'auto', //500
           series:{0:{color:'#ffd8d2'}},
@@ -495,15 +496,15 @@ function drawLine(dataArr, id, xName, yName){
           }
       };
 
-      var chart = new google.visualization.LineChart(document.getElementById(id));
+      let chart = new google.visualization.LineChart(document.getElementById(id));
 
       chart.draw(data, options);
   });
 }
 
 function Arr2AnyChartData(ogArr){ //array to anychart data
-    cloudData = [];
-    for(var item of ogArr){
+    let cloudData = [];
+    for(let item of ogArr){
         cloudData.push({"x":item[0],"value":item[1]});
     }
     return cloudData;

@@ -6,8 +6,8 @@
 
 A webapp that visualize your Spotify playlist stats, and many more!
 
-site url: https://playlastify.web.app/ ([Heroku ver.](https://playlastify.herokuapp.com), may die anytime)  
-source code: https://github.com/dlccyes/playlastify
+site url: <https://playlastify.web.app/> ([Heroku ver.](https://playlastify.herokuapp.com), may die anytime)  
+source code: <https://github.com/dlccyes/playlastify>
 
 ## Intro
 
