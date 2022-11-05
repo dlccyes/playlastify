@@ -453,10 +453,7 @@ function drawCloud(data, id){
 function drawLine(dataArr, id, xName, yName){
   google.charts.load('current', {'packages':['corechart']});
   google.charts.setOnLoadCallback(function(){
-  // function drawChart () {
-      // dateVScountArr = [['a','f']].concat(dateVScountArr);
       let data = new google.visualization.DataTable();
-      // var data = google.visualization.arrayToDataTable(dateVScountArr);
       data.addColumn('date','date');
       data.addColumn('number','tracks added');
       for(let date of dataArr){

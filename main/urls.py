@@ -5,7 +5,7 @@ from . import RequestController
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('requestToken', RequestController.requestToken),
+    path('requestToken', RequestController.request_token),
     path('spagett', RequestController.spagett),
-    path('getEnv', RequestController.getEnv),
+    path('getEnv', RequestController.get_env),
 ]

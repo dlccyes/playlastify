@@ -1,15 +1,12 @@
-// var client_id;
-// var redirect_uri;
-
 function getCode(){ //auth code step 1
     $.ajax({ //get env vars first
         method: 'GET',
         url: "getEnv",
         success: function(result){
-            client_id = result['clientID'];
-            redirect_uri = result['redirect_uri'];
-            scopes = 'user-read-playback-state user-library-read playlist-read-private';
-            url = 'https://accounts.spotify.com/authorize'
+            let client_id = result['clientID'];
+            let redirect_uri = result['redirect_uri'];
+            let scopes = 'user-read-playback-state user-library-read playlist-read-private';
+            let url = 'https://accounts.spotify.com/authorize'
             url += "?client_id=" + client_id;
             url += "&response_type=code";
             url += "&redirect_uri=" + encodeURI(redirect_uri);
@@ -18,7 +15,6 @@ function getCode(){ //auth code step 1
             location.href = url;
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            // alert("Something's wrong. Please relogin, wait a while or try another playlist.");
             console.log('error ' + textStatus);
             console.log(jqXHR);
         },
@@ -26,14 +22,14 @@ function getCode(){ //auth code step 1
 }
 
 function parseCodeAndGetToken(){
-    url = String(window.location);
+    let url = String(window.location);
     if(url.search(/=/)!=-1){ //have code in url i.e. is redirected
-        code = url.slice(url.search(/=/)+1);
+        let code = url.slice(url.search(/=/)+1);
         if(url.search(/localhost/) == -1){
             window.history.pushState("", "", "/"); //erase the token from displaying url
         }
         requestToken(code); //GET token
-        delete(code);
+        code = null;
     }
     // do nothing otherwise
 }
@@ -61,10 +57,9 @@ function requestToken(code){ //to backend
 
 function spott_get(url, token, callback, objData=null, async=true){
     if(token){
-        iterAll = 0;
-        useDB = 0;
-        name = '';
-        // console.log(objData);
+        let iterAll = 0;
+        let useDB = 0;
+        let _name = '';
         if(objData){
             if(objData['iterAll']){
                 iterAll = objData['iterAll'];
@@ -73,10 +68,9 @@ function spott_get(url, token, callback, objData=null, async=true){
                 useDB = objData['useDB'];
             }
             if(objData['name']){
-                name = objData['name'];
+                _name = objData['name'];
             }
         }
-        // console.log(objData['useDB'], useDB);
         $.ajax({
             async: async,
             url : 'spagett',
@@ -87,7 +81,7 @@ function spott_get(url, token, callback, objData=null, async=true){
                 'token': token,
                 'iterAll': iterAll,
                 // 'checkDB': checkDB,
-                'name': name,
+                'name': _name,
                 'useDB': useDB,
             },
             success: function(xhr) {
@@ -126,8 +120,6 @@ function withLoading(callback){ //loading animation
                 callback();
                 $('#loadingOverlay').hide();
             }, 100);
-            // callback();
-
         }else{
             alert('please login to Spotify first');
         }
@@ -139,14 +131,13 @@ function withLoading(callback){ //loading animation
 
 //todo
 function get_all_playlists(){
-    var temp;
-    objData = {iterAll:1, useDB:1, name:'AllPlaylists'};
+    let temp;
+    let objData = {iterAll:1, useDB:1, name:'AllPlaylists'};
     if(token){
-        url = 'https://api.spotify.com/v1/me/playlists?limit=50';
+        let url = 'https://api.spotify.com/v1/me/playlists?limit=50';
         spott_get_sync(url, token, function(xhr){
             temp = xhr['data'];
         }, objData);
-        // temp = iterateAll('https://api.spotify.com/v1/me/playlists?limit=50'); //scope: playlist-read-private
         return temp;
     }else{
         alert('please login first');
@@ -163,23 +154,22 @@ function get_all_liked_songs(){ //unused
 }
 
 function TrackNameArtistDate(tracks){
-    var tracknameartistdate = {};
-    for(var item of tracks){
-        temp = item['track']['name']+' - ';
-        for(var artist of item['track']['artists']){
+    let tracknameartistdate = {};
+    for(let item of tracks){
+        let temp = item['track']['name']+' - ';
+        for(let artist of item['track']['artists']){
             temp += artist['name'] + ', ';
         }
         temp = temp.slice(0,-2); //remove last ', '
         tracknameartistdate[temp] = DaystoToday(item['added_at']);
     }
-    // console.log(tracknameartistdate);
     return tracknameartistdate;
 }
 
 function ArtistDistribution(tracks){
-    var artists = {};
-    for(var item of tracks){
-        for(var artist of item['track']['artists']){
+    let artists = {};
+    for(let item of tracks){
+        for(let artist of item['track']['artists']){
             if(!artists[artist['name']]){ //if artist isn't added before
                 artists[artist['name']] = 0;
             }
@@ -190,28 +180,25 @@ function ArtistDistribution(tracks){
 }
 
 function show_current_playback(){
-    play = spott_get('https://api.spotify.com/v1/me/player', token, function(xhr){ //scope: user-read-playback-state
+    spott_get('https://api.spotify.com/v1/me/player', token, function(xhr){ //scope: user-read-playback-state
         if(xhr && xhr['item']){
             $('#currentMeta').show();
-            current_id = xhr['item']['id'];
-            temp = '';
-            for(var artist of xhr['item']['artists']){
+            let current_id = xhr['item']['id'];
+            let temp = '';
+            for(let artist of xhr['item']['artists']){
                 temp += artist['name'] + ', ';
             }
             temp = temp.slice(0,-2);
-            currentTitle = xhr['item']['name']+' - '+temp;
-            current_AudioFeatureDict = {};
-            var current_track;
-            artists_ids = [];
+            let currentTitle = xhr['item']['name']+' - '+temp;
+            let current_AudioFeatureDict = {};
+            let artists_ids = [];
             if(!current_id){
                 alert('no detailed data for local song');
                 $('#currentMeta').hide();
             }
             if(current_id){
                 spott_get_sync('https://api.spotify.com/v1/tracks/'+current_id, token, function(xhr){ //no scope
-                    current_track = xhr;
-                    // console.log(xhr);
-                    for(var artist of xhr['artists']){
+                    for(let artist of xhr['artists']){
                         artists_ids.push(artist['id']);
                     }
                     current_AudioFeatureDict['duration_ms'] = xhr['duration_ms'];
@@ -219,51 +206,46 @@ function show_current_playback(){
                     $('#currentImg').html('<img src="'+xhr['album']['images'][0]['url']+'" class="meta_img">')
                 });
                 spott_get_sync('https://api.spotify.com/v1/audio-features/'+current_id, token, function(xhr){ //no scope
-                    // console.log(xhr);
                     temp = ['acousticness','danceability','duration_ms','energy','instrumentalness',
                     'liveness','loudness','speechiness','tempo','valence']
-                    for(var item of temp){
+                    for(let item of temp){
                         current_AudioFeatureDict[item] = xhr[item];
                     }
                     $('#currentAudioFeatureDiv').html(''); //clear
                     drawRadar(current_AudioFeatureDict, 'currentAudioFeatureDiv');
                 });
 
-                currentGenreDict = {};
-                // todo
-                for(var id of artists_ids){
+                let currentGenreDict = {};
+                for(let id of artists_ids){
                     spott_get_sync('https://api.spotify.com/v1/artists/'+id, token, function(xhr){ //no scope
-                        // console.log(xhr);
-                        for(var gen of xhr['genres']){
+                        for(let gen of xhr['genres']){
                             if(!currentGenreDict[gen]){
                                 currentGenreDict[gen] = true;
                             }
                         }
                     });
                 }
-                genreStr = '';
-                for(var gen of Object.keys(currentGenreDict)){
+                let genreStr = '';
+                for(let gen of Object.keys(currentGenreDict)){
                     genreStr += gen + '<br>';        
                 }
             }
 
-            currentAudioFeature2html = '<table><th></th><th></th>';
+            let currentAudioFeature2html = '<table><th></th><th></th>';
             if(current_id){
-                currentAudioFeature2html += '<tr><td>popularity</td><td>'+current_AudioFeatureDict["popularity"]+'/100</td></tr>\
-                                                    <tr><td>duration</td><td>'+Math.floor(current_AudioFeatureDict["duration_ms"]/1000/60)+'m'+Math.round(current_AudioFeatureDict["duration_ms"]/1000)%60+'s</td></tr>\
-                                                    <tr><td>tempo</td><td>'+Math.round(current_AudioFeatureDict["tempo"])+' BPM</td></tr>\
-                                                    <tr><td>loudness</td><td>'+Math.round(current_AudioFeatureDict["loudness"])+' dB</td></tr>\
-                                                    <tr><td>artist genres</td><td>'+genreStr+'</td></tr>';
+                currentAudioFeature2html += '<tr><td>popularity</td><td>'+current_AudioFeatureDict["popularity"]+'/100</td></tr>' +
+                                                    '<tr><td>duration</td><td>'+Math.floor(current_AudioFeatureDict["duration_ms"]/1000/60)+'m'+Math.round(current_AudioFeatureDict["duration_ms"]/1000)%60+'s</td></tr>' +
+                                                    '<tr><td>tempo</td><td>'+Math.round(current_AudioFeatureDict["tempo"])+' BPM</td></tr>' +
+                                                    '<tr><td>loudness</td><td>'+Math.round(current_AudioFeatureDict["loudness"])+' dB</td></tr>' +
+                                                    '<tr><td>artist genres</td><td>'+genreStr+'</td></tr>';
             }
             if(dict_len(lastfm_tracknameartistcount) != 0){
-                    stuff = currentTitle.split(' - ');
-                    title = stuff[0]+' - '+stuff[1].split(', ')[0];
+                    let stuff = currentTitle.split(' - ');
+                    let title = stuff[0]+' - '+stuff[1].split(', ')[0];
+                let count = 0
                 if(lastfm_tracknameartistcount[title.toLowerCase()]){ //'song_title - 1st_artist'
                     count = lastfm_tracknameartistcount[title.toLowerCase()];
-                }else{ //no play record
-                    count = 0;
                 }
-                // console.log(count);
                 currentAudioFeature2html += '<tr><td>scrobbles</td><td>'+count+'</td></tr>';
             }
             currentAudioFeature2html += '</table>'
@@ -278,19 +260,19 @@ function show_current_playback(){
 }
 
 function lastfm_fetch(){
-    lastfm_toptracks = [];
-    username = $('#lastfm_username_input').val();
-    period = $('#lastfm_period').val();
-    var continuue = true;
-    var page = 1;
+    let lastfm_toptracks = [];
+    let username = $('#lastfm_username_input').val();
+    let period = $('#lastfm_period').val();
+    let continuue = true;
+    let page = 1;
 
     while(continuue){
-        var result;
-        url = 'https://ws.audioscrobbler.com/2.0/?method=user.gettoptracks\
-                &user='+username+'\
-                &period='+period+'\
-                &page='+page+'\
-                &api_key=df7b292e433f23776b084ff739c37918&format=json'
+        let result;
+        let url = 'https://ws.audioscrobbler.com/2.0/?method=user.gettoptracks' +
+                '&user=' + username +
+                '&period=' + period +
+                '&page=' + page +
+                '&api_key=df7b292e433f23776b084ff739c37918&format=json'
         $.ajax({
             async: false,
             url : url,
@@ -300,9 +282,7 @@ function lastfm_fetch(){
                 result = xhr;
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                // alert('failed');
                 continuue = false;
-                // failure = true;
                 console.log('error ' + textStatus);
                 console.log(jqXHR);
             },
@@ -312,7 +292,6 @@ function lastfm_fetch(){
             if(result['toptracks']['@attr']['totalPages'] == 0){ //no scrobbles in this period
                 result = 'no data';
                 continuue = false;
-                // alert('no scrobble data');
                 break;
             }else{
                 page += 1;
@@ -328,16 +307,16 @@ function lastfm_fetch(){
 
     }
     if(result){
-        for(var track of lastfm_toptracks){
+        for(let track of lastfm_toptracks){
             title = track['name']+' - '+track['artist']['name'];
             lastfm_tracknameartistcount[title.toLowerCase()] = track['playcount']; //{'Freesol - Seven Lions' : 20}
         }
         if(lastfm_toptracks.length == 0){
             $('#lastfm_loadcomp').html('<span class="ldComp">no scrobbles for this period for this user</span>').show();
         }else{
-            $('#lastfm_loadcomp').html('<span class="ldComp">'+period+' scrobbles loaded!</span>\
-                <span class="ldComp">search your spotify playlist now!</span><br>\
-                <span class="smol">some last.fm scrobbles may not correctly match the song</span>').show();
+            $('#lastfm_loadcomp').html('<span class="ldComp">'+period+' scrobbles loaded!</span>' +
+                '<span class="ldComp">search your spotify playlist now!</span><br>' +
+                '<span class="smol">some last.fm scrobbles may not correctly match the song</span>').show();
         }
     }else{
         alert('Failed. Check your username.');
@@ -346,13 +325,12 @@ function lastfm_fetch(){
 }
 
 function get_playlist_audio_features(all_tracks){
-    idStr = '';
-    i=0;
-    var playlistAudioFeaturesRaw = [];
-    var playlistAudioFeatures = {'acousticness':0,'danceability':0,'duration_ms':0,'energy':0,'instrumentalness':0,
+    let idStr = '';
+    let i=0;
+    let playlistAudioFeaturesRaw = [];
+    let playlistAudioFeatures = {'acousticness':0,'danceability':0,'duration_ms':0,'energy':0,'instrumentalness':0,
     'liveness':0,'loudness':0,'speechiness':0,'tempo':0,'valence':0};
-    //todo
-    for(var item of all_tracks){
+    for(let item of all_tracks){
         i++;
         idStr += item['track']['id']+',';
         if(i%100 == 0 || item == all_tracks[all_tracks.length-1]){ //i|100 or i=last 
@@ -364,57 +342,58 @@ function get_playlist_audio_features(all_tracks){
             idStr = '';
         }
     }
-    num = 0;
-    for(var item of playlistAudioFeaturesRaw){
+    let num = 0;
+    for(let item of playlistAudioFeaturesRaw){
         if(item){
-            for(var key in playlistAudioFeatures){
+            for(let key in playlistAudioFeatures){
                 playlistAudioFeatures[key] += item[key];
             }
             num += 1;
         }else{ //item = null when local
         }
     }
-    for(var key in playlistAudioFeatures){
+    for(let key in playlistAudioFeatures){
         playlistAudioFeatures[key] /= num; //avg
     }
     return playlistAudioFeatures;
 }
 
 function avg_popularity(all_tracks){
-    var temp = 0;
-    for(var item of all_tracks){
+    let temp = 0;
+    for(let item of all_tracks){
         if(item['track']['popularity']){
             temp += item['track']['popularity'];
         }
     }
     temp /= all_tracks.length;
-    // console.log(temp)
     return temp;
 }
 
 function date_count(all_tracks, type){
-    dateVScountDict = {};
-    for(var track of all_tracks){
+    let dateVScountDict = {};
+    for(let track of all_tracks){
+        let thisDate = ""
         if(type == 'added'){
-            this_date = track['added_at'].slice(0,7); //2021-05
+            thisDate = track['added_at'].slice(0,7); //2021-05
         }else if(type == 'released'){
             if(track['track']['album']['release_date']){
-                this_date = track['track']['album']['release_date'].slice(0,7); //2021-05            
+                thisDate = track['track']['album']['release_date'].slice(0,7); //2021-05            
+            }else{
+                continue
             }
         }
-        if(!dateVScountDict[this_date]){ //init
-            dateVScountDict[this_date] = 0;
+        if(!dateVScountDict[thisDate]){ //init
+            dateVScountDict[thisDate] = 0;
         }
-        dateVScountDict[this_date] += 1;
+        dateVScountDict[thisDate] += 1;
     }
-    // console.log(dateVScountDict);
     return dateVScountDict;
 }
 
 function idArrify(all_tracks){
-    var idArr = [];
-    for(item of all_tracks){
-        for(var artist of item['track']['artists']){
+    let idArr = [];
+    for(let item of all_tracks){
+        for(let artist of item['track']['artists']){
             idArr.push(artist['id']);
         }
     }
