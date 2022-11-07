@@ -238,7 +238,11 @@ function show_current_playback(){
                                                     '<tr><td>loudness</td><td>'+Math.round(current_AudioFeatureDict["loudness"])+' dB</td></tr>' +
                                                     '<tr><td>artist genres</td><td>'+genreStr+'</td></tr>';
             }
-            if(dict_len(lastfm_tracknameartistcount) != 0){
+            let showLastfmStat = false;
+            if(dict_len(lastfm_tracknameartistcount) != 0) {
+                showLastfmStat = true;
+            }
+            if(showLastfmStat){
                     let stuff = currentTitle.split(' - ');
                     let title = stuff[0]+' - '+stuff[1].split(', ')[0];
                 let count = 0
@@ -453,120 +457,65 @@ function getGenresArr(idArr){
 
 function get_playlist_details(use_liked_song=false){
     if(token){
+        let playlist_id = '';
+        let playlist_name = '';
         if(use_liked_song){
-            var playlist_name = 'Liked Songs';
+            playlist_name = 'Liked Songs';
         }else{
-            var playlists = get_all_playlists();
+            let playlists = get_all_playlists();
             if(!playlists){
                 return;
             }
             _name = $('#playlist_input').val();
-            var playlist_id = '';
-            var playlist_name = '';
             if($("#playlistExactMatch").prop("checked")==true){ //need exact match
-                for(var i=0; i<playlists.length; i++) {
-                    if(playlists[i]['name'] == _name){ //ignore case and search
-                        playlist_id = playlists[i]['id'];
-                        playlist_name = playlists[i]['name'];
+                for (let playlist of playlists) { //ignore case and search
+                    if(playlist['name'] == _name){
+                        playlist_id = playlist['id'];
+                        playlist_name = playlist['name'];
+                        break;
                     }
-                }        
+                }
             }else{
-                for(var i=0; i<playlists.length; i++){ //no need exact match
-                    if(playlists[i]['name'].toLowerCase().indexOf(_name.toLowerCase()) != -1){ //ignore case and search
-                        playlist_id = playlists[i]['id'];
-                        playlist_name = playlists[i]['name'];
+                for (let playlist of playlists) { //ignore case and search
+                    if(playlist['name'].toLowerCase().indexOf(_name.toLowerCase()) != -1){
+                        playlist_id = playlist['id'];
+                        playlist_name = playlist['name'];
+                        break;
                     }
                 }
             }
-            var current_playlist;
         }
+        let current_playlist = null;
         if(playlist_id != ''){
+            let all_tracks = null
             if(use_liked_song){
-                next_url = 'https://api.spotify.com/v1/me/tracks?limit=50'; //scope: user-library-read
-                liked_songs = iterateAll('https://api.spotify.com/v1/me/tracks?limit=50');
+                let liked_songs = iterateAll('https://api.spotify.com/v1/me/tracks?limit=50');
                 if(!liked_songs){
                     return;
                 }
                 all_tracks = liked_songs;
-                // console.log('saved',liked_songs);
             }else{
                 spott_get_sync('https://api.spotify.com/v1/playlists/'+playlist_id, token, function(xhr){ //no scope
                     current_playlist = xhr;
                 });
                 url = 'https://api.spotify.com/v1/playlists/'+playlist_id+'/tracks?limit=100';
-                objData = {iterAll:1, useDB:1, name:'playlist_items_'+playlist_id};
+                let objData = {iterAll:1, useDB:1, name:'playlist_items_'+playlist_id};
                 spott_get_sync(url, token, function(xhr){
                     current_playlist['tracks']['items'] = xhr['data'];
                 }, objData);
-                // current_playlist['tracks']['items'] = iterateAll('https://api.spotify.com/v1/playlists/'+playlist_id+'/tracks?limit=100'); //replace
                 if(!current_playlist['tracks']['items']){
                     return;
                 }
                 all_tracks = current_playlist['tracks']['items'];
             }
-            // console.log(current_playlist);
             AudioFeatureDict = get_playlist_audio_features(all_tracks);
             sortedArtistArr = ArtistDistribution(all_tracks);
             sortedArtistArrwTitle = [['Artist','Number']].concat(sortedArtistArr);
-            //html of playlist div
-            // playlistDivhtml = '<div id="PlaylistMeta" style="display: inline-block">\
-            //                         <h2>'+playlist_name+'</h2>\
-            //                     </div><br>\
-            //                     <br>\
-            //                     <div id="DateGraphDiv" class="graph" style="height:500px;">\
-            //                     </div><br>\
-            //                     <div id="releasedDateGraphDiv" class="graph" style="height:500px;">\
-            //                     </div><br>\
-            //                     <div id="ArtistDiv">\
-            //                         <div id="ArtistGraph" class="graph" style="float:left; width:auto;">\
-            //                             <h3 style="">Artists pie chart of '+playlist_name+'</h3>\
-            //                             <div id="ArtistPiechart" style="width: auto; height: 454px; margin-top: -45px;""></div>\
-            //                         </div>\
-            //                         <div id="ArtistListDiv" class="greycardDiv">\
-            //                             <h3>top 10 artists</h3>\
-            //                         </div>\
-            //                     </div><br>\
-            //                     <div id="GenreDiv">\
-            //                         <div id="GenreGraph" class="graph" style="float:left;">\
-            //                             <h3 style="">Genre cloud of '+playlist_name+'</h3>\
-            //                             <div id="GenrePiechart" style="width: auto; height: 454px; margin-top: -45px;""></div>\
-            //                         </div><br>\
-            //                         <div id="GenreOccGraph" class="graph" style="float:left;">\
-            //                             <h3 style="">Genre word cloud of '+playlist_name+'</h3>\
-            //                             <div id="GenreCloud" style="width: auto; height: 454px; margin-top: -45px;""></div>\
-            //                         </div><br>\
-            //                         <div id="GenreListDiv" class="greycardDiv">\
-            //                             <h3>top 10 genres</h3>\
-            //                         </div>\
-            //                         <div id="bigGenreListDiv" class="greycardDiv">\
-            //                             <h3>top 10 word occurrences</h3>\
-            //                         </div>\
-            //                     </div><br>\
-            //                     <div id="OldestDiv" class="greycardDiv">\
-            //                         <h3>top 10 oldest tracks</h3>\
-            //                     </div>\
-            //                     <div id="NewestDiv" class="greycardDiv">\
-            //                         <h3>top 10 newest tracks</h3>\
-            //                     </div><br>\
-            //                     <div id="SearchDurationDiv" style="margin:1%;">\
-            //                         <p class="nice-tag">search anything in this playlist</p><br>\
-            //                         <div class="input_area">\
-            //                             <input type="text" id="srch_dur_input" placeholder="title or artist"></input>\
-            //                             <input type="checkbox" id="WholeExactMatch">whole word and match case</input>\
-            //                             <button id="srch_dur">search song</button><br>\
-            //                         </div>\
-            //                         <span class="smol">leave it blank to show everything in this playlist</span><br>\
-            //                         <span class="smol" id="srchTip" style="display:none">click any column title to sort (like you do in Spotify)</span>\
-            //                         <br>\
-            //                         <div id="SearchDurationResult" class="greycardDiv" style="display:none;padding-top:20px;">\
-            //                         </div>\
-            //                     </div>'
-            // $('#currentPlaylistDiv').html(playlistDivhtml);
             $('.playlistName').html(playlist_name);
             $('#currentPlaylistDiv').show();
             $('#PlaylistMeta').empty();
             if(!use_liked_song && current_playlist['images'].length>0){ //add image
-                    let image_url = current_playlist['images'][0]['url'];
+                let image_url = current_playlist['images'][0]['url'];
                 $('#PlaylistMeta').append('<img src="'+image_url+'" class="meta_img">');
             }
 
@@ -574,7 +523,7 @@ function get_playlist_details(use_liked_song=false){
             
             tracknameartistdateDict = TrackNameArtistDate(all_tracks);
             sortedtracknameartistdateArr = sortDict(tracknameartistdateDict);
-            if(dict_len(lastfm_tracknameartistcount) != 0){ //last.fm
+            if(showLastfmStat){ //last.fm
                 for(var item of sortedtracknameartistdateArr){
                     stuff = item[0].split(' - ');
                     title = stuff[0]+' - '+stuff[1].split(', ')[0];
@@ -595,12 +544,11 @@ function get_playlist_details(use_liked_song=false){
                                         <tr><td>average duration</td><td>'+Math.floor(AudioFeatureDict["duration_ms"]/1000/60)+'m'+Math.round(AudioFeatureDict["duration_ms"]/1000)%60+'s</td></tr>\
                                         <tr><td>average tempo</td><td>'+Math.round(AudioFeatureDict["tempo"])+' BPM</td></tr>\
                                         <tr><td>average loudness</td><td>'+Math.round(AudioFeatureDict["loudness"])+' dB</td></tr>'
-            if(dict_len(lastfm_tracknameartistcount) != 0){
-                count = 0
-                for(var item of sortedtracknameartistdateArr){
+            if(showLastfmStat){
+                let count = 0
+                for(let item of sortedtracknameartistdateArr){
                     count += parseInt(item[2]);
                 }
-                // count /= sortedtracknameartsitdateArr.length;
                 AudioFeature2html += '<tr><td>total scrobbles</td><td>'+count+'</td></tr>';
             }
             AudioFeature2html += '</table></div>'
@@ -608,9 +556,9 @@ function get_playlist_details(use_liked_song=false){
 
 
             //added date line graph
-            dateVScountDict = date_count(all_tracks, 'added');
-            dateVScountArr = [];
-            for(var date in dateVScountDict){
+            let dateVScountDict = date_count(all_tracks, 'added');
+            let dateVScountArr = [];
+            for(let date in dateVScountDict){
                 dateVScountArr.push([date,dateVScountDict[date]]);
             }
             dateVScountArr.sort();
@@ -618,50 +566,44 @@ function get_playlist_details(use_liked_song=false){
             drawLine(dateVScountArr, 'DateGraphDiv', 'date added to '+playlist_name+' (unit: month)', 'num of tracks');
 
             //released date line graph
-            releaseddateVScountDict = date_count(all_tracks, 'released');
-            releaseddateVScountArr = [];
-            for(var date in releaseddateVScountDict){
+            let releaseddateVScountDict = date_count(all_tracks, 'released');
+            let releaseddateVScountArr = [];
+            for(let date in releaseddateVScountDict){
                 releaseddateVScountArr.push([date,releaseddateVScountDict[date]]);
             }
             releaseddateVScountArr.sort();
-            // console.log(releaseddateVScountArr);
             drawLine(releaseddateVScountArr, 'releasedDateGraphDiv', 'date released (unit: month)', 'num of tracks');
 
             drawPie(sortedArtistArrwTitle, 'ArtistPiechart');
             printable2(sortedArtistArr, 10, 'ArtistListDiv', 'Artist', 'number of tracks');
 
             //genre cloud
-            idArr = idArrify(all_tracks);
-            genreArrs = getGenresArr(idArr);
+            let idArr = idArrify(all_tracks);
+            let genreArrs = getGenresArr(idArr);
             genreArr = genreArrs[0];
-            genreCloudData = Arr2AnyChartData(genreArr);
+            let genreCloudData = Arr2AnyChartData(genreArr);
             drawCloud(genreCloudData, 'genreCloud');
             printable2(genreArr, 10, 'GenreListDiv', 'Genre', 'tracks with artist<br>of this genre');
 
             bigGenreArr = genreArrs[1];            
-            bigGenreCloudData = Arr2AnyChartData(bigGenreArr);
+            let bigGenreCloudData = Arr2AnyChartData(bigGenreArr);
             drawCloud(bigGenreCloudData, "bigGenreCloud");
             printable2(bigGenreArr, 10, 'bigGenreListDiv', 'big Genre', 'num of occurrences');
 
             //oldest & newest & most played table
-            if(dict_len(lastfm_tracknameartistcount) != 0){
+            let plays = null
+            if(showLastfmStat){
                 plays = 'scrobbles';                
-            }else{
-                plays = null;
             }
             printable4(sortedtracknameartistdateArr, 10, 'OldestDiv', 'title', 'artist', 'days since added', plays);
 
-            sortedtracknameartistdateArr_r = sortedtracknameartistdateArr;
+            let sortedtracknameartistdateArr_r = sortedtracknameartistdateArr;
             sortedtracknameartistdateArr_r.reverse();
 
             printable4(sortedtracknameartistdateArr_r, 10, 'NewestDiv', 'title', 'artist', 'days since added', plays);
 
-            if(dict_len(lastfm_tracknameartistcount) != 0){
-                let mostplayedhtml = '<div class="greycardDiv">\
-                                        <h3>top 10 most played tracks</h3>\
-                                        <div id="MostPlayedDiv"></div>\
-                                    </div><br>'
-                $(mostplayedhtml).insertAfter("#NewestDiv");
+            if(showLastfmStat){
+                $(".lastfmStat").show();
                 let sortedbyplay = sortArr(sortedtracknameartistdateArr_r,2);
                 printable4(sortedbyplay, 10, 'MostPlayedDiv', 'title', 'artist', 'days since added', plays);                
             }
