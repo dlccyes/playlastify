@@ -80,6 +80,19 @@
 <div id='currentPlaylistDiv' style="margin-left: 25px; display: None">
     <div id="PlaylistMeta" style="display: inline-block">
         <h2><span class="playlistName"></span></h2>
+        <span id="currengPlaylistImg"></span>
+        <div id="AudioFeatureDiv" class="audiofeature"></div>
+        <div id="AudioFeature2Div" class="audiofeature">
+            <table>
+                <th></th><th></th>
+                <tr><td>total tracks</td><td><span id="totalTracks"></span></td></tr>
+                <tr><td>average popularity</td><td><span id="avgPopularity"></span></td></tr>
+                <tr><td>average duration</td><td><span id="avgDuration"></span></td></tr>
+                <tr><td>average tempo</td><td><span id="avgTempo"></span></td></tr>
+                <tr><td>average loudness</td><td><span id="avgLoudness"></span></td></tr>
+                <tr class="lastfmStat"><td>total scrobbles</td><td><span id="totalScrobbiles"></span></td></tr>
+            </table>
+        </div>
     </div><br>
     <br>
     <div id="DateGraphDiv" class="graph" style="height:500px;">
@@ -122,9 +135,9 @@
         <h3>top 10 newest tracks</h3>
         <div id="NewestDiv"></div>
     </div>
-    <div class="greycardDiv lastfmStat" style="display:none">
+    <div class="greycardDiv lastfmStat">
         <h3>top 10 most played tracks</h3>
-        <div id="MostPlayedDivs"></div>
+        <div id="MostPlayedDiv"></div>
     </div>
     <br>
     <div id="SearchDurationDiv" style="margin:1%;">
@@ -174,6 +187,7 @@ if(token){
 
 var lastfm_toptracks = [];
 var lastfm_tracknameartistcount = {};
+var showLastfmStat = false;
 
 $(document).ready(function(){
     // if mobile device
