@@ -216,7 +216,7 @@ function show_current_playback(){
                     }
                     current_AudioFeatureDict['duration_ms'] = xhr['duration_ms'];
                     current_AudioFeatureDict['popularity'] = xhr['popularity'];
-                    $('#currentImg').html('<img src="'+xhr['album']['images'][2]['url']+'" class="meta_img">')
+                    $('#currentImg').html('<img src="'+xhr['album']['images'][0]['url']+'" class="meta_img">')
                 });
                 spott_get_sync('https://api.spotify.com/v1/audio-features/'+current_id, token, function(xhr){ //no scope
                     // console.log(xhr);
