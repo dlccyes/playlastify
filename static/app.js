@@ -42,7 +42,7 @@ function requestToken(code){ //to backend
         },
         url: "requestToken",
         success: function(result){
-            token = result['data']['access_token'];
+            let token = result['data']['access_token'];
             if(token){
                 document.cookie = 'token=' + token;
             }
@@ -145,14 +145,6 @@ function get_all_playlists(){
 
 }
 
-function get_all_liked_songs(){ //unused
-    if(token){
-        savedTracks = iterateAll('"https://api.spotify.com/v1/me/tracks?limit=50'); //scope: user-library-read
-    }else{
-        alert('please login first');
-    }
-}
-
 function TrackNameArtistDate(tracks){
     let tracknameartistdate = {};
     for(let item of tracks){
@@ -181,6 +173,7 @@ function ArtistDistribution(tracks){
 
 function show_current_playback(){
     spott_get('https://api.spotify.com/v1/me/player', token, function(xhr){ //scope: user-read-playback-state
+        let currentTitle;
         if(xhr && xhr['item']){
             $('#currentMeta').show();
             let current_id = xhr['item']['id'];
@@ -189,7 +182,7 @@ function show_current_playback(){
                 temp += artist['name'] + ', ';
             }
             temp = temp.slice(0,-2);
-            let currentTitle = xhr['item']['name']+' - '+temp;
+            currentTitle = xhr['item']['name']+' - '+temp;
             let current_AudioFeatureDict = {};
             let artists_ids = [];
             if(!current_id){
@@ -466,7 +459,7 @@ function get_playlist_details(use_liked_song=false){
                     return;
                 }
                 let _name = $('#playlist_input').val();
-                if($("#playlistExactMatch").prop("checked")==true){ //need exact match
+                if($("#playlistExactMatch").prop("checked")){ //need exact match
                     for (let playlist of playlists) { //ignore case and search
                         if(playlist['name'] == _name){
                             playlist_id = playlist['id'];
@@ -497,7 +490,7 @@ function get_playlist_details(use_liked_song=false){
                     spott_get_sync('https://api.spotify.com/v1/playlists/'+playlist_id, token, function(xhr){ //no scope
                         current_playlist = xhr;
                     });
-                    url = 'https://api.spotify.com/v1/playlists/'+playlist_id+'/tracks?limit=100';
+                    let url = 'https://api.spotify.com/v1/playlists/'+playlist_id+'/tracks?limit=100';
                     let objData = {iterAll:1, useDB:1, name:'playlist_items_'+playlist_id};
                     spott_get_sync(url, token, function(xhr){
                         current_playlist['tracks']['items'] = xhr['data'];
@@ -512,14 +505,11 @@ function get_playlist_details(use_liked_song=false){
                 let sortedArtistArrwTitle = [['Artist','Number']].concat(sortedArtistArr);
                 $('.playlistName').html(playlist_name);
                 $('#currentPlaylistDiv').show();
-                // $('#PlaylistMeta').empty();
                 if(!use_liked_song && current_playlist['images'].length>0){ //add image
                     let image_url = current_playlist['images'][0]['url'];
                     $('#currengPlaylistImg').html('<img src="'+image_url+'" class="meta_img">');
                 }
 
-                // $('#PlaylistMeta').append('<div id="AudioFeatureDiv" class="audiofeature"></div>');
-                
                 let tracknameartistdateDict = TrackNameArtistDate(all_tracks);
                 let sortedtracknameartistdateArr = sortDict(tracknameartistdateDict);
                 let stuff, title
@@ -543,14 +533,6 @@ function get_playlist_details(use_liked_song=false){
                 $("#avgTempo").html(Math.round(AudioFeatureDict["tempo"])+' BPM');
                 $("#avgLoudness").html(Math.round(AudioFeatureDict["loudness"])+' dB');
 
-                // AudioFeature2html = '<div id="AudioFeature2Div" class="audiofeature">\
-                //                         <table>\
-                //                             <th></th><th></th>\
-                //                             <tr><td>total tracks</td><td>'+all_tracks.length+'</td></tr>\
-                //                             <tr><td>average popularity</td><td>'+Math.round(avg_popularity(all_tracks))+'/100</td></tr>\
-                //                             <tr><td>average duration</td><td>'+Math.floor(AudioFeatureDict["duration_ms"]/1000/60)+'m'+Math.round(AudioFeatureDict["duration_ms"]/1000)%60+'s</td></tr>\
-                //                             <tr><td>average tempo</td><td>'+Math.round(AudioFeatureDict["tempo"])+' BPM</td></tr>\
-                //                             <tr><td>average loudness</td><td>'+Math.round(AudioFeatureDict["loudness"])+' dB</td></tr>'
                 if(showLastfmStat){
                     let count = 0
                     for(let item of sortedtracknameartistdateArr){
@@ -558,8 +540,6 @@ function get_playlist_details(use_liked_song=false){
                     }
                     $("#totalScrobbiles").html(count);
                 }
-                // $('#PlaylistMeta').append(AudioFeature2html)
-
 
                 //added date line graph
                 let dateVScountDict = date_count(all_tracks, 'added');
@@ -586,12 +566,12 @@ function get_playlist_details(use_liked_song=false){
                 //genre cloud
                 let idArr = idArrify(all_tracks);
                 let genreArrs = getGenresArr(idArr);
-                genreArr = genreArrs[0];
+                let genreArr = genreArrs[0];
                 let genreCloudData = Arr2AnyChartData(genreArr);
                 drawCloud(genreCloudData, 'genreCloud');
                 printable2(genreArr, 10, 'GenreListDiv', 'Genre', 'tracks with artist<br>of this genre');
 
-                bigGenreArr = genreArrs[1];            
+                let bigGenreArr = genreArrs[1];            
                 let bigGenreCloudData = Arr2AnyChartData(bigGenreArr);
                 drawCloud(bigGenreCloudData, "bigGenreCloud");
                 printable2(bigGenreArr, 10, 'bigGenreListDiv', 'big Genre', 'num of occurrences');
@@ -637,51 +617,52 @@ function get_playlist_details(use_liked_song=false){
 }
 
 function searchSong(sortedtracknameartistdateArr){
-    input = $('#srch_dur_input').val();
-    temp = '<table id="searchSongTable" style="margin-top:15px;">\
-                <th>title</th>\
-                <th>artist</th>\
-                <th>days since added</th>';
+    let searchInput = $('#srch_dur_input').val();
+    let searchResultHtml = '<table id="searchSongTable" style="margin-top:15px;">'+
+                '<th>title</th>'+
+                '<th>artist</th>'+
+                '<th>days since added</th>';
     if(sortedtracknameartistdateArr[0][2]){
-        temp += '<th>scrobbles</th>';
+        searchResultHtml += '<th>scrobbles</th>';
     }
-    matches = 0;
-    const regex = new RegExp("\\b"+input+"\\b");
-    var totalscrobbles = null;
+    let matches = 0;
+    const regex = new RegExp("\\b"+searchInput+"\\b");
+    let totalscrobbles = null;
     if(sortedtracknameartistdateArr[0][2]){
         totalscrobbles = 0;
     }
-    for(var item of sortedtracknameartistdateArr){
-        if($('#WholeExactMatch').prop("checked")==true){ //whole exact match
-            condition = regex.test(item[0])==true;
+    for(let item of sortedtracknameartistdateArr){
+        let condition
+        if($('#WholeExactMatch').prop("checked")){ //whole exact match
+            condition = regex.test(item[0]);
         }else{ //whatever match
-            condition = item[0].toLowerCase().indexOf(input.toLowerCase())!=-1;
+            condition = item[0].toLowerCase().indexOf(searchInput.toLowerCase())!=-1;
         }
         if(condition){
             matches += 1;
-            temp += '<tr><td>'+item[0].split(' - ')[0]+'</td>\
-                        <td>'+item[0].split(' - ')[1]+'</td>\
-                        <td>'+item[1]+'</td>';
+            searchResultHtml += '<tr><td>'+item[0].split(' - ')[0]+'</td>'+
+                        '<td>'+item[0].split(' - ')[1]+'</td>'+
+                        '<td>'+item[1]+'</td>';
             if(item[2] || item[2]==0){
                 totalscrobbles += parseInt(item[2]); 
-                temp += '<td>'+item[2]+'</td>';
+                searchResultHtml += '<td>'+item[2]+'</td>';
             }
-            temp += '</tr>';
+            searchResultHtml += '</tr>';
         }
     }
     if(totalscrobbles){
-        temp = '<span style="color:#ffd8d2; float:right;">'+totalscrobbles+' scrobbles</span>'+temp;
+        searchResultHtml = '<span style="color:#ffd8d2; float:right;">'+totalscrobbles+' scrobbles</span>'+searchResultHtml;
     }
     if(matches == 0){
         alert('no result');
     }else{
         if(matches == 1){
-            temp = '<span style="color:#ffd8d2;">'+1+' result</span>'+temp; //insert
+            searchResultHtml = '<span style="color:#ffd8d2;">'+1+' result</span>'+searchResultHtml; //insert
         }else{
-            temp = '<span style="color:#ffd8d2;">'+matches+' results</span>'+temp; //insert
+            searchResultHtml = '<span style="color:#ffd8d2;">'+matches+' results</span>'+searchResultHtml; //insert
         }
         $('#srchTip').show();
-        $('#SearchDurationResult').html(temp).show();
+        $('#SearchDurationResult').html(searchResultHtml).show();
     }
 }
 
@@ -690,7 +671,7 @@ function searchSong(sortedtracknameartistdateArr){
 $(document).off('click','th');
 $(document).on('click','th',function(){
     let table = $(this).parents('table').eq(0);
-    i = 0;
+    let i = 0;
     let elElement;
     while(table.find('th:eq('+i+')').text()){ //remove the arrows other from the clicked element
         elElement = table.find('th:eq('+i+')');
