@@ -1,3 +1,8 @@
+help:
+	@echo "  cicd"
+	@echo "  ci"
+	@echo "  cd"
+	@echo "  run"
 cicd: ci cd
 ci:
 	gcloud builds submit --tag gcr.io/playlastify/playlastify

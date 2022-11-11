@@ -1,15 +1,10 @@
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
-from django.utils import timezone
-from main.models import response_t
 import requests
-import base64
 import json
 
-def iterateAll(next_url, token):
+def iterate_all(next_url, token):
     temp = []
     continuue = True
-    headers={
+    headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer '+ token,
     }
@@ -20,10 +15,10 @@ def iterateAll(next_url, token):
         if(fuse > 500):
             break
         response = requests.request("GET", next_url, headers=headers, data=payload)
-        resJson = json.loads(response.text)
-        temp += resJson['items']
-        if(resJson['next']):
-            next_url = resJson['next']
+        res_json = json.loads(response.text)
+        temp += res_json['items']
+        if(res_json['next']):
+            next_url = res_json['next']
         else:
             continuue = False
     return temp
