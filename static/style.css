@@ -311,10 +311,6 @@ th {
   transform: translate(-50%);
 }
 
-.lastfmStat {
-  display: none;
-}
-
 .anychart-credits {
   position: absolute;
   overflow: hidden;
