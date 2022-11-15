@@ -1,8 +1,8 @@
 import requests
 import json
 
-def iterate_all(next_url, token):
-    temp = []
+def iterate_all(next_url: str, token: str) -> list:
+    result = []
     continuue = True
     headers = {
         'Content-Type': 'application/json',
@@ -16,9 +16,9 @@ def iterate_all(next_url, token):
             break
         response = requests.request("GET", next_url, headers=headers, data=payload)
         res_json = json.loads(response.text)
-        temp += res_json['items']
+        result += res_json['items']
         if(res_json['next']):
             next_url = res_json['next']
         else:
             continuue = False
-    return temp
+    return result

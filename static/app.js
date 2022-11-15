@@ -42,7 +42,7 @@ function requestToken(code){ //to backend
         },
         url: "requestToken",
         success: function(result){
-            let token = result['data']['access_token'];
+            token = result['data']['access_token'];
             if(token){
                 document.cookie = 'token=' + token;
             }
@@ -142,7 +142,6 @@ function get_all_playlists(){
     }else{
         alert('please login first');
     }
-
 }
 
 function TrackNameArtistDate(tracks){
@@ -218,19 +217,16 @@ function show_current_playback(){
                     }
                 });
             }
+            let currentAudioFeature2html = '<table><th></th><th></th>';
+            $("#trackPopularity").html(current_AudioFeatureDict["popularity"] + '/100');
+            $("#trackDuration").html(Math.floor(current_AudioFeatureDict["duration_ms"]/1000/60)+'m'+Math.round(current_AudioFeatureDict["duration_ms"]/1000)%60+'s');
+            $("#trackTempo").html(Math.round(current_AudioFeatureDict["tempo"]) + ' BPM');
+            $("#trackLoudness").html(Math.round(current_AudioFeatureDict["loudness"]) + ' dB');
             let genreStr = '';
             for(let gen of Object.keys(currentGenreDict)){
                 genreStr += gen + '<br>';        
             }
-
-            let currentAudioFeature2html = '<table><th></th><th></th>';
-            if(current_id){
-                currentAudioFeature2html += '<tr><td>popularity</td><td>'+current_AudioFeatureDict["popularity"]+'/100</td></tr>' +
-                                                    '<tr><td>duration</td><td>'+Math.floor(current_AudioFeatureDict["duration_ms"]/1000/60)+'m'+Math.round(current_AudioFeatureDict["duration_ms"]/1000)%60+'s</td></tr>' +
-                                                    '<tr><td>tempo</td><td>'+Math.round(current_AudioFeatureDict["tempo"])+' BPM</td></tr>' +
-                                                    '<tr><td>loudness</td><td>'+Math.round(current_AudioFeatureDict["loudness"])+' dB</td></tr>' +
-                                                    '<tr><td>artist genres</td><td>'+genreStr+'</td></tr>';
-            }
+            $("#trackArtistGenres").html(genreStr);
             if(showLastfmStat){
                     let stuff = currentTitle.split(' - ');
                     let title = stuff[0]+' - '+stuff[1].split(', ')[0];
@@ -238,10 +234,8 @@ function show_current_playback(){
                 if(lastfm_tracknameartistcount[title.toLowerCase()]){ //'song_title - 1st_artist'
                     count = lastfm_tracknameartistcount[title.toLowerCase()];
                 }
-                currentAudioFeature2html += '<tr><td>scrobbles</td><td>'+count+'</td></tr>';
+                $('#trackScrobbles').html(count);
             }
-            currentAudioFeature2html += '</table>'
-            $('#currentAudioFeature2Div').html(currentAudioFeature2html);
         }else{
             $('#currentMeta').hide();
             currentTitle = 'nothing is playing';

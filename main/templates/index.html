@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
     <title>Playlastify</title>
@@ -9,7 +9,6 @@
     {% load static %}
     <link rel='stylesheet' href="{% static 'style.css' %}" type='text/css' media='all' /> 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <!-- <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script> -->
     <script src="{% static 'app.js' %}"></script>
     <script src="{% static 'helper.js' %}"></script>
     <script src="{% static 'charts.js' %}"></script>
@@ -31,9 +30,7 @@
 </div>
 <br>
 <button id='login' style='margin: 0%;'>login to spotify</button>
-<!-- <span id="logincomp" class="ldComp" style="display: none">you've logged in!</span> -->
 <br>
-<!-- last.fm -->
 <div>
     <p class="nice-tag">load your last.fm data</p>
     <p id="optional" class="nice-tag" style="background: #bdaaff7a;">OPTIONAL</p>
@@ -54,7 +51,6 @@
     <span id="lastfm_loadcomp" style="display: none"></span>
 </div>
 <br>
-<!-- /last.fm -->
 <button id='current_playback' style='margin-left: 0%;'>show current playback</button>
 <br>
 <div id='currentPlaybackDiv' style="display: none; margin-bottom: 3%; margin-left: 25px;">
@@ -62,7 +58,16 @@
     <div id="currentMeta">
         <div id="currentImg"></div>
         <div id="currentAudioFeatureDiv" class="audiofeature"></div>
-        <div id="currentAudioFeature2Div" class="audiofeature"></div>
+        <div id="currentAudioFeature2Div" class="audiofeature">
+            <table><th></th><th></th>
+                <tr><td>popularity</td><td><span id="trackPopularity"></span></td></tr>
+                <tr><td>duration</td><td><span id="trackDuration"></span></td></tr>
+                <tr><td>tempo</td><td><span id="trackTempo"></span></td></tr>
+                <tr><td>loudness</td><td><span id="trackLoudness"></span></td></tr>
+                <tr><td>artist genres</td><td><span id="trackArtistGenres"></span></td></tr>
+                <tr class=".lastfmStat"><td>scrobbles</td><td><span id="trackScrobbles"></span></td></tr>
+            </table>
+        </div>
     </div>
     <br>
 </div>
@@ -162,6 +167,7 @@
         <p class="sauceText">| doc</p>
     </a>
 </div>
+</body>
 
 <script>
 
@@ -190,10 +196,6 @@ var lastfm_tracknameartistcount = {};
 var showLastfmStat = false;
 
 $(document).ready(function(){
-    // if mobile device
-    // if($(window).width() <= 1130){
-    //     alert('please use a computer for better experience');
-    // }
 
     $('#loadingOverlay').css('width',$(window).width()); //write here s.t. width won't change (in mobile)
 
@@ -201,6 +203,8 @@ $(document).ready(function(){
 
     $('body').css('background-image','linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.15)), url("{% static "nebula.jpg" %}")');
 
+    // register event handlers
+    
     $('#login').click(function(){
         getCode(); //auth code flow step 1
         // parseCode();
@@ -257,7 +261,6 @@ $(document).ready(function(){
         });
     });
 
-
     $('#get_playlist').click(function(){
         withLoading(function(){
             get_playlist_details();
@@ -269,9 +272,7 @@ $(document).ready(function(){
             get_playlist_details(use_liked_song=true);        
         });
     })
-
 });
 
 </script>
-</body>
 </html>
