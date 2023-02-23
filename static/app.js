@@ -1,7 +1,7 @@
 function getCode(){ //auth code step 1
     $.ajax({ //get env vars first
         method: 'GET',
-        url: "getEnv",
+        url: "get-env",
         success: function(result){
             let client_id = result['clientID'];
             let redirect_uri = result['redirect_uri'];
@@ -40,7 +40,7 @@ function requestToken(code){ //to backend
         data: {
             'code': code,
         },
-        url: "requestToken",
+        url: "request-token",
         success: function(result){
             token = result['data']['access_token'];
             if(token){

@@ -24,9 +24,9 @@
 <h1>Playlastify</h1>
 <h3>Dig into your Spotify playlists with last.fm!</h3>
 <div id="changeBGDiv">
-    <img src="https://i.imgur.com/hAcGmG3.jpg" id='BG1' class="smolBG"><br>   
-    <img src="https://img.wallpapersafari.com/desktop/1440/900/32/54/hn3Wf6.jpeg" id='BG2' class="smolBG"><br>
-    <img src="https://i.giphy.com/media/xTiTnxpQ3ghPiB2Hp6/giphy.webp" id='BG3' class="smolBG"><br>
+    <img src="https://i.imgur.com/hAcGmG3.jpg" id='BG1' class="smolBG" alt="BG1"><br>   
+    <img src="https://img.wallpapersafari.com/desktop/1440/900/32/54/hn3Wf6.jpeg" id='BG2' class="smolBG" alt="BG2"><br>
+    <img src="https://i.giphy.com/media/xTiTnxpQ3ghPiB2Hp6/giphy.webp" id='BG3' class="smolBG" alt="BG3"><br>
 </div>
 <br>
 <button id='login' style='margin: 0%;'>login to spotify</button>
@@ -59,7 +59,9 @@
         <div id="currentImg"></div>
         <div id="currentAudioFeatureDiv" class="audiofeature"></div>
         <div id="currentAudioFeature2Div" class="audiofeature">
-            <table><th></th><th></th>
+            <table>
+                <caption>audio features</caption>
+                <th></th><th></th>
                 <tr><td>popularity</td><td><span id="trackPopularity"></span></td></tr>
                 <tr><td>duration</td><td><span id="trackDuration"></span></td></tr>
                 <tr><td>tempo</td><td><span id="trackTempo"></span></td></tr>
@@ -89,6 +91,7 @@
         <div id="AudioFeatureDiv" class="audiofeature"></div>
         <div id="AudioFeature2Div" class="audiofeature">
             <table>
+                <caption>playlist details</caption>
                 <th></th><th></th>
                 <tr><td>total tracks</td><td><span id="totalTracks"></span></td></tr>
                 <tr><td>average popularity</td><td><span id="avgPopularity"></span></td></tr>
@@ -106,7 +109,7 @@
     </div><br>
     <div id="ArtistDiv">
         <div id="ArtistGraph" class="graph" style="float:left; width:auto;">
-            <h3 style="">Artists pie chart of <span class="playlistName"></span></h3>
+            <h3>Artists pie chart of <span class="playlistName"></span></h3>
             <div id="ArtistPiechart" style="width: auto; height: 454px; margin-top: -45px;"></div>
         </div>
         <div class="greycardDiv">
@@ -116,11 +119,11 @@
     </div><br>
     <div id="GenreDiv">
         <div id="GenreGraph" class="graph" style="float:left;">
-            <h3 style="">Genre cloud of <span class="playlistName"></span></h3>
+            <h3>Genre cloud of <span class="playlistName"></span></h3>
             <div id="genreCloud" style="width: auto; height: 454px; margin-top: -45px;"></div>
         </div><br>
         <div id="GenreOccGraph" class="graph" style="float:left;">
-            <h3 style="">Genre word cloud of <span class="playlistName"></span></h3>
+            <h3>Genre word cloud of <span class="playlistName"></span></h3>
             <div id="bigGenreCloud" style="width: auto; height: 454px; margin-top: -45px;"></div>
         </div><br>
         <div class="greycardDiv">
