@@ -142,9 +142,9 @@ th {
   height: 350px;
   width: auto;
   float: left;
-  /* for spotify regulation */
-  /*border-radius: 20px;*/
-  /*opacity: 0.85;*/
+  /* disable below to comply with spotify regulations */
+  border-radius: 20px;
+  opacity: 0.9;
   /*display: none;*/
 }
 
