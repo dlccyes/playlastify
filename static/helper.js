@@ -1,16 +1,16 @@
 //simple helper functions
 function sortDict(ogDict){
-    var keys = keys = Object.keys(ogDict);
-    sortedKey = keys.sort(function(a,b){return ogDict[b]-ogDict[a]});
-    sortedArr = [];
-    for(var key of sortedKey){
+    let keys = Object.keys(ogDict);
+    let sortedKey = keys.sort(function(a,b){return ogDict[b]-ogDict[a]});
+    let sortedArr = [];
+    for(let key of sortedKey){
         sortedArr.push([key, ogDict[key]]);
     }
     return sortedArr;
 }
 
 function sortArr(ogArr, key){
-    newArr = ogArr.sort(function(a,b){return b[key]-a[key]})
+    let newArr = ogArr.sort(function(a,b){return b[key]-a[key]})
     return newArr;
 }
 
@@ -25,8 +25,8 @@ function EnterExec(jq, callback){ //press enter to execute
 //todo
 function iterateAll(next_url){
     if(token){
-        var temp = [];
-        var continuue = true;
+        let temp = [];
+        let continuue = true;
         try{
             while(continuue){
                 spott_get_sync(next_url, token, function(xhr){
@@ -65,43 +65,44 @@ function dict_len(dict){
 }
 
 function printable2(array, num, targetDiv, title1, title2, title3=null){ //array structure: [[a,b],[c,d],....]
-    temp = '<table style=""><th>'+title1+'</th>\
-            <th>'+title2+'</th>';
+    let tableHtml = '<table style=""><th>'+title1+'</th>'+
+            '<th>'+title2+'</th>';
     if(title3){
-        temp += '<th>'+title3+'</th>';
+        tableHtml += '<th>'+title3+'</th>';
     }
-    for(var i=0; i<num; i++){
+    for(let i=0; i<num; i++){
         if(!array[i]){ //is less than num artists
             break;
         }
-        temp += '<tr><td>'+array[i][0]+'</td>\
-                <td>'+array[i][1]+'</td>'
+        tableHtml += '<tr><td>'+array[i][0]+'</td>'+
+                '<td>'+array[i][1]+'</td>'
         if(title3){
-            temp += '<td>'+array[i][2]+'</td>';
+            tableHtml += '<td>'+array[i][2]+'</td>';
         }
-        temp += '</tr>';
+        tableHtml += '</tr>';
     }
-    $('#'+targetDiv).html(temp);
+    $('#'+targetDiv).html(tableHtml);
 }
 
 function printable4(array, num, targetDiv, title1, title2, title3, title4=null){ //array structure: [[a,b],[c,d],....]
-    temp = '<table style=""><th>'+title1+'</th>\
-            <th>'+title2+'</th>\
-            <th id="days_th">'+title3+'</th>';
+    let tableHtml = '<table style=""><th>'+title1+'</th>'+
+            '<th>'+title2+'</th>'+
+            '<th id="days_th">'+title3+'</th>';
     if(title4){
-            temp += '<th id="count_th">'+title4+'</th>';
+        tableHtml += '<th id="count_th">'+title4+'</th>';
     }
-    for(var i=0; i<num; i++){
+    for(let i=0; i<num; i++){
         if(!array[i]){ //is less than num artists
             break;
         }
-        temp += '<tr><td>'+array[i][0].split(' - ')[0]+'</td>\
-                <td>'+array[i][0].split(' - ')[1]+'</td>\
-                <td>'+array[i][1]+'</td>';
+        let [track, artists] = array[i][0].split(ARTIST_SEP);
+        tableHtml += '<tr><td>'+track+'</td>'+
+                '<td>'+artists+'</td>'+
+                '<td>'+array[i][1]+'</td>';
         if(title4){
-            temp += '<td>'+array[i][2]+'</td>';
+            tableHtml += '<td>'+array[i][2]+'</td>';
         }
-        temp += '</tr>';
+        tableHtml += '</tr>';
     }
-    $('#'+targetDiv).html(temp);
+    $('#'+targetDiv).html(tableHtml);
 }

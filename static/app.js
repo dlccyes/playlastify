@@ -145,16 +145,17 @@ function get_all_playlists(){
 }
 
 function TrackNameArtistDate(tracks){
-    let tracknameartistdate = {};
-    for(let item of tracks){
-        let temp = item['track']['name']+' - ';
-        for(let artist of item['track']['artists']){
-            temp += artist['name'] + ', ';
+    let trackNameArtistDate = {};
+    for(let track of tracks){
+        // concat track name with artist name to prevent collision
+        let trackNameArtist = track['track']['name'] + ARTIST_SEP;
+        for(let artist of track['track']['artists']){
+            trackNameArtist += artist['name'] + ', ';
         }
-        temp = temp.slice(0,-2); //remove last ', '
-        tracknameartistdate[temp] = DaystoToday(item['added_at']);
+        trackNameArtist = trackNameArtist.slice(0,-2); //remove last ', '
+        trackNameArtistDate[trackNameArtist] = DaystoToday(track['added_at']);
     }
-    return tracknameartistdate;
+    return trackNameArtistDate;
 }
 
 function ArtistDistribution(tracks){
@@ -228,8 +229,8 @@ function show_current_playback(){
             }
             $("#trackArtistGenres").html(genreStr);
             if(showLastfmStat){
-                    let stuff = currentTitle.split(' - ');
-                    let title = stuff[0]+' - '+stuff[1].split(', ')[0];
+                    let [track, artists] = currentTitle.split(ARTIST_SEP);
+                    let title = track + ' - ' + artists.split(', ')[0]; // last.fm only shows 1st artist
                 let count = 0
                 if(lastfm_tracknameartistcount[title.toLowerCase()]){ //'song_title - 1st_artist'
                     count = lastfm_tracknameartistcount[title.toLowerCase()];
@@ -506,11 +507,10 @@ function get_playlist_details(use_liked_song=false){
 
                 let tracknameartistdateDict = TrackNameArtistDate(all_tracks);
                 let sortedtracknameartistdateArr = sortDict(tracknameartistdateDict);
-                let stuff, title
                 if(showLastfmStat){ //last.fm
                     for(let item of sortedtracknameartistdateArr){
-                        stuff = item[0].split(' - ');
-                        title = stuff[0]+' - '+stuff[1].split(', ')[0];
+                        let [track, artists] = item[0].split(ARTIST_SEP);
+                        let title = track + ' - ' + artists.split(', ')[0]; // last.fm only shows 1st artist
                         if(lastfm_tracknameartistcount[title.toLowerCase()]){ //'song_title - 1st_artist'
                             item.push(lastfm_tracknameartistcount[title.toLowerCase()]);
                         }else{ //no play record
@@ -634,8 +634,9 @@ function searchSong(sortedtracknameartistdateArr){
         }
         if(condition){
             matches += 1;
-            searchResultHtml += '<tr><td>'+item[0].split(' - ')[0]+'</td>'+
-                        '<td>'+item[0].split(' - ')[1]+'</td>'+
+            let [track, artists] = item[0].split(ARTIST_SEP);
+            searchResultHtml += '<tr><td>'+track+'</td>'+
+                        '<td>'+artists+'</td>'+
                         '<td>'+item[1]+'</td>';
             if(item[2] || item[2]==0){
                 totalscrobbles += parseInt(item[2]); 

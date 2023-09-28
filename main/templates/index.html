@@ -177,9 +177,9 @@
 var token = null;
 
 // get token from cookie first
-cookie = document.cookie
-tokenAft = cookie.slice(cookie.search(/token=/)+6,);
-indSplit = tokenAft.search(/;/);
+let cookie = document.cookie
+let tokenAft = cookie.slice(cookie.search(/token=/)+6,);
+let indSplit = tokenAft.search(/;/);
 if(indSplit == -1){
     token = tokenAft;
 }else{
@@ -197,6 +197,7 @@ if(token){
 var lastfm_toptracks = [];
 var lastfm_tracknameartistcount = {};
 var showLastfmStat = false;
+const ARTIST_SEP = ' － '; // separator between track name and artist name
 
 $(document).ready(function(){
 
