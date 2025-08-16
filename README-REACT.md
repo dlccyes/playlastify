@@ -17,7 +17,7 @@ echo "CLIENT_SECRET=your_spotify_client_secret" >> .env
 echo "REDIRECT_URI=http://localhost:3000" >> .env
 
 # 3. Start both servers
-npm start          # Terminal 1: Frontend on http://localhost:3000
+npm run dev        # Terminal 1: Frontend on http://localhost:3000 (Vite)
 python manage.py runserver  # Terminal 2: Backend on http://localhost:8000
 ```
 
@@ -50,6 +50,7 @@ python manage.py runserver  # Terminal 2: Backend on http://localhost:8000
 ## 🛠️ Technology Stack
 
 - **Frontend Framework**: React 18 with TypeScript
+- **Build System**: Vite for fast development and optimized builds
 - **Styling**: Tailwind CSS for modern, responsive design
 - **Charts**: 
   - **Google Charts** (VegaChart for radar, CoreChart for pie charts)
@@ -90,7 +91,7 @@ pip install -r requirements.txt
 #### Frontend Development Server
 ```bash
 # Terminal 1: Start React development server
-npm start
+npm run dev
 
 # This will:
 # - Start the app on http://localhost:3000
@@ -384,6 +385,16 @@ The React frontend maintains 100% feature parity with the original jQuery versio
 - **Responsive Design**: Works across all device sizes
 - **Accessibility**: Better screen reader and keyboard support
 - **Chart Compatibility**: Uses the same chart libraries (Google Charts, AnyChart) for consistency
+
+## ⚡ Vite Migration Benefits
+
+The project has been migrated from Create React App to Vite, providing:
+
+- **Faster Development**: Instant hot module replacement (HMR)
+- **Quicker Builds**: Optimized bundling with Rollup
+- **Better Performance**: Smaller bundle sizes and faster loading
+- **Modern Tooling**: Latest build system with excellent TypeScript support
+- **Improved DX**: Faster startup times and better error reporting
 
 ### Chart Library Migration
 - **Radar Chart**: Migrated from `static/charts.js` to React component using Google Charts VegaChart
