@@ -1,12 +1,15 @@
 {
   "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "rewrites": [
       {
         "source": "**",
-        "run": {
-          "serviceId": "playlastify",
-          "region": "asia-east1"
-        }
+        "destination": "/index.html"
       }
     ]
   }
