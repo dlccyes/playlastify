@@ -27,7 +27,7 @@ function App() {
     logout,
     fetchCurrentPlayback,
     analyzePlaylist
-  } = useSpotify();
+  } = useSpotify((message) => showNotification('error', message));
 
   // Last.fm state
   const [lastfmUsername, setLastfmUsername] = useState('');
@@ -45,9 +45,26 @@ function App() {
   const [trackSearchTerm, setTrackSearchTerm] = useState('');
   const [trackExactMatch, setTrackExactMatch] = useState(false);
 
+  // Notification state
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error' | 'info';
+    message: string;
+    visible: boolean;
+  } | null>(null);
+
+  // Form validation state
+  const [lastfmError, setLastfmError] = useState('');
+  const [playlistError, setPlaylistError] = useState('');
+
+  const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
+    setNotification({ type, message, visible: true });
+    setTimeout(() => setNotification(null), 5000); // Auto-hide after 5 seconds
+  };
+
   const handleLastfmLoad = async () => {
+    setLastfmError('');
     if (!lastfmUsername.trim()) {
-      alert('Please enter a Last.fm username');
+      setLastfmError('Please enter a Last.fm username');
       return;
     }
 
@@ -57,9 +74,10 @@ function App() {
       setLastfmData(data);
       setShowLastfmStats(true);
       setLastfmLoaded(true);
-      alert(`${lastfmPeriod} scrobbles loaded! Search your Spotify playlist now!`);
+      setLastfmError('');
+      showNotification('success', `${lastfmPeriod} scrobbles loaded! Search your Spotify playlist now!`);
     } catch (error) {
-      alert('Failed to load Last.fm data. Check your username.');
+      showNotification('error', 'Failed to load Last.fm data. Check your username.');
       console.error('Last.fm error:', error);
     } finally {
       setLastfmLoading(false);
@@ -67,11 +85,13 @@ function App() {
   };
 
   const handlePlaylistAnalysis = (isLikedSongs = false) => {
+    setPlaylistError('');
     if (!isLikedSongs && !playlistInput.trim()) {
-      alert('Please enter a playlist name');
+      setPlaylistError('Please enter a playlist name');
       return;
     }
 
+    setPlaylistError('');
     analyzePlaylist(
       isLikedSongs ? '' : playlistInput,
       exactMatch,
@@ -83,6 +103,27 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white font-sans">
       <LoadingOverlay isVisible={isLoading || lastfmLoading} />
+      
+      {/* Notification Component */}
+      {notification && (
+        <div className={`fixed top-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg transform transition-all duration-300 ${
+          notification.type === 'success' 
+            ? 'bg-green-500 text-white' 
+            : notification.type === 'error' 
+            ? 'bg-red-500 text-white' 
+            : 'bg-blue-500 text-white'
+        }`}>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">{notification.message}</span>
+            <button
+              onClick={() => setNotification(null)}
+              className="ml-3 text-white hover:text-gray-200 transition-colors"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* Modern Header */}
       <header className="relative overflow-hidden">
@@ -289,10 +330,18 @@ function App() {
                         type="text"
                         placeholder="Enter your Last.fm username"
                         value={lastfmUsername}
-                        onChange={(e) => setLastfmUsername(e.target.value)}
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        onChange={(e) => {
+                          setLastfmUsername(e.target.value);
+                          if (lastfmError) setLastfmError('');
+                        }}
+                        className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                          lastfmError ? 'border-red-400' : 'border-white/20'
+                        }`}
                         onKeyPress={(e) => e.key === 'Enter' && handleLastfmLoad()}
                       />
+                      {lastfmError && (
+                        <p className="text-red-400 text-sm mt-1">{lastfmError}</p>
+                      )}
                       
                       <select
                         value={lastfmPeriod}
@@ -365,10 +414,18 @@ function App() {
                         type="text"
                         placeholder="Enter playlist name"
                         value={playlistInput}
-                        onChange={(e) => setPlaylistInput(e.target.value)}
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        onChange={(e) => {
+                          setPlaylistInput(e.target.value);
+                          if (playlistError) setPlaylistError('');
+                        }}
+                        className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          playlistError ? 'border-red-400' : 'border-white/20'
+                        }`}
                         onKeyPress={(e) => e.key === 'Enter' && handlePlaylistAnalysis()}
                       />
+                      {playlistError && (
+                        <p className="text-red-400 text-sm mt-1">{playlistError}</p>
+                      )}
                       
                       <div className="flex items-center space-x-3">
                         <label className="flex items-center">

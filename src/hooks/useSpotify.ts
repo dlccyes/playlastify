@@ -28,7 +28,7 @@ import {
   processTracksWithStats
 } from '../utils/dataProcessing';
 
-export const useSpotify = () => {
+export const useSpotify = (onError?: (message: string) => void) => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPlayback, setCurrentPlayback] = useState<CurrentPlayback | null>(null);
@@ -59,7 +59,7 @@ export const useSpotify = () => {
         })
         .catch(error => {
           console.error('Error getting token:', error);
-          alert('Authentication failed. Please try again.');
+          onError?.('Authentication failed. Please try again.');
         });
     } else {
       // Try to get token from cookie
@@ -77,7 +77,7 @@ export const useSpotify = () => {
       await getSpotifyAuthUrl();
     } catch (error) {
       console.error('Login error:', error);
-      alert('Login failed. Please try again.');
+      onError?.('Login failed. Please try again.');
     }
   }, []);
 
@@ -177,7 +177,7 @@ export const useSpotify = () => {
         });
         
         if (!foundPlaylist) {
-          alert('Playlist not found');
+          onError?.('Playlist not found');
           return;
         }
         
@@ -186,7 +186,7 @@ export const useSpotify = () => {
       }
       
       if (tracks.length === 0) {
-        alert('No tracks found in this playlist');
+        onError?.('No tracks found in this playlist');
         return;
       }
       
@@ -219,7 +219,7 @@ export const useSpotify = () => {
       
     } catch (error) {
       console.error('Error analyzing playlist:', error);
-      alert('Error analyzing playlist. Please try again.');
+      onError?.('Error analyzing playlist. Please try again.');
     } finally {
       setIsLoading(false);
     }
