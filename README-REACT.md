@@ -11,10 +11,11 @@ cd playlastify
 npm install
 pip install -r requirements.txt
 
-# 2. Create .env file with your Spotify API credentials
+# 2. Create .env file with your API credentials
 echo "CLIENT_ID=your_spotify_client_id" > .env
 echo "CLIENT_SECRET=your_spotify_client_secret" >> .env
 echo "REDIRECT_URI=http://localhost:3000" >> .env
+echo "LASTFM_API_KEY=your_lastfm_api_key" >> .env
 
 # 3. Start both servers
 npm run dev        # Terminal 1: Frontend on http://localhost:3000 (Vite)
@@ -85,7 +86,22 @@ pip install -r requirements.txt
 
 ### Environment Variables
 
-The app uses environment variables to configure the backend API URL for different environments:
+The app uses environment variables to configure the backend API URL and API keys for different environments:
+
+#### Backend Configuration (.env file in root directory)
+```bash
+# Spotify API credentials
+CLIENT_ID=your_spotify_client_id
+CLIENT_SECRET=your_spotify_client_secret
+REDIRECT_URI=http://localhost:3000
+
+# Last.fm API key
+LASTFM_API_KEY=your_lastfm_api_key
+```
+
+**Get Last.fm API key:** [Register here](https://www.last.fm/api/account/create) and add it to your `.env` file.
+
+#### Frontend Configuration
 
 #### Local Development
 ```bash
