@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { TrackWithStats } from '../types';
 import { sortTracks, searchTracks } from '../utils/dataProcessing';
-import { formatDuration } from '../utils/lastfm';
+import { formatDuration } from '../utils/dataProcessing';
 
 interface TrackTableProps {
   tracks: TrackWithStats[];

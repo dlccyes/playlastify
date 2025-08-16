@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSpotify } from './hooks/useSpotify';
 import { getLastfmTopTracks } from './utils/lastfm';
+import { formatDuration } from './utils/dataProcessing';
 
 // Components
 import LoadingOverlay from './components/LoadingOverlay';
@@ -230,7 +231,7 @@ function App() {
                           {/* Duration */}
                           <div className="text-center">
                             <div className="text-2xl font-bold text-white">
-                              {Math.round(currentPlayback.item.duration_ms / 1000 / 60)}m{String(Math.round((currentPlayback.item.duration_ms / 1000) % 60)).padStart(2, '0')}s
+                              {formatDuration(currentPlayback.item.duration_ms)}
                             </div>
                             <div className="text-sm text-gray-400">Duration</div>
                           </div>
@@ -537,9 +538,9 @@ function App() {
                           </div>
                           <div className="text-center">
                             <div className="text-2xl font-bold text-yellow-400">
-                              {playlistStats && typeof playlistStats.avgDuration === 'number' ? Math.round(playlistStats.avgDuration / 60000) : 'N/A'}
+                              {playlistStats && typeof playlistStats.avgDuration === 'number' ? formatDuration(playlistStats.avgDuration) : 'N/A'}
                             </div>
-                            <div className="text-sm text-gray-400">Avg Duration (min)</div>
+                            <div className="text-sm text-gray-400">Avg Duration (mm:ss)</div>
                           </div>
                         </div>
                       </div>
