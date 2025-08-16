@@ -54,7 +54,7 @@ const TrackTable: React.FC<TrackTableProps> = ({
   };
 
   return (
-    <div className={`bg-white/30 rounded-lg p-6 ${className}`}>
+    <div className={`${className}`}>
       <div className="mb-4 flex justify-between items-center">
         <div className="text-pink-200">
           {filteredAndSortedTracks.length} result{filteredAndSortedTracks.length !== 1 ? 's' : ''}
