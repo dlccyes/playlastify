@@ -35,6 +35,7 @@ function App() {
   const [lastfmData, setLastfmData] = useState<{ [key: string]: number }>({});
   const [showLastfmStats, setShowLastfmStats] = useState(false);
   const [lastfmLoaded, setLastfmLoaded] = useState(false);
+  const [lastfmLoading, setLastfmLoading] = useState(false);
 
   // Playlist search state
   const [playlistInput, setPlaylistInput] = useState('');
@@ -51,6 +52,7 @@ function App() {
     }
 
     try {
+      setLastfmLoading(true);
       const data = await getLastfmTopTracks(lastfmUsername, lastfmPeriod);
       setLastfmData(data);
       setShowLastfmStats(true);
@@ -59,6 +61,8 @@ function App() {
     } catch (error) {
       alert('Failed to load Last.fm data. Check your username.');
       console.error('Last.fm error:', error);
+    } finally {
+      setLastfmLoading(false);
     }
   };
 
@@ -78,7 +82,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white font-sans">
-      <LoadingOverlay isVisible={isLoading} />
+      <LoadingOverlay isVisible={isLoading || lastfmLoading} />
       
       {/* Modern Header */}
       <header className="relative overflow-hidden">
