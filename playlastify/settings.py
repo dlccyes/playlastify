@@ -145,6 +145,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3001",
     "http://127.0.0.1:3001",
     "http://0.0.0.0:3001",
+    "https://playlastify.web.app",
+    
 ]
 
 CORS_ALLOW_CREDENTIALS = True
