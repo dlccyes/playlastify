@@ -1,0 +1,15 @@
+{
+  "short_name": "Playlastify",
+  "name": "Playlastify - Spotify Playlist Analytics",
+  "icons": [
+    {
+      "src": "playlastify.png",
+      "sizes": "102x102",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#1a1a1a"
+} 
