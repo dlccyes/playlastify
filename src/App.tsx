@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSpotify } from './hooks/useSpotify';
 import { getLastfmTopTracks } from './utils/lastfm';
-import { formatDuration } from './utils/dataProcessing';
+import { formatDuration } from './utils/playlistUtils';
 
 // Components
 import LoadingOverlay from './components/LoadingOverlay';
@@ -107,11 +107,9 @@ function App() {
       {/* Notification Component */}
       {notification && (
         <div className={`fixed top-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg transform transition-all duration-300 ${
-          notification.type === 'success' 
-            ? 'bg-green-500 text-white' 
-            : notification.type === 'error' 
-            ? 'bg-red-500 text-white' 
-            : 'bg-blue-500 text-white'
+          notification.type === 'success' && 'bg-green-500 text-white' ||
+          notification.type === 'error' && 'bg-red-500 text-white' ||
+          'bg-blue-500 text-white'
         }`}>
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">{notification.message}</span>
@@ -144,9 +142,9 @@ function App() {
               onClick={login}
               className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-600 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
             >
-              <span className="mr-2">🎵</span>
+              <span className="mr-2">🎵</span>{' '}
               Connect with Spotify
-              <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+              {' '}<span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
             </button>
           ) : (
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -188,8 +186,28 @@ function App() {
                 </div>
               </div>
               
-              {currentPlayback ? (
-                currentPlayback.item ? (
+              {(() => {
+                if (!currentPlayback) {
+                  return (
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
+                      <div className="text-4xl mb-4">🎵</div>
+                      <h3 className="text-xl font-semibold text-white mb-2">Ready to Check</h3>
+                      <p className="text-gray-400">Click the refresh button above to see what you're currently playing</p>
+                    </div>
+                  );
+                }
+                
+                if (!currentPlayback.item) {
+                  return (
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
+                      <div className="text-4xl mb-4">🔇</div>
+                      <h3 className="text-xl font-semibold text-white mb-2">No Track Playing</h3>
+                      <p className="text-gray-400">Start playing a track on Spotify to see it here</p>
+                    </div>
+                  );
+                }
+                
+                return (
                   <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
                     {/* Track Title */}
                     <h3 className="text-2xl font-bold text-white mb-6 text-center">
@@ -220,21 +238,21 @@ function App() {
                           </div>
                         ) : (
                           <div className="h-[350px] w-auto bg-white/20 rounded-2xl flex items-center justify-center">
-                                                      <div className="text-center">
-                            <div className="text-6xl mb-4">🎵</div>
-                            <div className="text-sm text-white font-semibold">•{currentPlayback.item.artists[0]?.name?.toUpperCase()}•</div>
-                            <div className="text-xs text-gray-300">{currentPlayback.item.album.name}</div>
-                            {currentPlayback.item.album.external_urls?.spotify && (
-                              <a 
-                                href={currentPlayback.item.album.external_urls.spotify}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-xs text-blue-400 hover:text-blue-300 mt-2 block"
-                              >
-                                Open on Spotify
-                              </a>
-                            )}
-                          </div>
+                            <div className="text-center">
+                              <div className="text-6xl mb-4">🎵</div>
+                              <div className="text-sm text-white font-semibold">• {currentPlayback.item.artists[0]?.name?.toUpperCase()} •</div>
+                              <div className="text-xs text-gray-300">{currentPlayback.item.album.name}</div>
+                              {currentPlayback.item.album.external_urls?.spotify && (
+                                <a 
+                                  href={currentPlayback.item.album.external_urls.spotify}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-blue-400 hover:text-blue-300 mt-2 block"
+                                >
+                                  Open on Spotify
+                                </a>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -324,20 +342,8 @@ function App() {
                       </div>
                     </div>
                   </div>
-                ) : (
-                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
-                    <div className="text-4xl mb-4">🔇</div>
-                    <h3 className="text-xl font-semibold text-white mb-2">No Track Playing</h3>
-                    <p className="text-gray-400">Start playing a track on Spotify to see it here</p>
-                  </div>
-                )
-              ) : (
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
-                  <div className="text-4xl mb-4">🎵</div>
-                  <h3 className="text-xl font-semibold text-white mb-2">Ready to Check</h3>
-                  <p className="text-gray-400">Click the refresh button above to see what you're currently playing</p>
-                </div>
-              )}
+                );
+              })()}
             </div>
           </section>
 
@@ -373,7 +379,7 @@ function App() {
                         className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
                           lastfmError ? 'border-red-400' : 'border-white/20'
                         }`}
-                        onKeyPress={(e) => e.key === 'Enter' && handleLastfmLoad()}
+                        onKeyDown={(e) => e.key === 'Enter' && handleLastfmLoad()}
                       />
                       {lastfmError && (
                         <p className="text-red-400 text-sm mt-1">{lastfmError}</p>
@@ -457,7 +463,7 @@ function App() {
                         className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                           playlistError ? 'border-red-400' : 'border-white/20'
                         }`}
-                        onKeyPress={(e) => e.key === 'Enter' && handlePlaylistAnalysis()}
+                        onKeyDown={(e) => e.key === 'Enter' && handlePlaylistAnalysis()}
                       />
                       {playlistError && (
                         <p className="text-red-400 text-sm mt-1">{playlistError}</p>
@@ -614,7 +620,7 @@ function App() {
                     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
                       <h4 className="text-xl font-semibold mb-4 text-white">Artist Distribution</h4>
                       <div className="w-full">
-                        {artistData && artistData.length > 0 && (
+                        {artistData?.length > 0 && (
                           <ArtistPieChart 
                             data={artistData} 
                             title={`Artists in ${selectedPlaylist.name}`}
@@ -627,7 +633,7 @@ function App() {
                     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
                       <h4 className="text-xl font-semibold mb-4 text-white">Top 10 Artists</h4>
                       <div className="w-full">
-                        {artistData && artistData.length > 0 && (
+                        {artistData?.length > 0 && (
                           <div className="space-y-3">
                             <div className="grid grid-cols-2 gap-4 text-sm font-medium text-gray-400 border-b border-white/10 pb-2">
                               <span>Artist</span>
@@ -650,7 +656,7 @@ function App() {
                     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
                       <h4 className="text-xl font-semibold mb-4 text-white">Tracks Added Over Time</h4>
                       <div className="w-full">
-                        {dateData && dateData.added && dateData.added.length > 0 && (
+                        {dateData?.added?.length > 0 && (
                           <DateLineChart 
                             data={dateData.added} 
                             title="Tracks Added Over Time"
@@ -667,7 +673,7 @@ function App() {
                     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
                       <h4 className="text-xl font-semibold mb-4 text-white">Release Date Analysis</h4>
                       <div className="w-full">
-                        {dateData && dateData.released && dateData.released.length > 0 && (
+                        {dateData?.released?.length > 0 && (
                           <DateLineChart 
                             data={dateData.released} 
                             title="Tracks Released Over Time"
@@ -684,7 +690,7 @@ function App() {
                     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
                       <h4 className="text-xl font-semibold mb-4 text-white">Genre Distribution</h4>
                       <div className="w-full">
-                        {genreData && genreData[0] && genreData[0].length > 0 && (
+                        {genreData?.[0]?.length > 0 && (
                           <WordCloud 
                             key={`genre-${selectedPlaylist.id}-${genreData[0].length}`}
                             data={genreData[0]} 
@@ -700,7 +706,7 @@ function App() {
                     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
                       <h4 className="text-xl font-semibold mb-4 text-white">Genre Word Cloud</h4>
                       <div className="w-full">
-                        {genreData && genreData[1] && genreData[1].length > 0 && (
+                        {genreData?.[1]?.length > 0 && (
                           <WordCloud 
                             key={`big-genre-${selectedPlaylist.id}-${genreData[1].length}`}
                             data={genreData[1]} 
@@ -738,7 +744,7 @@ function App() {
                             onChange={(e) => setTrackExactMatch(e.target.checked)}
                             className="mr-2 rounded border-white/20 bg-white/10 text-purple-500 focus:ring-purple-500 focus:ring-offset-0"
                           />
-                          Exact match
+                          <span className="text-sm text-gray-300">Exact match</span>
                         </label>
                       </div>
                     </div>

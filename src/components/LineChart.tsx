@@ -34,7 +34,7 @@ const DateLineChart: React.FC<DateLineChartProps> = ({
   }));
 
   const renderCustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
+    if (active && payload?.length) {
       return (
         <div className="bg-black/80 p-3 rounded-lg border border-gray-600">
           <p className="text-white font-semibold">{label}</p>

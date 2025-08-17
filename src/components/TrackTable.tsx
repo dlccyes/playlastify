@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { TrackWithStats } from '../types';
-import { sortTracks, searchTracks } from '../utils/dataProcessing';
-import { formatDuration } from '../utils/dataProcessing';
+import { sortTracks, searchTracks } from '../utils/playlistUtils';
 
 interface TrackTableProps {
   tracks: TrackWithStats[];
@@ -14,6 +13,15 @@ interface TrackTableProps {
 
 type SortField = 'name' | 'artist' | 'daysSinceAdded' | 'scrobbles';
 type SortOrder = 'asc' | 'desc';
+
+const SortIcon: React.FC<{ field: SortField; currentField: SortField; sortOrder: SortOrder }> = ({ field, currentField, sortOrder }) => {
+  if (field !== currentField) return null;
+  return sortOrder === 'asc' ? (
+    <ChevronUp className="w-4 h-4 inline ml-1" />
+  ) : (
+    <ChevronDown className="w-4 h-4 inline ml-1" />
+  );
+};
 
 const TrackTable: React.FC<TrackTableProps> = ({
   tracks,
@@ -44,14 +52,7 @@ const TrackTable: React.FC<TrackTableProps> = ({
     }
   };
 
-  const SortIcon = ({ field }: { field: SortField }) => {
-    if (field !== sortField) return null;
-    return sortOrder === 'asc' ? (
-      <ChevronUp className="w-4 h-4 inline ml-1" />
-    ) : (
-      <ChevronDown className="w-4 h-4 inline ml-1" />
-    );
-  };
+
 
   return (
     <div className={`${className}`}>
@@ -74,33 +75,33 @@ const TrackTable: React.FC<TrackTableProps> = ({
                 className="cursor-pointer select-none p-3 hover:bg-white/10"
                 onClick={() => handleSort('name')}
               >
-                Title <SortIcon field="name" />
+                Title <SortIcon field="name" currentField={sortField} sortOrder={sortOrder} />
               </th>
               <th 
                 className="cursor-pointer select-none p-3 hover:bg-white/10"
                 onClick={() => handleSort('artist')}
               >
-                Artist <SortIcon field="artist" />
+                Artist <SortIcon field="artist" currentField={sortField} sortOrder={sortOrder} />
               </th>
               <th 
                 className="cursor-pointer select-none p-3 hover:bg-white/10"
                 onClick={() => handleSort('daysSinceAdded')}
               >
-                Days Since Added <SortIcon field="daysSinceAdded" />
+                Days Since Added <SortIcon field="daysSinceAdded" currentField={sortField} sortOrder={sortOrder} />
               </th>
               {showScrobbles && (
                 <th 
                   className="cursor-pointer select-none p-3 hover:bg-white/10"
                   onClick={() => handleSort('scrobbles')}
                 >
-                  Scrobbles <SortIcon field="scrobbles" />
+                  Scrobbles <SortIcon field="scrobbles" currentField={sortField} sortOrder={sortOrder} />
                 </th>
               )}
             </tr>
           </thead>
           <tbody>
-            {filteredAndSortedTracks.map((track, index) => (
-              <tr key={index} className="border-t border-white/20 hover:bg-white/5">
+            {filteredAndSortedTracks.map((track) => (
+              <tr key={`${track.track.id}-${track.track.name}`} className="border-t border-white/20 hover:bg-white/5">
                 <td className="p-3">{track.track.name}</td>
                 <td className="p-3">{track.track.artists.map(a => a.name).join(', ')}</td>
                 <td className="p-3">{track.daysSinceAdded}</td>

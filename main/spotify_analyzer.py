@@ -13,7 +13,6 @@ class SpotifyAnalyzer:
         }
     
     def _make_request(self, url: str) -> Optional[Dict]:
-        """Make a request to Spotify API"""
         try:
             response = requests.get(url, headers=self.headers, timeout=10)
             if response.status_code == 200:
@@ -23,8 +22,7 @@ class SpotifyAnalyzer:
             print(f"Error making request to {url}: {e}")
             return None
     
-    def _iterate_all(self, url: str) -> List[Dict]:
-        """Iterate through all pages of a paginated endpoint"""
+    def _fetch_all_pages(self, url: str) -> List[Dict]:
         result = []
         next_url = url
         
@@ -40,17 +38,15 @@ class SpotifyAnalyzer:
             
         return result
     
-    def get_playlist_tracks(self, playlist_id: str) -> List[Dict]:
-        """Get all tracks from a playlist"""
+    def _fetch_playlist_tracks(self, playlist_id: str) -> List[Dict]:
         if playlist_id == 'liked':
             url = 'https://api.spotify.com/v1/me/tracks?limit=50'
         else:
             url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks?limit=100'
         
-        return self._iterate_all(url)
+        return self._fetch_all_pages(url)
     
-    def get_audio_features(self, track_ids: List[str]) -> List[Dict]:
-        """Get audio features for multiple tracks"""
+    def _fetch_audio_features_batched(self, track_ids: List[str]) -> List[Dict]:
         features = []
         batch_size = 100
         
@@ -65,18 +61,17 @@ class SpotifyAnalyzer:
         
         return features
     
-    def get_artist_genres(self, artist_ids: List[str]) -> List[Dict]:
-        """Get genres for multiple artists"""
+    def _fetch_artist_genres_batched(self, artist_ids: List[str]) -> List[Dict]:
         artists = []
         batch_size = 50
         
         for i in range(0, len(artist_ids), batch_size):
             batch = artist_ids[i:i + batch_size]
-            batch = [id for id in batch if id and id != 'null']
-            if not batch:
+            valid_ids = [id for id in batch if id and id != 'null']
+            if not valid_ids:
                 continue
                 
-            ids_string = ','.join(batch)
+            ids_string = ','.join(valid_ids)
             url = f'https://api.spotify.com/v1/artists?ids={ids_string}'
             
             data = self._make_request(url)
@@ -85,44 +80,10 @@ class SpotifyAnalyzer:
         
         return artists
     
-    def calculate_playlist_stats(self, tracks: List[Dict], audio_features: List[Dict], 
-                               lastfm_data: Optional[Dict[str, int]] = None) -> Dict:
-        """Calculate playlist statistics"""
-        valid_features = [f for f in audio_features if f]
-        total_tracks = len(tracks)
-        
-        if not valid_features:
-            return {
-                'totalTracks': total_tracks,
-                'avgPopularity': 0,
-                'avgDuration': 0,
-                'avgTempo': 0,
-                'avgLoudness': 0
-            }
-        
-        avg_popularity = sum(track.get('track', {}).get('popularity', 0) for track in tracks) / total_tracks
-        avg_duration = sum(f['duration_ms'] for f in valid_features) / len(valid_features)
-        avg_tempo = sum(f['tempo'] for f in valid_features) / len(valid_features)
-        avg_loudness = sum(f['loudness'] for f in valid_features) / len(valid_features)
-        
-        total_scrobbles = 0
-        if lastfm_data:
-            for track in tracks:
-                track_name = track.get('track', {})
-                title = f"{track_name.get('name', '')} - {track_name.get('artists', [{}])[0].get('name', '')}".lower()
-                total_scrobbles += lastfm_data.get(title, 0)
-        
-        return {
-            'totalTracks': total_tracks,
-            'avgPopularity': round(avg_popularity),
-            'avgDuration': avg_duration,
-            'avgTempo': round(avg_tempo),
-            'avgLoudness': round(avg_loudness),
-            'totalScrobbles': total_scrobbles if lastfm_data else None
-        }
+    def _extract_track_popularity(self, tracks: List[Dict]) -> float:
+        return sum(track.get('track', {}).get('popularity', 0) for track in tracks)
     
-    def calculate_average_audio_features(self, audio_features: List[Dict]) -> Dict:
-        """Calculate average audio features"""
+    def _extract_audio_feature_averages(self, audio_features: List[Dict]) -> Dict[str, float]:
         valid_features = [f for f in audio_features if f]
         
         if not valid_features:
@@ -135,14 +96,55 @@ class SpotifyAnalyzer:
         feature_names = ['acousticness', 'danceability', 'duration_ms', 'energy', 
                         'instrumentalness', 'liveness', 'loudness', 'speechiness', 'tempo', 'valence']
         
-        avg_features = {}
-        for feature in feature_names:
-            avg_features[feature] = sum(f[feature] for f in valid_features) / len(valid_features)
-        
-        return avg_features
+        return {
+            feature: sum(f[feature] for f in valid_features) / len(valid_features)
+            for feature in feature_names
+        }
     
-    def get_artist_distribution(self, tracks: List[Dict]) -> List[Dict]:
-        """Get artist distribution from tracks"""
+    def _calculate_scrobbles_total(self, tracks: List[Dict], lastfm_data: Dict[str, int]) -> int:
+        total_scrobbles = 0
+        for track in tracks:
+            track_data = track.get('track', {})
+            title = f"{track_data.get('name', '')} - {track_data.get('artists', [{}])[0].get('name', '')}".lower()
+            total_scrobbles += lastfm_data.get(title, 0)
+        return total_scrobbles
+    
+    def _build_playlist_stats(self, total_tracks: int, avg_popularity: float, 
+                             avg_duration: float, avg_tempo: float, avg_loudness: float,
+                             total_scrobbles: Optional[int]) -> Dict:
+        return {
+            'totalTracks': total_tracks,
+            'avgPopularity': round(avg_popularity),
+            'avgDuration': avg_duration,
+            'avgTempo': round(avg_tempo),
+            'avgLoudness': round(avg_loudness),
+            'totalScrobbles': total_scrobbles
+        }
+    
+    def calculate_playlist_stats(self, tracks: List[Dict], audio_features: List[Dict], 
+                               lastfm_data: Optional[Dict[str, int]] = None) -> Dict:
+        valid_features = [f for f in audio_features if f]
+        total_tracks = len(tracks)
+        
+        if not valid_features:
+            return self._build_playlist_stats(total_tracks, 0, 0, 0, 0, None)
+        
+        avg_popularity = self._extract_track_popularity(tracks) / total_tracks
+        avg_duration = sum(f['duration_ms'] for f in valid_features) / len(valid_features)
+        avg_tempo = sum(f['tempo'] for f in valid_features) / len(valid_features)
+        avg_loudness = sum(f['loudness'] for f in valid_features) / len(valid_features)
+        
+        total_scrobbles = None
+        if lastfm_data:
+            total_scrobbles = self._calculate_scrobbles_total(tracks, lastfm_data)
+        
+        return self._build_playlist_stats(total_tracks, avg_popularity, avg_duration, 
+                                        avg_tempo, avg_loudness, total_scrobbles)
+    
+    def calculate_average_audio_features(self, audio_features: List[Dict]) -> Dict:
+        return self._extract_audio_feature_averages(audio_features)
+    
+    def _extract_artist_names_from_tracks(self, tracks: List[Dict]) -> Dict[str, int]:
         artist_count = {}
         
         for track in tracks:
@@ -153,12 +155,17 @@ class SpotifyAnalyzer:
                 if artist_name:
                     artist_count[artist_name] = artist_count.get(artist_name, 0) + 1
         
-        # Convert to list and sort by count
+        return artist_count
+    
+    def _build_artist_distribution_list(self, artist_count: Dict[str, int]) -> List[Dict]:
         artist_list = [{'artist': artist, 'count': count} for artist, count in artist_count.items()]
         return sorted(artist_list, key=lambda x: x['count'], reverse=True)
     
-    def get_genre_distribution(self, artists: List[Dict]) -> Tuple[List[Dict], List[Dict]]:
-        """Get genre distribution from artists"""
+    def get_artist_distribution(self, tracks: List[Dict]) -> List[Dict]:
+        artist_count = self._extract_artist_names_from_tracks(tracks)
+        return self._build_artist_distribution_list(artist_count)
+    
+    def _extract_genres_from_artists(self, artists: List[Dict]) -> Tuple[Dict[str, int], Dict[str, int]]:
         genre_count = {}
         big_genre_count = {}
         
@@ -167,10 +174,8 @@ class SpotifyAnalyzer:
             big_genres_in_artist = []
             
             for genre in genres:
-                # Specific genres
                 genre_count[genre] = genre_count.get(genre, 0) + 1
                 
-                # Big genres (word extraction)
                 if 'lo-fi' in genre:
                     big_genres = genre.split(' ')
                 else:
@@ -181,7 +186,10 @@ class SpotifyAnalyzer:
                         big_genre_count[big_genre] = big_genre_count.get(big_genre, 0) + 1
                         big_genres_in_artist.append(big_genre)
         
-        # Convert to lists and sort
+        return genre_count, big_genre_count
+    
+    def _build_genre_distribution_lists(self, genre_count: Dict[str, int], 
+                                       big_genre_count: Dict[str, int]) -> Tuple[List[Dict], List[Dict]]:
         genre_data = [{'genre': genre, 'count': count} for genre, count in genre_count.items()]
         genre_data.sort(key=lambda x: x['count'], reverse=True)
         
@@ -190,71 +198,118 @@ class SpotifyAnalyzer:
         
         return genre_data, big_genre_data
     
-    def get_date_distribution(self, tracks: List[Dict], date_type: str) -> List[Dict]:
-        """Get date distribution from tracks"""
-        date_count = {}
-        
-        for track in tracks:
-            if date_type == 'added':
-                date = track.get('added_at', '')[:7]  # YYYY-MM
-            else:  # released
-                track_data = track.get('track', {})
-                album = track_data.get('album', {})
-                release_date = album.get('release_date')
-                if not release_date:
-                    continue
-                date = release_date[:7]  # YYYY-MM
-            
-            if date:
-                date_count[date] = date_count.get(date, 0) + 1
-        
-        # Convert to list and sort by date
+    def get_genre_distribution(self, artists: List[Dict]) -> Tuple[List[Dict], List[Dict]]:
+        genre_count, big_genre_count = self._extract_genres_from_artists(artists)
+        return self._build_genre_distribution_lists(genre_count, big_genre_count)
+    
+    def _extract_date_from_track(self, track: Dict, date_type: str) -> Optional[str]:
+        if date_type == 'added':
+            return track.get('added_at', '')[:7]
+        else:
+            track_data = track.get('track', {})
+            album = track_data.get('album', {})
+            release_date = album.get('release_date')
+            return release_date[:7] if release_date else None
+    
+    def _build_date_distribution_list(self, date_count: Dict[str, int]) -> List[Dict]:
         date_list = [{'date': date, 'count': count} for date, count in date_count.items()]
         return sorted(date_list, key=lambda x: x['date'])
     
-    def process_tracks_with_stats(self, tracks: List[Dict], 
-                                lastfm_data: Optional[Dict[str, int]] = None) -> List[Dict]:
-        """Process tracks with additional statistics"""
-        processed_tracks = []
+    def get_date_distribution(self, tracks: List[Dict], date_type: str) -> List[Dict]:
+        date_count = {}
         
         for track in tracks:
-            track_data = track.get('track', {})
-            added_at = track.get('added_at', '')
-            
-            # Calculate days since added
-            days_since_added = 0
-            if added_at:
-                try:
-                    added_date = datetime.fromisoformat(added_at.replace('Z', '+00:00'))
-                    days_since_added = (datetime.now(added_date.tzinfo) - added_date).days
-                except:
-                    days_since_added = 0
-            
-            # Get scrobbles from Last.fm data
-            scrobbles = None
-            if lastfm_data:
-                title = f"{track_data.get('name', '')} - {track_data.get('artists', [{}])[0].get('name', '')}".lower()
-                scrobbles = lastfm_data.get(title, 0)
-            
-            processed_track = {
-                **track,
-                'daysSinceAdded': days_since_added,
-                'scrobbles': scrobbles
-            }
-            processed_tracks.append(processed_track)
+            date = self._extract_date_from_track(track, date_type)
+            if date:
+                date_count[date] = date_count.get(date, 0) + 1
         
-        return processed_tracks
+        return self._build_date_distribution_list(date_count)
+    
+    def _calculate_days_since_added(self, added_at: str) -> int:
+        if not added_at:
+            return 0
+        
+        try:
+            added_date = datetime.fromisoformat(added_at.replace('Z', '+00:00'))
+            return (datetime.now(added_date.tzinfo) - added_date).days
+        except:
+            return 0
+    
+    def _extract_scrobbles_for_track(self, track: Dict, lastfm_data: Dict[str, int]) -> int:
+        track_data = track.get('track', {})
+        title = f"{track_data.get('name', '')} - {track_data.get('artists', [{}])[0].get('name', '')}".lower()
+        return lastfm_data.get(title, 0)
+    
+    def _enrich_track_with_stats(self, track: Dict, lastfm_data: Optional[Dict[str, int]]) -> Dict:
+        added_at = track.get('added_at', '')
+        days_since_added = self._calculate_days_since_added(added_at)
+        
+        scrobbles = None
+        if lastfm_data:
+            scrobbles = self._extract_scrobbles_for_track(track, lastfm_data)
+        
+        return {
+            **track,
+            'daysSinceAdded': days_since_added,
+            'scrobbles': scrobbles
+        }
+    
+    def process_tracks_with_stats(self, tracks: List[Dict], 
+                                lastfm_data: Optional[Dict[str, int]] = None) -> List[Dict]:
+        return [self._enrich_track_with_stats(track, lastfm_data) for track in tracks]
+    
+    def _find_playlist_by_name(self, playlist_name: str, all_playlists: List[Dict], 
+                              exact_match: bool) -> Optional[Dict]:
+        for playlist in all_playlists:
+            if exact_match:
+                if playlist.get('name') == playlist_name:
+                    return playlist
+            else:
+                if playlist_name.lower() in playlist.get('name', '').lower():
+                    return playlist
+        return None
+    
+    def _extract_track_ids(self, tracks: List[Dict]) -> List[str]:
+        track_ids = []
+        for track in tracks:
+            track_data = track.get('track', {})
+            if track_data.get('id'):
+                track_ids.append(track_data['id'])
+        return track_ids
+    
+    def _extract_artist_ids(self, tracks: List[Dict]) -> List[str]:
+        artist_ids = []
+        for track in tracks:
+            track_data = track.get('track', {})
+            artists = track_data.get('artists', [])
+            for artist in artists:
+                if artist.get('id'):
+                    artist_ids.append(artist['id'])
+        return artist_ids
+    
+    def _build_playlist_analysis_result(self, playlist: Dict, stats: Dict, 
+                                       audio_features: Dict, artists: List[Dict], 
+                                       genres: List[List[Dict]], dates: Dict, 
+                                       processed_tracks: List[Dict]) -> Dict:
+        return {
+            'playlist': playlist,
+            'stats': stats,
+            'audioFeatures': audio_features,
+            'artistData': artists,
+            'genreData': genres,
+            'dateData': dates,
+            'tracksWithStats': processed_tracks
+        }
     
     def analyze_playlist(self, playlist_name: str, exact_match: bool = False, 
                         is_liked_songs: bool = False, 
                         lastfm_data: Optional[Dict[str, int]] = None) -> Dict:
-        """Main method to analyze a playlist and return processed data"""
         try:
             tracks = []
             playlist = None
             
             if is_liked_songs:
-                tracks = self.get_playlist_tracks('liked')
+                tracks = self._fetch_playlist_tracks('liked')
                 playlist = {
                     'id': 'liked',
                     'name': 'Liked Songs',
@@ -262,53 +317,24 @@ class SpotifyAnalyzer:
                     'tracks': {'items': tracks, 'total': len(tracks)}
                 }
             else:
-                # Get all playlists first
                 playlists_url = 'https://api.spotify.com/v1/me/playlists?limit=50'
-                all_playlists = self._iterate_all(playlists_url)
+                all_playlists = self._fetch_all_pages(playlists_url)
                 
-                # Find matching playlist
-                found_playlist = None
-                for p in all_playlists:
-                    if exact_match:
-                        if p.get('name') == playlist_name:
-                            found_playlist = p
-                            break
-                    else:
-                        if playlist_name.lower() in p.get('name', '').lower():
-                            found_playlist = p
-                            break
-                
+                found_playlist = self._find_playlist_by_name(playlist_name, all_playlists, exact_match)
                 if not found_playlist:
                     return {'error': 'Playlist not found'}
                 
                 playlist = found_playlist
-                tracks = self.get_playlist_tracks(found_playlist['id'])
+                tracks = self._fetch_playlist_tracks(found_playlist['id'])
             
             if not tracks:
                 return {'error': 'No tracks found in this playlist'}
             
-            # Get track IDs for audio features
-            track_ids = []
-            for track in tracks:
-                track_data = track.get('track', {})
-                if track_data.get('id'):
-                    track_ids.append(track_data['id'])
+            track_ids = self._extract_track_ids(tracks)
+            audio_features_data = self._fetch_audio_features_batched(track_ids)
+            artist_ids = self._extract_artist_ids(tracks)
+            artists_data = self._fetch_artist_genres_batched(artist_ids)
             
-            # Get audio features
-            audio_features_data = self.get_audio_features(track_ids)
-            
-            # Get artist data for genres
-            artist_ids = []
-            for track in tracks:
-                track_data = track.get('track', {})
-                artists = track_data.get('artists', [])
-                for artist in artists:
-                    if artist.get('id'):
-                        artist_ids.append(artist['id'])
-            
-            artists_data = self.get_artist_genres(artist_ids)
-            
-            # Calculate all statistics
             avg_features = self.calculate_average_audio_features(audio_features_data)
             stats = self.calculate_playlist_stats(tracks, audio_features_data, lastfm_data)
             artists = self.get_artist_distribution(tracks)
@@ -317,18 +343,10 @@ class SpotifyAnalyzer:
             released_dates = self.get_date_distribution(tracks, 'released')
             processed_tracks = self.process_tracks_with_stats(tracks, lastfm_data)
             
-            return {
-                'playlist': playlist,
-                'stats': stats,
-                'audioFeatures': avg_features,
-                'artistData': artists,
-                'genreData': [genres, big_genres],
-                'dateData': {
-                    'added': added_dates,
-                    'released': released_dates
-                },
-                'tracksWithStats': processed_tracks
-            }
+            return self._build_playlist_analysis_result(
+                playlist, stats, avg_features, artists, [genres, big_genres],
+                {'added': added_dates, 'released': released_dates}, processed_tracks
+            )
             
         except Exception as e:
             print(f"Error analyzing playlist: {e}")

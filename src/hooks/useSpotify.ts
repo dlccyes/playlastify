@@ -29,34 +29,57 @@ export const useSpotify = (onError?: (message: string) => void) => {
   const [genreData, setGenreData] = useState<[any[], any[]]>([[], []]);
   const [dateData, setDateData] = useState<{ added: any[], released: any[] }>({ added: [], released: [] });
 
-  // Initialize token from cookie or URL
-  useEffect(() => {
+  const _extractTokenFromCookie = (): string | null => {
+    const cookies = document.cookie.split(';');
+    const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
+    return tokenCookie ? tokenCookie.split('=')[1] : null;
+  };
+
+  const _storeTokenInCookie = (accessToken: string): void => {
+    document.cookie = `token=${accessToken}; path=/`;
+  };
+
+  const _clearTokenFromCookie = (): void => {
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+  };
+
+  const _resetAllState = (): void => {
+    setCurrentPlayback(null);
+    setSelectedPlaylist(null);
+    setPlaylistTracks([]);
+    setAudioFeatures(null);
+    setPlaylistStats(null);
+    setTracksWithStats([]);
+  };
+
+  const _handleTokenFromCode = async (code: string): Promise<void> => {
+    try {
+      const accessToken = await getTokenFromCode(code);
+      setToken(accessToken);
+      _storeTokenInCookie(accessToken);
+    } catch (error) {
+      console.error('Error getting token:', error);
+      onError?.('Authentication failed. Please try again.');
+    }
+  };
+
+  const _initializeTokenFromUrlOrCookie = (): void => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     
     if (code) {
-      // Remove code from URL
       window.history.replaceState({}, document.title, window.location.pathname);
-      
-      // Exchange code for token
-      getTokenFromCode(code)
-        .then(accessToken => {
-          setToken(accessToken);
-          document.cookie = `token=${accessToken}; path=/`;
-        })
-        .catch(error => {
-          console.error('Error getting token:', error);
-          onError?.('Authentication failed. Please try again.');
-        });
+      _handleTokenFromCode(code);
     } else {
-      // Try to get token from cookie
-      const cookies = document.cookie.split(';');
-      const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
-      if (tokenCookie) {
-        const tokenValue = tokenCookie.split('=')[1];
+      const tokenValue = _extractTokenFromCookie();
+      if (tokenValue) {
         setToken(tokenValue);
       }
     }
+  };
+
+  useEffect(() => {
+    _initializeTokenFromUrlOrCookie();
   }, []);
 
   const login = useCallback(async () => {
@@ -70,32 +93,35 @@ export const useSpotify = (onError?: (message: string) => void) => {
 
   const logout = useCallback(() => {
     setToken(null);
-    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-    setCurrentPlayback(null);
-    setSelectedPlaylist(null);
-    setPlaylistTracks([]);
-    setAudioFeatures(null);
-    setPlaylistStats(null);
-    setTracksWithStats([]);
+    _clearTokenFromCookie();
+    _resetAllState();
   }, []);
+
+  const _makeApiRequest = async (endpoint: string, data: any): Promise<any> => {
+    const response = await axios.post(`${API_BASE_URL}${endpoint}`, data);
+    return response.data;
+  };
+
+  const _handleApiError = (error: any, errorMessage: string): void => {
+    console.error(errorMessage, error);
+    onError?.(errorMessage);
+  };
 
   const fetchCurrentPlayback = useCallback(async () => {
     if (!token) return;
     
     setIsLoading(true);
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/current-playback`, {
-        token
-      });
+      const responseData = await _makeApiRequest('/api/current-playback', { token });
       
-      if (response.data.error) {
-        console.error('Error fetching current playback:', response.data.error);
+      if (responseData.error) {
+        console.error('Error fetching current playback:', responseData.error);
         return;
       }
       
-      setCurrentPlayback(response.data);
+      setCurrentPlayback(responseData);
     } catch (error) {
-      console.error('Error fetching current playback:', error);
+      _handleApiError(error, 'Error fetching current playback');
     } finally {
       setIsLoading(false);
     }
@@ -105,23 +131,42 @@ export const useSpotify = (onError?: (message: string) => void) => {
     if (!token) return [];
     
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/playlists`, {
-        token
-      });
+      const responseData = await _makeApiRequest('/api/playlists', { token });
       
-      if (response.data.error) {
-        console.error('Error fetching playlists:', response.data.error);
+      if (responseData.error) {
+        console.error('Error fetching playlists:', responseData.error);
         return [];
       }
       
-      const playlistsData = response.data.data || [];
+      const playlistsData = responseData.data || [];
       setPlaylists(playlistsData);
       return playlistsData;
     } catch (error) {
-      console.error('Error fetching playlists:', error);
+      _handleApiError(error, 'Error fetching playlists');
       return [];
     }
   }, [token]);
+
+  const _updatePlaylistAnalysisState = (responseData: any): void => {
+    const {
+      playlist,
+      stats,
+      audioFeatures,
+      artistData: artists,
+      genreData: genres,
+      dateData: dates,
+      tracksWithStats: processedTracks
+    } = responseData;
+    
+    setSelectedPlaylist(playlist);
+    setPlaylistTracks(processedTracks);
+    setAudioFeatures(audioFeatures);
+    setPlaylistStats(stats);
+    setTracksWithStats(processedTracks);
+    setArtistData(artists);
+    setGenreData(genres);
+    setDateData(dates);
+  };
 
   const analyzePlaylist = useCallback(async (
     playlistName: string, 
@@ -133,7 +178,7 @@ export const useSpotify = (onError?: (message: string) => void) => {
     
     setIsLoading(true);
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/analyze-playlist`, {
+      const responseData = await _makeApiRequest('/api/analyze-playlist', {
         token,
         playlistName,
         exactMatch,
@@ -141,40 +186,20 @@ export const useSpotify = (onError?: (message: string) => void) => {
         lastfmData
       });
       
-      if (response.data.error) {
-        onError?.(response.data.error);
+      if (responseData.error) {
+        onError?.(responseData.error);
         return;
       }
       
-      const {
-        playlist,
-        stats,
-        audioFeatures,
-        artistData: artists,
-        genreData: genres,
-        dateData: dates,
-        tracksWithStats: processedTracks
-      } = response.data;
-      
-      // Update state with processed data from backend
-      setSelectedPlaylist(playlist);
-      setPlaylistTracks(processedTracks); // Use processed tracks with stats
-      setAudioFeatures(audioFeatures);
-      setPlaylistStats(stats);
-      setTracksWithStats(processedTracks);
-      setArtistData(artists);
-      setGenreData(genres);
-      setDateData(dates);
+      _updatePlaylistAnalysisState(responseData);
       
     } catch (error) {
-      console.error('Error analyzing playlist:', error);
-      onError?.('Error analyzing playlist. Please try again.');
+      _handleApiError(error, 'Error analyzing playlist. Please try again.');
     } finally {
       setIsLoading(false);
     }
   }, [token]);
 
-  // Auto-fetch current playback when token is available
   useEffect(() => {
     if (token) {
       fetchCurrentPlayback();
@@ -182,7 +207,6 @@ export const useSpotify = (onError?: (message: string) => void) => {
   }, [token, fetchCurrentPlayback]);
 
   return {
-    // State
     token,
     isLoading,
     currentPlayback,
@@ -195,8 +219,6 @@ export const useSpotify = (onError?: (message: string) => void) => {
     artistData,
     genreData,
     dateData,
-    
-    // Actions
     login,
     logout,
     fetchCurrentPlayback,
