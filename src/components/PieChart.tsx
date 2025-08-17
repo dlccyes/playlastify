@@ -44,6 +44,18 @@ const ArtistPieChart: React.FC<ArtistPieChartProps> = ({
     }
   }, [data]);
 
+  // Handle window resize for responsive chart
+  useEffect(() => {
+    const handleResize = () => {
+      if (chartRef.current && window.google && window.google.visualization) {
+        drawPie();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [data]);
+
   const drawPie = () => {
     if (!chartRef.current || !window.google) return;
 
@@ -57,7 +69,7 @@ const ArtistPieChart: React.FC<ArtistPieChartProps> = ({
     });
 
     const options = {
-      width: 676,
+      width: Math.min(676, (typeof window !== 'undefined' ? window.innerWidth : 676) - 80),
       pieHole: 0.2,
       backgroundColor: {
         fill: 'transparent',
@@ -97,7 +109,7 @@ const ArtistPieChart: React.FC<ArtistPieChartProps> = ({
 
   return (
     <div className={className} style={{ width: '100%', height: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <div ref={chartRef} style={{ width: '676px', height: '400px' }} />
+      <div ref={chartRef} style={{ width: '100%', maxWidth: '676px', height: '400px' }} />
     </div>
   );
 };

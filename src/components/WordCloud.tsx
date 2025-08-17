@@ -120,7 +120,7 @@ const WordCloud: React.FC<WordCloudProps> = ({
       <div 
         ref={containerRef} 
         className="w-full h-80 border border-white/10 rounded-lg"
-        style={{ position: 'relative', overflow: 'hidden' }}
+        style={{ position: 'relative', overflow: 'hidden', minHeight: '320px' }}
       />
     </div>
   );

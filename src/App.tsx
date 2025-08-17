@@ -101,7 +101,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white font-sans overflow-x-hidden">
       <LoadingOverlay isVisible={isLoading || lastfmLoading} />
       
       {/* Notification Component */}
@@ -126,12 +126,12 @@ function App() {
       {/* Modern Header */}
       <header className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20"></div>
-        <div className="relative z-10 container mx-auto px-6 py-16 text-center">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 py-8 sm:py-16 text-center">
           <div className="mb-8">
-            <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-6">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-6">
               Playlastify
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
               Discover the hidden patterns in your Spotify playlists with advanced analytics and Last.fm integration
             </p>
           </div>
@@ -168,7 +168,7 @@ function App() {
       </header>
 
       {token && (
-        <main className="container mx-auto px-6 py-12">
+        <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
           {/* Current Playback Section */}
           <section className="mb-16">
             <div className="max-w-6xl mx-auto">
@@ -208,9 +208,9 @@ function App() {
                 }
                 
                 return (
-                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6">
                     {/* Track Title */}
-                    <h3 className="text-2xl font-bold text-white mb-6 text-center">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-6 text-center">
                       {currentPlayback.item.name} - {currentPlayback.item.artists.map(a => a.name).join(', ')}
                     </h3>
                     
@@ -223,7 +223,7 @@ function App() {
                             <img 
                               src={currentPlayback.item.album.images[0].url} 
                               alt={`${currentPlayback.item.album.name} album cover`}
-                              className="h-[350px] w-auto rounded-2xl shadow-lg object-cover opacity-90"
+                              className="h-[250px] sm:h-[350px] w-auto rounded-2xl shadow-lg object-cover opacity-90"
                             />
                             {currentPlayback.item.album.external_urls?.spotify && (
                               <a 
@@ -237,7 +237,7 @@ function App() {
                             )}
                           </div>
                         ) : (
-                          <div className="h-[350px] w-auto bg-white/20 rounded-2xl flex items-center justify-center">
+                          <div className="h-[250px] sm:h-[350px] w-auto bg-white/20 rounded-2xl flex items-center justify-center">
                             <div className="text-center">
                               <div className="text-6xl mb-4">🎵</div>
                               <div className="text-sm text-white font-semibold">• {currentPlayback.item.artists[0]?.name?.toUpperCase()} •</div>
@@ -259,17 +259,17 @@ function App() {
                       
                       {/* Stats - Always Show All Stats */}
                       <div className="flex-1 min-w-0">
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                           {/* Popularity */}
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-white">
+                            <div className="text-xl sm:text-2xl font-bold text-white">
                               {currentPlayback.item.popularity}
                             </div>
                             <div className="text-sm text-gray-400">Popularity</div>
                           </div>
                           {/* Duration */}
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-white">
+                            <div className="text-xl sm:text-2xl font-bold text-white">
                               {formatDuration(currentPlayback.item.duration_ms)}
                             </div>
                             <div className="text-sm text-gray-400">Duration</div>
@@ -290,7 +290,7 @@ function App() {
                           </div>
                           {/* Tempo */}
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-green-400">
+                            <div className="text-xl sm:text-2xl font-bold text-green-400">
                               {currentPlayback.item.audioFeatures ? Math.round(currentPlayback.item.audioFeatures.tempo) : 'N/A'}
                             </div>
                             <div className="text-sm text-gray-400">Tempo</div>
@@ -303,7 +303,7 @@ function App() {
                             <div className="text-sm text-gray-400">Loudness</div>
                           </div>
                           {/* Artist Genres */}
-                          <div className="text-center col-span-3">
+                          <div className="text-center col-span-2 sm:col-span-3">
                             <div className="text-sm text-gray-400 mb-2">Artist Genres</div>
                             <div className="text-sm text-white">
                               {currentPlayback.item.artistGenres && currentPlayback.item.artistGenres.length > 0 
@@ -512,11 +512,11 @@ function App() {
               {/* Merged Playlist Title and Analytics Dashboard */}
               <section className="mb-12">
                 <div className="max-w-7xl mx-auto px-4">
-                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 mb-8">
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6 mb-8">
                     {/* Playlist Title and Basic Info */}
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
                       <div>
-                        <h2 className="text-3xl font-bold mb-2 text-white">
+                        <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-white">
                           {selectedPlaylist.name}
                         </h2>
 
@@ -535,7 +535,7 @@ function App() {
                           <img 
                             src={selectedPlaylist.images[0].url} 
                             alt={`${selectedPlaylist.name} cover`}
-                            className="h-[350px] w-auto rounded-2xl shadow-lg object-cover opacity-90"
+                            className="h-[250px] sm:h-[350px] w-auto rounded-2xl shadow-lg object-cover opacity-90"
                           />
                         ) : (
                           <div className="text-gray-400 text-sm">No image available</div>
@@ -544,16 +544,16 @@ function App() {
                       
                       {/* Playlist Stats - Combined Basic and Audio Stats */}
                       <div className="flex-1 min-w-0">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                           {/* Basic Stats */}
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-white">
+                            <div className="text-xl sm:text-2xl font-bold text-white">
                               {playlistStats?.totalTracks || 0}
                             </div>
                             <div className="text-sm text-gray-400">Total Tracks</div>
                           </div>
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-white">
+                            <div className="text-xl sm:text-2xl font-bold text-white">
                               {artistData?.length || 0}
                             </div>
                             <div className="text-sm text-gray-400">Artists</div>
@@ -615,11 +615,11 @@ function App() {
                   </div>
                   
                   {/* Artist Distribution + Top Artists Table */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-8 mb-8">
                     {/* Artist Distribution */}
-                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-                      <h4 className="text-xl font-semibold mb-4 text-white">Artist Distribution</h4>
-                      <div className="w-full">
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6">
+                      <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">Artist Distribution</h4>
+                      <div className="w-full overflow-hidden">
                         {artistData?.length > 0 && (
                           <ArtistPieChart 
                             data={artistData} 
@@ -630,8 +630,8 @@ function App() {
                     </div>
                     
                     {/* Artist Count Table */}
-                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-                      <h4 className="text-xl font-semibold mb-4 text-white">Top 10 Artists</h4>
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6">
+                      <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">Top 10 Artists</h4>
                       <div className="w-full">
                         {artistData?.length > 0 && (
                           <div className="space-y-3">
@@ -653,8 +653,8 @@ function App() {
                   
                   {/* Date Analysis - Added vs Released */}
                   <div className="mb-8">
-                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-                      <h4 className="text-xl font-semibold mb-4 text-white">Tracks Added Over Time</h4>
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6">
+                      <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">Tracks Added Over Time</h4>
                       <div className="w-full">
                         {dateData?.added?.length > 0 && (
                           <DateLineChart 
@@ -670,8 +670,8 @@ function App() {
                   
                   {/* Release Date Analysis */}
                   <div className="mb-8">
-                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-                      <h4 className="text-xl font-semibold mb-4 text-white">Release Date Analysis</h4>
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6">
+                      <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">Release Date Analysis</h4>
                       <div className="w-full">
                         {dateData?.released?.length > 0 && (
                           <DateLineChart 
@@ -687,8 +687,8 @@ function App() {
                   
                   {/* Genre Distribution Word Cloud */}
                   <div className="mb-8">
-                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-                      <h4 className="text-xl font-semibold mb-4 text-white">Genre Distribution</h4>
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6">
+                      <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">Genre Distribution</h4>
                       <div className="w-full">
                         {genreData?.[0]?.length > 0 && (
                           <WordCloud 
@@ -703,8 +703,8 @@ function App() {
                   
                   {/* Additional Genre Word Cloud */}
                   <div className="mb-8">
-                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-                      <h4 className="text-xl font-semibold mb-4 text-white">Genre Word Cloud</h4>
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6">
+                      <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">Genre Word Cloud</h4>
                       <div className="w-full">
                         {genreData?.[1]?.length > 0 && (
                           <WordCloud 
@@ -722,8 +722,8 @@ function App() {
               {/* Tracks Table */}
               <section className="mb-12">
                 <div className="max-w-7xl mx-auto">
-                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-                    <h3 className="text-2xl font-bold mb-6 text-white">Track Details</h3>
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-6">
+                    <h3 className="text-xl sm:text-2xl font-bold mb-6 text-white">Track Details</h3>
                     
                     {/* Search Controls */}
                     <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
@@ -765,7 +765,7 @@ function App() {
 
       {/* Footer */}
       <footer className="border-t border-white/10 bg-white/5 backdrop-blur-sm">
-        <div className="container mx-auto px-6 py-8">
+        <div className="container mx-auto px-4 sm:px-6 py-8">
           <div className="text-center text-gray-400">
             <div className="flex items-center justify-center space-x-4 text-sm">
               <a 

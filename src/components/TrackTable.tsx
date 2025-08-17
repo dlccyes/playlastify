@@ -57,11 +57,11 @@ const TrackTable: React.FC<TrackTableProps> = ({
   return (
     <div className={`${className}`}>
       <div className="mb-4 flex justify-between items-center">
-        <div className="text-pink-200">
+        <div className="text-pink-200 text-sm sm:text-base">
           {filteredAndSortedTracks.length} result{filteredAndSortedTracks.length !== 1 ? 's' : ''}
         </div>
         {showScrobbles && (
-          <div className="text-pink-200">
+          <div className="text-pink-200 text-sm sm:text-base">
             {totalScrobbles} scrobbles
           </div>
         )}
@@ -72,29 +72,33 @@ const TrackTable: React.FC<TrackTableProps> = ({
           <thead>
             <tr>
               <th 
-                className="cursor-pointer select-none p-3 hover:bg-white/10"
+                className="cursor-pointer select-none p-2 sm:p-3 hover:bg-white/10 text-xs sm:text-sm"
                 onClick={() => handleSort('name')}
               >
                 Title <SortIcon field="name" currentField={sortField} sortOrder={sortOrder} />
               </th>
               <th 
-                className="cursor-pointer select-none p-3 hover:bg-white/10"
+                className="cursor-pointer select-none p-2 sm:p-3 hover:bg-white/10 text-xs sm:text-sm"
                 onClick={() => handleSort('artist')}
               >
                 Artist <SortIcon field="artist" currentField={sortField} sortOrder={sortOrder} />
               </th>
               <th 
-                className="cursor-pointer select-none p-3 hover:bg-white/10"
+                className="cursor-pointer select-none p-2 sm:p-3 hover:bg-white/10 text-xs sm:text-sm"
                 onClick={() => handleSort('daysSinceAdded')}
               >
-                Days Since Added <SortIcon field="daysSinceAdded" currentField={sortField} sortOrder={sortOrder} />
+                <span className="hidden sm:inline">Days Since Added</span>
+                <span className="sm:hidden">Added</span>
+                <SortIcon field="daysSinceAdded" currentField={sortField} sortOrder={sortOrder} />
               </th>
-              {showScrobbles && (
+                              {showScrobbles && (
                 <th 
-                  className="cursor-pointer select-none p-3 hover:bg-white/10"
+                  className="cursor-pointer select-none p-2 sm:p-3 hover:bg-white/10 text-xs sm:text-sm"
                   onClick={() => handleSort('scrobbles')}
                 >
-                  Scrobbles <SortIcon field="scrobbles" currentField={sortField} sortOrder={sortOrder} />
+                  <span className="hidden sm:inline">Scrobbles</span>
+                  <span className="sm:hidden">Scrob</span>
+                  <SortIcon field="scrobbles" currentField={sortField} sortOrder={sortOrder} />
                 </th>
               )}
             </tr>
@@ -102,11 +106,11 @@ const TrackTable: React.FC<TrackTableProps> = ({
           <tbody>
             {filteredAndSortedTracks.map((track) => (
               <tr key={`${track.track.id}-${track.track.name}`} className="border-t border-white/20 hover:bg-white/5">
-                <td className="p-3">{track.track.name}</td>
-                <td className="p-3">{track.track.artists.map(a => a.name).join(', ')}</td>
-                <td className="p-3">{track.daysSinceAdded}</td>
+                <td className="p-2 sm:p-3 text-xs sm:text-sm">{track.track.name}</td>
+                <td className="p-2 sm:p-3 text-xs sm:text-sm">{track.track.artists.map(a => a.name).join(', ')}</td>
+                <td className="p-2 sm:p-3 text-xs sm:text-sm">{track.daysSinceAdded}</td>
                 {showScrobbles && (
-                  <td className="p-3">{track.scrobbles || 0}</td>
+                  <td className="p-2 sm:p-3 text-xs sm:text-sm">{track.scrobbles || 0}</td>
                 )}
               </tr>
             ))}
@@ -120,7 +124,7 @@ const TrackTable: React.FC<TrackTableProps> = ({
         </div>
       )}
       
-      <div className="mt-4 text-sm text-gray-400 text-center">
+      <div className="mt-4 text-xs sm:text-sm text-gray-400 text-center">
         Click any column title to sort (like you do in Spotify)
       </div>
     </div>

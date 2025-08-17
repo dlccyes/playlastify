@@ -46,10 +46,11 @@ const DateLineChart: React.FC<DateLineChartProps> = ({
   };
 
   return (
-    <div className={`bg-black/30 rounded-lg p-6 ${className}`}>
-      <h3 className="text-xl font-semibold mb-4 text-white">{title}</h3>
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart data={chartData}>
+    <div className={`bg-black/30 rounded-lg p-4 sm:p-6 ${className}`}>
+      <h3 className="text-lg sm:text-xl font-semibold mb-4 text-white">{title}</h3>
+      <div className="w-full h-[250px] sm:h-[400px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#ffffff33" />
           <XAxis 
             dataKey="formattedDate"
@@ -79,7 +80,8 @@ const DateLineChart: React.FC<DateLineChartProps> = ({
             activeDot={{ r: 6, stroke: '#ffd8d2', strokeWidth: 2 }}
           />
         </LineChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
