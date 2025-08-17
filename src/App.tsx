@@ -19,7 +19,6 @@ function App() {
     selectedPlaylist,
     audioFeatures,
     playlistStats,
-    playlistTracks,
     tracksWithStats,
     artistData,
     genreData,
@@ -202,25 +201,47 @@ function App() {
                       {/* Album Art - Same Size as Playlist Image */}
                       <div className="flex-shrink-0">
                         {currentPlayback.item.album.images && currentPlayback.item.album.images.length > 0 ? (
-                          <img 
-                            src={currentPlayback.item.album.images[0].url} 
-                            alt={`${currentPlayback.item.album.name} album cover`}
-                            className="h-[350px] w-auto rounded-2xl shadow-lg object-cover opacity-90"
-                          />
+                          <div className="relative">
+                            <img 
+                              src={currentPlayback.item.album.images[0].url} 
+                              alt={`${currentPlayback.item.album.name} album cover`}
+                              className="h-[350px] w-auto rounded-2xl shadow-lg object-cover opacity-90"
+                            />
+                            {currentPlayback.item.album.external_urls?.spotify && (
+                              <a 
+                                href={currentPlayback.item.album.external_urls.spotify}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded hover:bg-black/90 transition-colors"
+                              >
+                                Open on Spotify
+                              </a>
+                            )}
+                          </div>
                         ) : (
                           <div className="h-[350px] w-auto bg-white/20 rounded-2xl flex items-center justify-center">
-                            <div className="text-center">
-                              <div className="text-6xl mb-4">🎵</div>
-                              <div className="text-sm text-white font-semibold">•{currentPlayback.item.artists[0]?.name?.toUpperCase()}•</div>
-                              <div className="text-xs text-gray-300">{currentPlayback.item.album.name}</div>
-                            </div>
+                                                      <div className="text-center">
+                            <div className="text-6xl mb-4">🎵</div>
+                            <div className="text-sm text-white font-semibold">•{currentPlayback.item.artists[0]?.name?.toUpperCase()}•</div>
+                            <div className="text-xs text-gray-300">{currentPlayback.item.album.name}</div>
+                            {currentPlayback.item.album.external_urls?.spotify && (
+                              <a 
+                                href={currentPlayback.item.album.external_urls.spotify}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-blue-400 hover:text-blue-300 mt-2 block"
+                              >
+                                Open on Spotify
+                              </a>
+                            )}
+                          </div>
                           </div>
                         )}
                       </div>
                       
                       {/* Stats - Always Show All Stats */}
                       <div className="flex-1 min-w-0">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-3 gap-4">
                           {/* Popularity */}
                           <div className="text-center">
                             <div className="text-2xl font-bold text-white">
@@ -235,6 +256,20 @@ function App() {
                             </div>
                             <div className="text-sm text-gray-400">Duration</div>
                           </div>
+                          {/* Release Date */}
+                          <div className="text-center">
+                            <div className="text-lg font-bold text-purple-400">
+                              {currentPlayback.item.album.release_date}
+                            </div>
+                            <div className="text-sm text-gray-400">Release Date</div>
+                          </div>
+                          {/* Album Type */}
+                          <div className="text-center">
+                            <div className="text-lg font-bold text-orange-400">
+                              {currentPlayback.item.album.album_type}
+                            </div>
+                            <div className="text-sm text-gray-400">Album Type</div>
+                          </div>
                           {/* Tempo */}
                           <div className="text-center">
                             <div className="text-2xl font-bold text-green-400">
@@ -244,13 +279,13 @@ function App() {
                           </div>
                           {/* Loudness */}
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-blue-400">
+                            <div className="text-lg font-bold text-blue-400">
                               {currentPlayback.item.audioFeatures ? Math.round(currentPlayback.item.audioFeatures.loudness) : 'N/A'}
                             </div>
                             <div className="text-sm text-gray-400">Loudness</div>
                           </div>
                           {/* Artist Genres */}
-                          <div className="text-center col-span-2">
+                          <div className="text-center col-span-3">
                             <div className="text-sm text-gray-400 mb-2">Artist Genres</div>
                             <div className="text-sm text-white">
                               {currentPlayback.item.artistGenres && currentPlayback.item.artistGenres.length > 0 

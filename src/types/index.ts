@@ -18,8 +18,14 @@ export interface SpotifyArtist {
 export interface SpotifyAlbum {
   id: string;
   name: string;
+  album_type: string;
   release_date: string;
+  release_date_precision: string;
+  total_tracks: number;
   images: SpotifyImage[];
+  external_urls: {
+    spotify: string;
+  };
 }
 
 export interface SpotifyImage {

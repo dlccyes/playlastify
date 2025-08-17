@@ -17,6 +17,7 @@ import {
   getAudioFeatures,
   getArtistGenres,
   getTrackDetails,
+  getAlbumDetails,
   getArtistDetails
 } from '../utils/spotify';
 import {
@@ -102,9 +103,10 @@ export const useSpotify = (onError?: (message: string) => void) => {
       
       if (playback?.item) {
         // Get additional track details
-        const [trackDetails, audioFeature] = await Promise.all([
+        const [trackDetails, audioFeature, albumDetails] = await Promise.all([
           getTrackDetails(playback.item.id, token),
-          getAudioFeatures([playback.item.id], token)
+          getAudioFeatures([playback.item.id], token),
+          getAlbumDetails(playback.item.album.id, token)
         ]);
         
         // Get artist genres
@@ -118,7 +120,8 @@ export const useSpotify = (onError?: (message: string) => void) => {
             ...prev!.item!,
             ...trackDetails,
             audioFeatures: audioFeature[0],
-            artistGenres: artistDetails.flatMap(a => a.genres || [])
+            artistGenres: artistDetails.flatMap(a => a.genres || []),
+            album: albumDetails || prev!.item!.album
           }
         }));
       }

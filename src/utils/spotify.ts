@@ -137,6 +137,19 @@ export const getAudioFeatures = async (trackIds: string[], token: string): Promi
   return features;
 };
 
+export const getAlbumDetails = async (albumId: string, token: string): Promise<any> => {
+  try {
+    const data = await spotifyRequest(
+      `https://api.spotify.com/v1/albums/${albumId}`,
+      token
+    );
+    return data;
+  } catch (error) {
+    console.warn('Failed to get album details:', error);
+    return null;
+  }
+};
+
 export const getArtistGenres = async (artistIds: string[], token: string): Promise<any[]> => {
   const batchSize = 50;
   const artists: any[] = [];
