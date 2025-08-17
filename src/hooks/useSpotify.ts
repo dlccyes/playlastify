@@ -10,24 +10,10 @@ import {
 import {
   getSpotifyAuthUrl,
   getTokenFromCode,
-  getCurrentPlayback,
-  getAllPlaylists,
-  getPlaylistTracks,
-  getLikedSongs,
-  getAudioFeatures,
-  getArtistGenres,
-  getTrackDetails,
-  getAlbumDetails,
-  getArtistDetails
 } from '../utils/spotify';
-import {
-  calculatePlaylistStats,
-  calculateAverageAudioFeatures,
-  getArtistDistribution,
-  getGenreDistribution,
-  getDateDistribution,
-  processTracksWithStats
-} from '../utils/dataProcessing';
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const useSpotify = (onError?: (message: string) => void) => {
   const [token, setToken] = useState<string | null>(null);
@@ -98,33 +84,16 @@ export const useSpotify = (onError?: (message: string) => void) => {
     
     setIsLoading(true);
     try {
-      const playback = await getCurrentPlayback(token);
-      setCurrentPlayback(playback);
+      const response = await axios.post(`${API_BASE_URL}/api/current-playback`, {
+        token
+      });
       
-      if (playback?.item) {
-        // Get additional track details
-        const [trackDetails, audioFeature, albumDetails] = await Promise.all([
-          getTrackDetails(playback.item.id, token),
-          getAudioFeatures([playback.item.id], token),
-          getAlbumDetails(playback.item.album.id, token)
-        ]);
-        
-        // Get artist genres
-        const artistIds = playback.item.artists.map(a => a.id);
-        const artistDetails = await getArtistGenres(artistIds, token);
-        
-        // Update current playback with additional data
-        setCurrentPlayback(prev => ({
-          ...prev!,
-          item: {
-            ...prev!.item!,
-            ...trackDetails,
-            audioFeatures: audioFeature[0],
-            artistGenres: artistDetails.flatMap(a => a.genres || []),
-            album: albumDetails || prev!.item!.album
-          }
-        }));
+      if (response.data.error) {
+        console.error('Error fetching current playback:', response.data.error);
+        return;
       }
+      
+      setCurrentPlayback(response.data);
     } catch (error) {
       console.error('Error fetching current playback:', error);
     } finally {
@@ -136,7 +105,16 @@ export const useSpotify = (onError?: (message: string) => void) => {
     if (!token) return [];
     
     try {
-      const playlistsData = await getAllPlaylists(token);
+      const response = await axios.post(`${API_BASE_URL}/api/playlists`, {
+        token
+      });
+      
+      if (response.data.error) {
+        console.error('Error fetching playlists:', response.data.error);
+        return [];
+      }
+      
+      const playlistsData = response.data.data || [];
       setPlaylists(playlistsData);
       return playlistsData;
     } catch (error) {
@@ -155,70 +133,38 @@ export const useSpotify = (onError?: (message: string) => void) => {
     
     setIsLoading(true);
     try {
-
-      let tracks: PlaylistTrack[] = [];
-      let playlist: SpotifyPlaylist | null = null;
+      const response = await axios.post(`${API_BASE_URL}/api/analyze-playlist`, {
+        token,
+        playlistName,
+        exactMatch,
+        isLikedSongs,
+        lastfmData
+      });
       
-      if (isLikedSongs) {
-        tracks = await getLikedSongs(token);
-        playlist = {
-          id: 'liked',
-          name: 'Liked Songs',
-          images: [],
-          tracks: { items: tracks, total: tracks.length }
-        };
-      } else {
-        const playlistsData = await fetchPlaylists();
-        
-        // Find matching playlist
-        const foundPlaylist = playlistsData.find(p => {
-          if (exactMatch) {
-            return p.name === playlistName;
-          } else {
-            return p.name.toLowerCase().includes(playlistName.toLowerCase());
-          }
-        });
-        
-        if (!foundPlaylist) {
-          onError?.('Playlist not found');
-          return;
-        }
-        
-        playlist = foundPlaylist;
-        tracks = await getPlaylistTracks(foundPlaylist.id, token);
-      }
-      
-      if (tracks.length === 0) {
-        onError?.('No tracks found in this playlist');
+      if (response.data.error) {
+        onError?.(response.data.error);
         return;
       }
       
-      // Get audio features
-      const trackIds = tracks.map(t => t.track.id).filter(id => id);
-      const audioFeaturesData = await getAudioFeatures(trackIds, token);
+      const {
+        playlist,
+        stats,
+        audioFeatures,
+        artistData: artists,
+        genreData: genres,
+        dateData: dates,
+        tracksWithStats: processedTracks
+      } = response.data;
       
-      // Get artist data for genres
-      const artistIds = tracks.flatMap(t => t.track.artists.map(a => a.id));
-      const artistsData = await getArtistGenres(artistIds, token);
-      
-      // Calculate stats and distributions
-      const avgFeatures = calculateAverageAudioFeatures(audioFeaturesData);
-      const stats = calculatePlaylistStats(tracks, audioFeaturesData, lastfmData);
-      const artists = getArtistDistribution(tracks);
-      const [genres, bigGenres] = getGenreDistribution(artistsData);
-      const addedDates = getDateDistribution(tracks, 'added');
-      const releasedDates = getDateDistribution(tracks, 'released');
-      const processedTracks = processTracksWithStats(tracks, lastfmData);
-      
-      // Update state
+      // Update state with processed data from backend
       setSelectedPlaylist(playlist);
-      setPlaylistTracks(tracks);
-      setAudioFeatures(avgFeatures);
+      setPlaylistTracks(processedTracks); // Use processed tracks with stats
+      setAudioFeatures(audioFeatures);
       setPlaylistStats(stats);
       setTracksWithStats(processedTracks);
       setArtistData(artists);
-      setGenreData([genres, bigGenres]);
-      setDateData({ added: addedDates, released: releasedDates });
+      setGenreData(genres);
+      setDateData(dates);
       
     } catch (error) {
       console.error('Error analyzing playlist:', error);
@@ -226,7 +172,7 @@ export const useSpotify = (onError?: (message: string) => void) => {
     } finally {
       setIsLoading(false);
     }
-  }, [token, fetchPlaylists]);
+  }, [token]);
 
   // Auto-fetch current playback when token is available
   useEffect(() => {

@@ -1,5 +1,4 @@
 from django.http import JsonResponse
-import main.helper
 import requests
 import base64
 import json
@@ -36,38 +35,7 @@ def request_token(request):
 
     return JsonResponse({'data':json.loads(response.text)}, status = 200)
 
-def spagett(request):
-    try:
-        iter_all = int(request.GET.get('iterAll', 0))
-        url = request.GET.get('url')
-        token = request.GET.get('token')
-        
-        if not url or not token:
-            return JsonResponse({'error': 'Missing URL or token'}, status=400)
-        
-        if iter_all: # do iterate all
-            data = main.helper.iterate_all(url, token)
-            return JsonResponse({'data': data}, status=200)
-        
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer '+ token,
-        }
-        payload = {}
-        response = requests.request("GET", url, headers=headers, data=payload)
-        
-        if response.status_code != 200:
-            return JsonResponse({'error': f'Spotify API error: {response.status_code}'}, status=response.status_code)
-        
-        if not response.text or response.text.strip() == '':
-            return JsonResponse({'item': None}, status=200)
-        
-        res_json = json.loads(response.text)
-        return JsonResponse(res_json, status=200)
-        
-    except Exception as e:
-        print(f"Error in spagett: {e}")
-        return JsonResponse({'error': str(e)}, status=500)
+
 
 def get_lastfm_top_tracks(request):
     load_dotenv()
