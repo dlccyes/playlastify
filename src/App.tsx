@@ -777,7 +777,7 @@ function App() {
                 GitHub
               </a>
               <span>•</span>
-              <span>Powered by Spotify API & Last.fm</span>
+              <span>Powered by Spotify & Last.fm API</span>
             </div>
           </div>
         </div>
