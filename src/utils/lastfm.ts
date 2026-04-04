@@ -12,7 +12,7 @@ export const getLastfmTopTracks = async (
         username: username,
         period: period
       },
-      timeout: 10000
+      timeout: 50000
     });
     
     if (response.data.error) {
