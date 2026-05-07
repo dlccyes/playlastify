@@ -31,7 +31,7 @@ const DateLineChart: React.FC<DateLineChartProps> = ({
       const d = new Date(item.date + '-01');
       const month = d.toLocaleString('en-US', { month: 'short' });
       const year = String(d.getFullYear()).slice(-2);
-      return `${month} '${year}`;
+      return `${month}, '${year}`;
     })()
   }));
 
