@@ -27,10 +27,12 @@ const DateLineChart: React.FC<DateLineChartProps> = ({
 }) => {
   const chartData = data.map(item => ({
     ...item,
-    formattedDate: new Date(item.date + '-01').toLocaleDateString('en-US', { 
-      year: '2-digit', 
-      month: 'short' 
-    })
+    formattedDate: (() => {
+      const d = new Date(item.date + '-01');
+      const month = d.toLocaleString('en-US', { month: 'short' });
+      const year = String(d.getFullYear()).slice(-2);
+      return `${month}, '${year}`;
+    })()
   }));
 
   const renderCustomTooltip = ({ active, payload, label }: any) => {
